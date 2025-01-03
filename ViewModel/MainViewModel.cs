@@ -1,77 +1,105 @@
 ﻿using JobReporter2.Model;
+using JobReporter2.View;
+using System;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
+using System.Windows;
 
 namespace JobReporter2.ViewModel
 {
     public class MainViewModel : ObservableObject
     {
-        // Backing fields
-        private ObservableCollection<JobModel> _jobs;
-        private JobModel _selectedJob;
-        private string _selectedFilter;
+        public ObservableCollection<JobModel> Jobs { get; set; }
+        public ObservableCollection<JobModel> AllJobs { get; set; }
 
-        // Properties
-        public ObservableCollection<JobModel> Jobs
-        {
-            get => _jobs;
-            set => SetProperty(ref _jobs, value);
-        }
-
-        public JobModel SelectedJob
-        {
-            get => _selectedJob;
-            set => SetProperty(ref _selectedJob, value);
-        }
-
-        public string SelectedFilter
-        {
-            get => _selectedFilter;
-            set => SetProperty(ref _selectedFilter, value);
-        }
-
-        // Commands
         public RelayCommand OpenFilterCommand { get; }
-        public RelayCommand GenerateReportCommand { get; }
+        public RelayCommand ApplyFilterCommand { get; }
 
-        // Constructor
+        private FilterViewModel filterViewModel;
+
         public MainViewModel()
         {
-            Jobs = new ObservableCollection<JobModel>();
-            OpenFilterCommand = new RelayCommand(OpenFilter);
-            GenerateReportCommand = new RelayCommand(GenerateReport);
-
-            // Load jobs
             LoadJobs();
+            OpenFilterCommand = new RelayCommand(OpenFilters);
+            ApplyFilterCommand = new RelayCommand(ApplyFilters);
         }
 
-        // Load jobs from XML into ObservableCollection
         private void LoadJobs()
         {
-            DataSet dataSet = new DataSet();
-            dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
-
-            DataTable jobTable = dataSet.Tables["Job"];
-
-            foreach (DataRow row in jobTable.Rows)
+            try
             {
-                Jobs.Add(new JobModel
+                // Load dataset from XML
+                var dataSet = new DataSet();
+                dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+
+                // Ensure dataset contains tables
+                if (dataSet.Tables.Count == 0 || dataSet.Tables[0].Rows.Count == 0)
                 {
-                    Connection = row["Connection"].ToString(),
-                    JobFile = row["Name"].ToString(),
-                    EndType = row["EndType"].ToString(),
-                    //PrepTime = row["PrepTime"].ToString(),
-                    StartTime = row["StartTime"].ToString(),
-                    EndTime = row["EndTime"].ToString(),
-                    TotalTime = row["TotalTime"].ToString()
-                });
+                    AllJobs = new ObservableCollection<JobModel>();
+                    Jobs = new ObservableCollection<JobModel>();
+                    return;
+                }
+
+                // Populate AllJobs from dataset
+                AllJobs = new ObservableCollection<JobModel>(
+                    dataSet.Tables[0].AsEnumerable().Select(row => new JobModel
+                    {
+                        Connection = row.Field<string>("Connection"),
+                        JobFile = row.Field<string>("JobFile"),
+                        EndType = row.Field<string>("EndType"),
+                        // PrepTime = row.Field<string>("PrepTime"),
+                        StartTime = DateTime.TryParse(row.Field<string>("StartTime"), out var startTime) ? startTime : (DateTime?)null,
+                        // EndDate = DateTime.TryParse(row.Field<string>("EndDate"), out var endDate) ? endDate : (DateTime?)null,
+                        TotalTime = row.Field<string>("TotalTime"),
+                        // Shift = row.Field<string>("Shift") // Assuming a "Shift" column exists
+                    })
+                );
+
+                // Initialize Jobs with all records
+                Jobs = new ObservableCollection<JobModel>(AllJobs);
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions, such as missing file or invalid XML
+                MessageBox.Show($"Error loading jobs: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                AllJobs = new ObservableCollection<JobModel>();
+                Jobs = new ObservableCollection<JobModel>();
             }
         }
 
-        // Command logic
-        private void OpenFilter()
+        private void OpenFilters()
         {
-            // Logic to open the filter window
+            filterViewModel = new FilterViewModel
+            {
+                ApplyFilters = ApplyFilters,
+                Cancel = () => { /* Close filter window */ }
+            };
+
+            var filterWindow = new Window
+            {
+                Content = new FilterView { DataContext = filterViewModel },
+                Width = 400,
+                Height = 400,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Application.Current.MainWindow
+            };
+
+            filterWindow.ShowDialog();
+        }
+
+        private void ApplyFilters()
+        {
+            Jobs.Clear();
+            var filteredJobs = AllJobs.Where(job =>
+                // (!filterViewModel.StartDate.HasValue || job.StartDate >= filterViewModel.StartDate.Value) &&
+                // !filterViewModel.EndDate.HasValue || job.EndDate <= filterViewModel.EndDate.Value) &&
+                // (string.IsNullOrEmpty(filterViewModel.SelectedShift) || job.Shift == filterViewModel.SelectedShift) &&
+                (string.IsNullOrEmpty(filterViewModel.SelectedEndType) || job.EndType == filterViewModel.SelectedEndType) &&
+                (string.IsNullOrEmpty(filterViewModel.SelectedConnection) || job.Connection == filterViewModel.SelectedConnection));
+
+            foreach (var job in filteredJobs)
+                Jobs.Add(job);
         }
 
         private void GenerateReport()

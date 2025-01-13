@@ -13,10 +13,84 @@
             </Grid.ColumnDefinitions>
 
             <!-- Scrollable DataGrid for Job List -->
-            <DataGrid ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="True"
-                Grid.Column="0" Grid.Row="0" Margin="10" ScrollViewer.CanContentScroll="True"/>
+			<DataGrid ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="False"
+          Grid.Column="0" Margin="10">
+				<DataGrid.Columns>
+					<!-- Connection Column -->
+					<DataGridTextColumn Header="Connection" Binding="{Binding Connection}" />
 
-            <!-- Side Panel for Selected Job Details -->
+					<!-- Name Column -->
+					<DataGridTextColumn Header="Name" Binding="{Binding Name}" />
+
+					<!-- Shift Column -->
+					<!-- <DataGridTextColumn Header="Shift" Binding="{Binding Shift}" /> -->
+
+					<!-- Prep Time Column -->
+					<DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" />
+
+					<!-- Start Time Column -->
+					<DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" />
+
+					<!-- End Time Column -->
+					<DataGridTextColumn Header="End Time" Binding="{Binding EndTime}" />
+
+					<!-- Total Time Column -->
+					<DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" />
+
+					<!-- Machine Time Column -->
+					<!-- <DataGridTextColumn Header="Machine Time" Binding="{Binding MachineTime}" /> -->
+
+					<!-- Start Type Column -->
+					<!-- <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" /> -->
+
+
+					<!-- OEM Name Column -->
+					<!-- <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMName}" /> -->
+
+					<!-- Material Column -->
+					<!-- <DataGridTextColumn Header="Material" Binding="{Binding Material}" /> -->
+
+					<!-- PD Count Column -->
+					<!-- <DataGridTextColumn Header="PD Count" Binding="{Binding PD_Count}" /> -->
+
+					<!-- Length Column -->
+					<!-- <DataGridTextColumn Header="Length" Binding="{Binding Length}" /> -->
+
+					<!-- Size Column -->
+					<!-- <DataGridTextColumn Header="Size" Binding="{Binding Size}" /> -->
+
+					<!-- Status Column with Conditional Formatting -->
+					<DataGridTemplateColumn Header="End Type">
+						<DataGridTemplateColumn.CellTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding EndType}">
+									<TextBlock.Style>
+										<Style TargetType="TextBlock">
+											<Style.Triggers>
+												<!-- Green background for 'Job Completed' -->
+												<DataTrigger Binding="{Binding EndType}" Value="Job completed.">
+													<Setter Property="Background" Value="LightGreen" />
+												</DataTrigger>
+												<!-- Red background for 'Job Halted' -->
+												<DataTrigger Binding="{Binding EndType}" Value="Job halted. Cancelled by operator.">
+													<Setter Property="Background" Value="LightCoral" />
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</TextBlock.Style>
+								</TextBlock>
+							</DataTemplate>
+						</DataGridTemplateColumn.CellTemplate>
+					</DataGridTemplateColumn>
+
+					<!-- Job File Column -->
+					<DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" />
+					
+				</DataGrid.Columns>
+			</DataGrid>
+
+
+			<!-- Side Panel for Selected Job Details -->
             <Expander Grid.Column="1" Grid.Row="0" Margin="10" Header="Job Details" IsExpanded="False" ExpandDirection="Left" MaxWidth="300">
                 <StackPanel>
                     <TextBlock Text="Connection:" TextWrapping="Wrap"/>

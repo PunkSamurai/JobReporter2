@@ -1,4 +1,5 @@
 ﻿using JobReporter2.Model;
+using JobReporter2.View;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Data;
@@ -10,19 +11,12 @@ namespace JobReporter2.ViewModel
     public class MainViewModel : ObservableObject
     {
         // Backing fields
-        private ObservableCollection<JobModel> _jobs;
         private ObservableCollection<JobModel> _allJobs;
         private ObservableCollection<JobModel> _filteredJobs;
         private JobModel _selectedJob;
         private string _selectedFilter;
 
         // Properties
-        public ObservableCollection<JobModel> Jobs
-        {
-            get => _jobs;
-            set => SetProperty(ref _jobs, value);
-        }
-
         public ObservableCollection<JobModel> AllJobs
         {
             get => _allJobs;
@@ -60,7 +54,6 @@ namespace JobReporter2.ViewModel
         // Constructor
         public MainViewModel()
         {
-            Jobs = new ObservableCollection<JobModel>();
             AllJobs = new ObservableCollection<JobModel>();
             FilteredJobs = new ObservableCollection<JobModel>();
 
@@ -78,7 +71,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
+                dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
 
                 DataTable jobTable = dataSet.Tables["Job"];
                 Dictionary<string, DateTime> machineLastEndTimes = new Dictionary<string, DateTime>();
@@ -146,11 +140,10 @@ namespace JobReporter2.ViewModel
 
                 // Initialize FilteredJobs with all records
                 FilteredJobs = new ObservableCollection<JobModel>(AllJobs);
-                Jobs = new ObservableCollection<JobModel>(FilteredJobs);
 
                 // Update the record count for the status bar
                 RecordCount = AllJobs.Count;
-                FilteredRecordCount = Jobs.Count;
+                FilteredRecordCount = FilteredJobs.Count;
             }
             catch (Exception ex)
             {
@@ -169,7 +162,46 @@ namespace JobReporter2.ViewModel
         // Command logic
         private void OpenFilter()
         {
-            // Logic to open the filter window
+            // Create and configure the FilterView
+            var filterViewModel = new FilterViewModel
+            {
+                StartDate = null,
+                EndDate = null,
+                AvailableConnections = UniqueConnections.ToList(),
+                SelectedConnections = new ObservableCollection<string>(),
+                AvailableEndTypes = UniqueEndTypes.ToList(),
+                SelectedEndTypes = new ObservableCollection<string>()
+            };
+
+            var filterWindow = new FilterView
+            {
+                DataContext = filterViewModel
+            };
+
+            // Show filter window modally
+            if (filterWindow.ShowDialog() == true)
+            {
+                // Apply filters based on the selected criteria
+                ApplyFilters(filterViewModel);
+            }
+        }
+
+        private void ApplyFilters(FilterViewModel filterViewModel)
+        {
+            var startDate = filterViewModel.StartDate;
+            var endDate = filterViewModel.EndDate;
+            var selectedConnections = filterViewModel.SelectedConnections;
+            var selectedEndTypes = filterViewModel.SelectedEndTypes;
+
+            FilteredJobs = new ObservableCollection<JobModel>(
+                AllJobs.Where(job =>
+                    (startDate == null || job.StartTime >= startDate) &&
+                    (endDate == null || job.EndTime <= endDate) &&
+                    (!selectedConnections.Any() || selectedConnections.Contains(job.Connection)) &&
+                    (!selectedEndTypes.Any() || selectedEndTypes.Contains(job.EndType))
+                )
+            );
+            FilteredRecordCount = FilteredJobs.Count;
         }
 
         private void GenerateReport()

@@ -13,7 +13,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Scrollable DataGrid for Job List -->
-			<DataGrid ItemsSource="{Binding Jobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="False"
+			<DataGrid ItemsSource="{Binding FilteredJobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="False"
           Grid.Column="0" Margin="10">
 				<DataGrid.Columns>
 					<!-- Connection Column -->

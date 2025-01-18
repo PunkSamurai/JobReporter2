@@ -15,6 +15,8 @@ namespace JobReporter2.ViewModel
         private ObservableCollection<JobModel> _filteredJobs;
         private JobModel _selectedJob;
         private string _selectedFilter;
+        private int _recordCount;
+        private int _filteredRecordCount;
 
         // Properties
         public ObservableCollection<JobModel> AllJobs
@@ -41,6 +43,18 @@ namespace JobReporter2.ViewModel
             set => SetProperty(ref _selectedFilter, value);
         }
 
+        public int RecordCount
+        {
+            get => _recordCount;
+            set => SetProperty(ref _recordCount, value);
+        }
+
+        public int FilteredRecordCount
+        {
+            get => _filteredRecordCount;
+            set => SetProperty(ref _filteredRecordCount, value);
+        }
+
         // Commands
         public RelayCommand OpenFilterCommand { get; }
         public RelayCommand GenerateReportCommand { get; }
@@ -48,14 +62,14 @@ namespace JobReporter2.ViewModel
         public HashSet<string> UniqueNames { get; private set; }
         public HashSet<string> UniqueConnections { get; private set; }
         public HashSet<string> UniqueEndTypes { get; private set; }
-        public int RecordCount { get; private set; }
-        public int FilteredRecordCount { get; private set; }
 
         // Constructor
         public MainViewModel()
         {
             AllJobs = new ObservableCollection<JobModel>();
             FilteredJobs = new ObservableCollection<JobModel>();
+
+            SelectedFilter = "No filters applied";
 
 
             OpenFilterCommand = new RelayCommand(OpenFilter);
@@ -71,8 +85,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
-                dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
+                // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
 
                 DataTable jobTable = dataSet.Tables["Job"];
                 Dictionary<string, DateTime> machineLastEndTimes = new Dictionary<string, DateTime>();
@@ -202,6 +216,14 @@ namespace JobReporter2.ViewModel
                 )
             );
             FilteredRecordCount = FilteredJobs.Count;
+
+            var filters = new List<string>();
+            if (startDate.HasValue) filters.Add($"Start Date: {startDate.Value.ToShortDateString()}");
+            if (endDate.HasValue) filters.Add($"End Date: {endDate.Value.ToShortDateString()}");
+            if (selectedConnections.Any()) filters.Add($"Connections: {string.Join(", ", selectedConnections)}");
+            if (selectedEndTypes.Any()) filters.Add($"End Types: {string.Join(", ", selectedEndTypes)}");
+
+            SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
 
         private void GenerateReport()

@@ -23,7 +23,7 @@
 					<DataGridTextColumn Header="Name" Binding="{Binding Name}" />
 
 					<!-- Shift Column -->
-					<!-- <DataGridTextColumn Header="Shift" Binding="{Binding Shift}" /> -->
+					<DataGridTextColumn Header="Shift" Binding="{Binding Shift}" />
 
 					<!-- Prep Time Column -->
 					<DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" />

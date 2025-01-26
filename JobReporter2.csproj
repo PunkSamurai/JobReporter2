@@ -58,8 +58,10 @@
     </ApplicationDefinition>
     <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Model\ShiftModel.cs" />
     <Compile Include="ViewModel\FilterViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ShiftManagerViewModel.cs" />
     <Compile Include="View\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
@@ -68,6 +70,9 @@
     </Compile>
     <Compile Include="View\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ShiftManagerView.xaml.cs">
+      <DependentUpon>ShiftManagerView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -94,6 +99,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ShiftManagerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

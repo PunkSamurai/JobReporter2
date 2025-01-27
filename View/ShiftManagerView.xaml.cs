@@ -26,14 +26,5 @@ namespace JobReporter2.View
             InitializeComponent();
         }
 
-        private void OpenShiftManager()
-        {
-            var shiftManagerView = new ShiftManagerView
-            {
-                DataContext = new ShiftManagerViewModel(this) // Pass MainViewModel to ShiftManagerViewModel
-            };
-
-            shiftManagerView.ShowDialog();
-        }
     }
 }

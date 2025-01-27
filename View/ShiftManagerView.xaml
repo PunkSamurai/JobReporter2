@@ -35,7 +35,7 @@
 
         <!-- Buttons -->
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-            <Button Content="Add" Width="75" Command="{Binding AddShiftCommand}" />
+            <Button Content="Add" Width="75" Command="{Binding AddShiftCommand}"/>
             <Button Content="OK" Width="75" Command="{Binding SaveCommand}" />
             <Button Content="Cancel" Width="75" Command="{Binding CancelCommand}" />
         </StackPanel>

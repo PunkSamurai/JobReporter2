@@ -10,7 +10,6 @@ namespace JobReporter2.ViewModel
     public class ShiftManagerViewModel : ObservableObject
     {
         private ObservableCollection<ShiftModel> _shifts;
-        private readonly MainViewModel _mainViewModel;
 
         public ObservableCollection<ShiftModel> Shifts
         {
@@ -22,12 +21,13 @@ namespace JobReporter2.ViewModel
         public ICommand CancelCommand { get; }
         public ICommand AddShiftCommand { get; }
 
-        public ShiftManagerViewModel(MainViewModel mainViewModel)
+        public ShiftManagerViewModel()
         {
-            _mainViewModel = mainViewModel;
-
-            // Initialize Shifts with current shifts from MainViewModel
-            Shifts = new ObservableCollection<ShiftModel>(_mainViewModel.Shifts);
+            // Initialize Shifts with default values
+            Shifts = new ObservableCollection<ShiftModel>
+            {
+                new ShiftModel {  Name = "Shift 1", StartTime = TimeSpan.Zero, EndTime = TimeSpan.FromHours(23).Add(TimeSpan.FromMinutes(59)) }
+            };
 
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
@@ -39,7 +39,7 @@ namespace JobReporter2.ViewModel
             // Add a blank shift to the Shifts collection
             Shifts.Add(new ShiftModel
             {
-                Name = "New Shift",
+                Name = $"Shift {Shifts.Count + 1}",
                 StartTime = TimeSpan.Zero,
                 EndTime = TimeSpan.Zero,
                 IsEnabled = false
@@ -48,21 +48,26 @@ namespace JobReporter2.ViewModel
 
         private void Save()
         {
-            // Update MainViewModel shifts
-            _mainViewModel.Shifts = new ObservableCollection<ShiftModel>(Shifts);
-
-            // Update jobs with the new shifts
-            _mainViewModel.UpdateJobShifts();
-
-            // Close the ShiftManagerView
-            System.Windows.Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)?.Close();
+            foreach (var shift in Shifts)
+            {
+                Console.WriteLine(shift.Name);
+            }
+            // Logic to save the shifts and update jobs
+            if (System.Windows.Application.Current.Windows
+                    .OfType<Window>()
+                    .FirstOrDefault(w => w.DataContext == this) is Window window)
+            {
+                window.DialogResult = true; // This ensures the parent detects a successful apply
+                window.Close();
+            }
         }
 
         private void Cancel()
         {
-            // Close the ShiftManagerView without saving
+            // Logic to cancel and close the window
             System.Windows.Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)?.Close();
         }
     }
 }
+
 

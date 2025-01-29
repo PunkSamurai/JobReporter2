@@ -26,7 +26,7 @@ namespace JobReporter2.ViewModel
             // Initialize Shifts with default values
             Shifts = new ObservableCollection<ShiftModel>
             {
-                new ShiftModel {  Name = "Shift 1", StartTime = TimeSpan.Zero, EndTime = TimeSpan.FromHours(23).Add(TimeSpan.FromMinutes(59)) }
+                // new ShiftModel {  Name = "Shift 1", StartTime = TimeSpan.Zero, EndTime = TimeSpan.FromHours(23).Add(TimeSpan.FromMinutes(59)) }
             };
 
             SaveCommand = new RelayCommand(Save);

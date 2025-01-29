@@ -24,7 +24,7 @@ namespace JobReporter2.View
         public JobsContent()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            // DataContext = new MainViewModel();
         }
     }
 }

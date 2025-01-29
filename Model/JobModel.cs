@@ -1,10 +1,11 @@
 ﻿using OxyPlot.Series;
 using OxyPlot;
 using System;
+using System.ComponentModel;
 
 namespace JobReporter2.Model
 {
-    public class JobModel
+    public class JobModel : ObservableObject
     {
         public string Connection { get; set; }
         public string Name { get; set; }

@@ -1,9 +1,12 @@
 ﻿using JobReporter2.Model;
+using Newtonsoft.Json;
 using System;
+using System.IO;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using JobReporter2.Helpers;
 
 namespace JobReporter2.ViewModel
 {
@@ -24,10 +27,7 @@ namespace JobReporter2.ViewModel
         public ShiftManagerViewModel()
         {
             // Initialize Shifts with default values
-            Shifts = new ObservableCollection<ShiftModel>
-            {
-                // new ShiftModel {  Name = "Shift 1", StartTime = TimeSpan.Zero, EndTime = TimeSpan.FromHours(23).Add(TimeSpan.FromMinutes(59)) }
-            };
+            Shifts = new ObservableCollection<ShiftModel>();
 
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
@@ -52,6 +52,7 @@ namespace JobReporter2.ViewModel
             {
                 Console.WriteLine(shift.Name);
             }
+            SettingsHelper.SaveShifts(Shifts);
             // Logic to save the shifts and update jobs
             if (System.Windows.Application.Current.Windows
                     .OfType<Window>()

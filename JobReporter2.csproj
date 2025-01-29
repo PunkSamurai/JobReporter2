@@ -75,6 +75,7 @@
     </ApplicationDefinition>
     <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Model\ShiftModel.cs" />
     <Compile Include="ViewModel\FilterViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

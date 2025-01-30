@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using JobReporter2.Helpers;
+using System.Windows.Controls;
+using System.Windows;
 
 namespace JobReporter2.ViewModel
 {
@@ -19,13 +21,30 @@ namespace JobReporter2.ViewModel
         private ObservableCollection<JobModel> _filteredJobs;
         private JobModel _selectedJob;
         private string _selectedFilter;
+        private string _selectedReportType;
+        private string _selectedTimeFrame;
         private int _recordCount;
         private int _filteredRecordCount;
 
         private ObservableCollection<ShiftModel> _shifts;
-        private ShiftModel _selectedShift;  
+        private ShiftModel _selectedShift;
 
         // Properties
+        public ObservableCollection<TabItem> Tabs { get; } = new ObservableCollection<TabItem>();
+        public ObservableCollection<string> ReportTypes { get; } = new ObservableCollection<string>
+        {
+            "Shift Productivity (Time)",
+            "Shift Productivity (Number of Jobs)"
+        };
+
+        public ObservableCollection<string> TimeFrames { get; } = new ObservableCollection<string>
+        {
+            "Daily",
+            "Weekly",
+            "Monthly",
+            "Yearly"
+        };
+
         public ObservableCollection<JobModel> AllJobs
         {
             get => _allJobs;
@@ -48,6 +67,16 @@ namespace JobReporter2.ViewModel
         {
             get => _selectedFilter;
             set => SetProperty(ref _selectedFilter, value);
+        }
+        public string SelectedReportType
+        {
+            get => _selectedReportType;
+            set => SetProperty(ref _selectedReportType, value);
+        }
+        public string SelectedTimeFrame
+        {
+            get => _selectedTimeFrame;
+            set => SetProperty(ref _selectedTimeFrame, value);
         }
 
         public int RecordCount
@@ -76,6 +105,7 @@ namespace JobReporter2.ViewModel
 
         // Commands
         public RelayCommand OpenFilterCommand { get; }
+        public RelayCommand ClearFilterCommand { get; }
         public RelayCommand GenerateReportCommand { get; }
         public RelayCommand OpenShiftManagerCommand { get; }
 
@@ -96,12 +126,20 @@ namespace JobReporter2.ViewModel
 
 
             OpenFilterCommand = new RelayCommand(OpenFilter);
+            ClearFilterCommand = new RelayCommand(ClearFilter);
             GenerateReportCommand = new RelayCommand(GenerateReport);
             OpenShiftManagerCommand = new RelayCommand(OpenShiftManager);
             
 
             // Load jobs
             LoadJobs();
+            var jobsContent = new JobsContent();
+            Tabs.Add(new TabItem
+            {
+                Header = "Jobs",
+                Content = jobsContent
+            });
+
         }
 
         private void AssignShiftsToJobs()
@@ -219,8 +257,9 @@ namespace JobReporter2.ViewModel
             {
                 DataSet dataSet = new DataSet();
                 // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
                 DataTable jobTable = dataSet.Tables["Job"];
                 Dictionary<string, DateTime> machineLastEndTimes = new Dictionary<string, DateTime>();
@@ -260,7 +299,7 @@ namespace JobReporter2.ViewModel
                         if (!string.IsNullOrEmpty(connection)) UniqueConnections.Add(connection);
                         if (!string.IsNullOrEmpty(endType)) UniqueEndTypes.Add(endType);
 
-                        var job =  new JobModel
+                        var job = new JobModel
                         {
                             Connection = connection,
                             Name = name,
@@ -272,6 +311,7 @@ namespace JobReporter2.ViewModel
                             StartTime = startTime,
                             EndTime = endTime,
                             TotalTime = totalTime,
+                            MachineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime) ? machineTime : (TimeSpan?)null,
                             CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : (TimeSpan?)null,
                             FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : 0,
                             SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
@@ -340,6 +380,12 @@ namespace JobReporter2.ViewModel
             }
         }
 
+        private void ClearFilter()
+        {
+            FilteredJobs = AllJobs;
+            FilteredRecordCount = AllJobs.Count;
+        }
+
         private void ApplyFilters(FilterViewModel filterViewModel)
         {
             var startDate = filterViewModel.StartDate;
@@ -366,11 +412,39 @@ namespace JobReporter2.ViewModel
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
 
-
+        private bool CanGenerateReport()
+        {
+            return !string.IsNullOrEmpty(SelectedReportType) && !string.IsNullOrEmpty(SelectedTimeFrame);
+        }
         private void GenerateReport()
         {
-            // Logic to generate a report
+            try
+            {
+                // Create a new tab
+                var reportTab = new TabItem
+                {
+                    Header = $"Report {Tabs.Count}"
+                };
+
+                // Create and configure the ReportContent
+                var reportContent = new ReportContent
+                {
+                    ReportModel = ReportFactory.GenerateReport(SelectedReportType, SelectedTimeFrame) // Generate the PlotModel for the report
+                };
+
+                // Set the ReportContent as the content of the tab
+                reportTab.Content = reportContent;
+
+                // Add the tab to the TabControl
+                Tabs.Add(reportTab);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error generating report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
+
     }
 }
 

@@ -22,7 +22,7 @@ namespace JobReporter2.Model
         public TimeSpan TotalTime { get; set; }
         public TimeSpan? CutTime { get; set; }
 
-        public TimeSpan MachineTime { get; set; }
+        public TimeSpan? MachineTime { get; set; }
 
         public double? FeedrateOverride { get; set; }
 

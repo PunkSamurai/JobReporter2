@@ -34,7 +34,7 @@
          ToolChangeTime="00:00:05"
          ToolAvgTimes="00:00:05"
          StartType="C:\DncFiles\test_circle_rect.i4t|JOB1.1.1.1.1.2" 
-         EndType="Job completed" 
+         EndType="Job completed." 
          Connection="M3521 (21163)" 
          OEMName="ADVA (21163)" 
          Material="Foamcore | 0.1875 (3/16) in" 

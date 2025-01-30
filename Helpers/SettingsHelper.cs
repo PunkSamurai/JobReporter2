@@ -12,7 +12,8 @@ namespace JobReporter2.Helpers
 {
     public static class SettingsHelper
     {
-        private static readonly string SettingsFilePath = "C:\\Users\\dveli\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
+        //private static readonly string SettingsFilePath = "C:\\Users\\dveli\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
+        private static readonly string SettingsFilePath = "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
 
         // Load shifts from the settings file
         public static ObservableCollection<ShiftModel> LoadShifts()

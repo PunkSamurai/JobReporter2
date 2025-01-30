@@ -75,6 +75,7 @@
     </ApplicationDefinition>
     <Compile Include="Helpers\ObservableObject.cs" />
     <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Helpers\ReportFactory.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Model\ShiftModel.cs" />
     <Compile Include="ViewModel\FilterViewModel.cs" />
@@ -88,6 +89,9 @@
     </Compile>
     <Compile Include="View\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ReportContent.xaml.cs">
+      <DependentUpon>ReportContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ShiftManagerView.xaml.cs">
       <DependentUpon>ShiftManagerView.xaml</DependentUpon>
@@ -117,6 +121,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ReportContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

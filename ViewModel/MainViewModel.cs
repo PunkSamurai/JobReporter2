@@ -429,7 +429,7 @@ namespace JobReporter2.ViewModel
                 // Create and configure the ReportContent
                 var reportContent = new ReportContent
                 {
-                    ReportModel = ReportFactory.GenerateReport(SelectedReportType, SelectedTimeFrame) // Generate the PlotModel for the report
+                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, SelectedReportType, SelectedTimeFrame) // Generate the PlotModel for the report
                 };
 
                 // Set the ReportContent as the content of the tab

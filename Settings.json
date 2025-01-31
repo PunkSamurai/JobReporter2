@@ -17,6 +17,30 @@
       "IsEnabled": false,
       "StartTime": "00:00:00",
       "EndTime": "11:59:00"
+    },
+    {
+      "Name": "Shift 4",
+      "IsEnabled": false,
+      "StartTime": "00:00:00",
+      "EndTime": "00:00:00"
+    },
+    {
+      "Name": "Shift 5",
+      "IsEnabled": false,
+      "StartTime": "00:00:00",
+      "EndTime": "00:00:00"
+    },
+    {
+      "Name": "Shift 6",
+      "IsEnabled": false,
+      "StartTime": "00:00:00",
+      "EndTime": "00:00:00"
+    },
+    {
+      "Name": "Shift 7",
+      "IsEnabled": false,
+      "StartTime": "00:00:00",
+      "EndTime": "00:00:00"
     }
   ]
 }

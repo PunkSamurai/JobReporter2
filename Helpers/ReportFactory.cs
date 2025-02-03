@@ -24,7 +24,7 @@ public static class ReportFactory
         }
         else if (reportType == "Shift Productivity (Number of Jobs)")
         {
-            return GenerateShiftJobReport(timeFrame);
+            return GenerateShiftJobReport(filteredJobs, timeFrame);
         }
         else
         {
@@ -180,33 +180,88 @@ public static class ReportFactory
 
             return colors[index % colors.Length];
         }
-    
 
 
-    private static PlotModel GenerateShiftJobReport(string timeFrame)
+
+    public static PlotModel GenerateShiftJobReport(ObservableCollection<JobModel> filteredJobs, string timeFrame)
     {
-        var plotModel = new PlotModel { Title = $"Shift Productivity (Jobs) - {timeFrame}" };
+        // Validate input
+        if (filteredJobs == null || filteredJobs.Count == 0)
+            throw new ArgumentException("No job data provided");
 
-        // Example data - replace with actual data aggregation logic
-        var shifts = new[] { "Shift 1", "Shift 2", "Shift 3" };
-        var values = new[] { 30, 25, 35 }; // Replace with actual job counts per shift
-
-        var categoryAxis = new CategoryAxis { Position = AxisPosition.Bottom, Key = "Shifts" };
-        categoryAxis.Labels.AddRange(shifts);
-
-        var valueAxis = new LinearAxis { Position = AxisPosition.Left, Title = "Number of Jobs" };
-
-        var series = new BarSeries { Title = "Jobs Completed" };
-        foreach (var value in values)
+        // Create the plot model
+        var plotModel = new PlotModel
         {
-            series.Items.Add(new BarItem(value));
+            Title = $"Shift Productivity (Job Count) - {timeFrame}"
+        };
+
+        // Get unique shifts
+        var uniqueShifts = filteredJobs
+            .Select(j => j.Shift)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList();
+
+        // Group data based on timeframe
+        var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
+
+        // Create category axis (y-axis)
+        var categoryAxis = new CategoryAxis
+        {
+            Position = AxisPosition.Bottom,
+            Title = timeFrame,
+            Key = "TimeFrames",
+            ItemsSource = groupedData.Keys
+        };
+
+        // Create value axis (x-axis)
+        var valueAxis = new LinearAxis
+        {
+            Position = AxisPosition.Left,
+            Title = "Number of Jobs",
+            MinimumPadding = 0.1,
+            MaximumPadding = 0.1,
+            Key = "xaxis",
+            MajorStep = 1,  // Ensure whole number steps for job counts
+            MinorStep = 1   // Ensure whole number steps for job counts
+        };
+
+        // Add series for each shift
+        int shiftIndex = 0;
+        foreach (var shift in uniqueShifts)
+        {
+            var series = new BarSeries
+            {
+                Title = shift,
+                StrokeColor = OxyColors.Black,
+                StrokeThickness = 1,
+                FillColor = GetColorForIndex(shiftIndex),
+                IsStacked = false,
+                BaseValue = 0,
+                XAxisKey = "xaxis",
+                YAxisKey = "TimeFrames"
+            };
+
+            // Populate the series
+            int categoryIndex = 0;
+            foreach (var timeGroup in groupedData)
+            {
+                // Count jobs instead of summing time
+                var jobCount = timeGroup.Value
+                    .Count(j => j.Shift == shift);
+
+                series.Items.Add(new BarItem { Value = jobCount, CategoryIndex = categoryIndex });
+                categoryIndex++;
+            }
+
+            plotModel.Series.Add(series);
+            shiftIndex++;
         }
 
+        // Add axes to the plot
         plotModel.Axes.Add(categoryAxis);
         plotModel.Axes.Add(valueAxis);
-        plotModel.Series.Add(series);
 
-        //return new PlotView { Model = plotModel };
         return plotModel;
     }
 }

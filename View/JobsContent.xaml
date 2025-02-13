@@ -2,47 +2,54 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:oxy="http://oxyplot.org/wpf">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
 
-        <Grid>
+        <!-- Main Content Grid -->
+        <Grid Grid.Column="0">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Header -->
                 <RowDefinition Height="*"/>
+                <!-- DataGrid -->
             </Grid.RowDefinitions>
 
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-			<StackPanel Grid.Column="0" Grid.Row="0">
             <!-- Header panel -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,0">
                 <StackPanel Orientation="Vertical">
                     <Button Content="Edit Filters" Command="{Binding OpenFilterCommand}" Margin="0,0,10,0" />
                     <Button Content="Clear Filters" Command="{Binding ClearFilterCommand}" Margin="0,10,10,0" />
                 </StackPanel>
-                <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="400" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
+                <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="400" TextWrapping="Wrap" AcceptsReturn="True" 
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
                 <Button Content="Manage Shifts" Command="{Binding OpenShiftManagerCommand}" Width="120" Margin="5"/>
                 <StackPanel Orientation="Vertical">
                     <ComboBox Width="200" Margin="5"
-              ItemsSource="{Binding ReportTypes}"
-              SelectedItem="{Binding SelectedReportType}"
-              Text="Select Report Type" />
-
+                             ItemsSource="{Binding ReportTypes}"
+                             SelectedItem="{Binding SelectedReportType}"
+                             Text="Select Report Type" />
                     <ComboBox Width="200" Margin="5"
-              ItemsSource="{Binding TimeFrames}"
-              SelectedItem="{Binding SelectedTimeFrame}"
-              Text="Select Time Frame" />
-
-                    
+                             ItemsSource="{Binding TimeFrames}"
+                             SelectedItem="{Binding SelectedTimeFrame}"
+                             Text="Select Time Frame" />
                 </StackPanel>
-                <Button Content="Generate Report"
-Command="{Binding GenerateReportCommand}" 
-Margin="5" />
+                <Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Margin="5" />
             </StackPanel>
 
-            <!-- Scrollable DataGrid for Job List -->
-            <DataGrid ItemsSource="{Binding FilteredJobs}" SelectedItem="{Binding SelectedJob}" AutoGenerateColumns="False"
-Grid.Column="0" Margin="10">
+            <!-- DataGrid -->
+            <DataGrid Grid.Row="1" 
+                      ItemsSource="{Binding FilteredJobs}" 
+                      SelectedItem="{Binding SelectedJob}" 
+                      AutoGenerateColumns="False"
+                      Margin="10"
+                      ScrollViewer.VerticalScrollBarVisibility="Auto"
+                      ScrollViewer.CanContentScroll="True">
                 <DataGrid.Columns>
                     <!-- Connection Column -->
                     <DataGridTextColumn Header="Connection" Binding="{Binding Connection}" />
@@ -70,7 +77,6 @@ Grid.Column="0" Margin="10">
 
                     <!-- Start Type Column -->
                     <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" />
-
 
                     <!-- OEM Name Column -->
                     <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMName}" />
@@ -113,34 +119,31 @@ Grid.Column="0" Margin="10">
 
                     <!-- Job File Column -->
                     <DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" />
-
                 </DataGrid.Columns>
             </DataGrid>
-
-        </StackPanel>
-            
-            
-			<!-- Side Panel for Selected Job Details -->
-            <Expander Grid.Column="1" Grid.Row="0" Margin="10" Header="Job Details" IsExpanded="False" ExpandDirection="Left" >
-                <StackPanel>
-                    <TextBlock Text="Connection:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.Connection}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                    <TextBlock Text="Job File:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.JobFile}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                    <TextBlock Text="End Type:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.EndType}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                    <TextBlock Text="Prep Time:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.PrepTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                    <TextBlock Text="Start Time:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.StartTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-                    <TextBlock Text="Total Time:" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding SelectedJob.TotalTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
-
-					<oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 
-						  Height="300" 
-						  Width="300"
-						  Margin="10"/>
-            </StackPanel>
-            </Expander>
         </Grid>
+
+        <!-- Side Panel for Selected Job Details -->
+        <Expander Grid.Column="1" Grid.Row="0" Margin="10" Header="Job Details" IsExpanded="False" ExpandDirection="Left" MaxWidth="400px">
+            <StackPanel>
+                <TextBlock Text="Connection:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.Connection}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="Job File:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.JobFile}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="End Type:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.EndType}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="Prep Time:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.PrepTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="Start Time:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.StartTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                <TextBlock Text="Total Time:" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding SelectedJob.TotalTime}" Margin="0,0,0,10" TextWrapping="Wrap"/>
+
+                <oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 
+                             Height="300" 
+                             Width="300"
+                             Margin="10"/>
+            </StackPanel>
+        </Expander>
+    </Grid>
 </UserControl>

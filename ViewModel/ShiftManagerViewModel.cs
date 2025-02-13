@@ -13,22 +13,18 @@ namespace JobReporter2.ViewModel
     public class ShiftManagerViewModel : ObservableObject
     {
         private ObservableCollection<ShiftModel> _shifts;
-
         public ObservableCollection<ShiftModel> Shifts
         {
             get => _shifts;
             set => SetProperty(ref _shifts, value);
         }
-
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand AddShiftCommand { get; }
 
         public ShiftManagerViewModel()
         {
-            // Initialize Shifts with default values
             Shifts = new ObservableCollection<ShiftModel>();
-
             SaveCommand = new RelayCommand(Save);
             CancelCommand = new RelayCommand(Cancel);
             AddShiftCommand = new RelayCommand(AddShift);
@@ -36,7 +32,6 @@ namespace JobReporter2.ViewModel
 
         private void AddShift()
         {
-            // Add a blank shift to the Shifts collection
             Shifts.Add(new ShiftModel
             {
                 Name = $"Shift {Shifts.Count + 1}",
@@ -50,23 +45,32 @@ namespace JobReporter2.ViewModel
         {
             foreach (var shift in Shifts)
             {
-                Console.WriteLine(shift.Name);
+                Console.WriteLine(shift.Name + " " + shift.StartTime + " " + shift.EndTime + " " + shift.IsEnabled);
             }
             SettingsHelper.SaveShifts(Shifts);
-            // Logic to save the shifts and update jobs
             if (System.Windows.Application.Current.Windows
                     .OfType<Window>()
                     .FirstOrDefault(w => w.DataContext == this) is Window window)
             {
-                window.DialogResult = true; // This ensures the parent detects a successful apply
+                window.DialogResult = true;
                 window.Close();
             }
         }
 
         private void Cancel()
         {
-            // Logic to cancel and close the window
+            foreach (var shift in Shifts)
+            {
+                Console.WriteLine(shift.Name + " " + shift.StartTime + " " + shift.EndTime + " " + shift.IsEnabled);
+            }
             System.Windows.Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive)?.Close();
+            if (System.Windows.Application.Current.Windows
+                    .OfType<Window>()
+                    .FirstOrDefault(w => w.DataContext == this) is Window window)
+            {
+                window.DialogResult = false;
+                window.Close();
+            }
         }
     }
 }

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Shift Manager" Height="300" Width="500">
+        Title="Shift Manager" Height="230" Width="290">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -12,30 +12,41 @@
         </Grid.RowDefinitions>
 
         <!-- DataGrid for managing shifts -->
-        <DataGrid ItemsSource="{Binding Shifts}" AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="0" Margin="0,0,0,10">
+        <DataGrid ItemsSource="{Binding Shifts}" 
+         AutoGenerateColumns="False" 
+         CanUserAddRows="False" 
+         Grid.Row="0" 
+         Margin="0,0,0,10">
+            <DataGrid.Resources>
+                <Style x:Key="TimeEditingStyle" TargetType="TextBox">
+                    <Setter Property="MaxLength" Value="5" />
+                    <EventSetter Event="PreviewTextInput" Handler="TimeTextBox_PreviewTextInput" />
+                    <EventSetter Event="LostFocus" Handler="TimeTextBox_LostFocus" />
+                </Style>
+            </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Shift Name" Binding="{Binding Name}" />
-                <DataGridTemplateColumn Header="Start Time">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding StartTime, StringFormat=hh\\:mm}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Header="End Time">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBox Text="{Binding EndTime, StringFormat=hh\\:mm}" />
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
+                <DataGridTextColumn Header="Shift Name" 
+                          Binding="{Binding Name}" />
+                <DataGridTextColumn Header="Start Time" 
+                          Binding="{Binding StartTime, StringFormat=hh\\:mm}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridTextColumn Header="End Time" 
+                          Binding="{Binding EndTime, StringFormat=hh\\:mm}">
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+                <DataGridCheckBoxColumn Header="Enabled" 
+                              Binding="{Binding IsEnabled}" />
             </DataGrid.Columns>
         </DataGrid>
 
         <!-- Buttons -->
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">
-            <Button Content="Add" Width="75" Command="{Binding AddShiftCommand}"/>
+            <!-- <Button Content="Add" Width="75" Command="{Binding AddShiftCommand}"/> -->
             <Button Content="OK" Width="75" Command="{Binding SaveCommand}" />
             <Button Content="Cancel" Width="75" Command="{Binding CancelCommand}" />
         </StackPanel>

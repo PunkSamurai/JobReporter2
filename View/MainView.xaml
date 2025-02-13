@@ -30,7 +30,7 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate>
-                    <ContentPresenter Content="{Binding Content}" />
+                    <ContentPresenter Content="{Binding Content}"/>
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>

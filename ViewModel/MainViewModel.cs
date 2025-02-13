@@ -232,9 +232,20 @@ namespace JobReporter2.ViewModel
 
         private void OpenShiftManager()
         {
+            // Create deep copies of the shifts for editing
+            var shiftCopies = new ObservableCollection<ShiftModel>(
+                Shifts.Select(s => new ShiftModel
+                {
+                    Name = s.Name,
+                    IsEnabled = s.IsEnabled,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime
+                })
+            );
+
             var shiftManagerViewModel = new ShiftManagerViewModel
             {
-                Shifts = Shifts
+                Shifts = shiftCopies
             };
 
             var shiftManagerView = new ShiftManagerView
@@ -245,8 +256,17 @@ namespace JobReporter2.ViewModel
             if (shiftManagerView.ShowDialog() == true)
             {
                 Console.WriteLine("update");
-                Shifts = shiftManagerViewModel.Shifts;
-                AssignShiftsToJobs(); // Reassign shifts after changes
+                // Only update the main collection if OK was clicked
+                Shifts = new ObservableCollection<ShiftModel>(
+                    shiftManagerViewModel.Shifts.Select(s => new ShiftModel
+                    {
+                        Name = s.Name,
+                        IsEnabled = s.IsEnabled,
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    })
+                );
+                AssignShiftsToJobs();
             }
         }
 
@@ -256,8 +276,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\JobReporter2\\JobHistory.xjh");
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
@@ -312,7 +332,6 @@ namespace JobReporter2.ViewModel
                             EndTime = endTime,
                             TotalTime = totalTime,
                             MachineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime) ? machineTime : (TimeSpan?)null,
-                            CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : (TimeSpan?)null,
                             FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : 0,
                             SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
                             PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : (TimeSpan?)null,
@@ -324,6 +343,7 @@ namespace JobReporter2.ViewModel
                             Flagged = row.Table.Columns.Contains("Flagged") && bool.TryParse(row["Flagged"].ToString(), out bool flagged) ? flagged : false
                         };
 
+                        job.WastedTime = job.TotalTime - job.MachineTime;
                         job.GeneratePieChart();
 
                         return job;

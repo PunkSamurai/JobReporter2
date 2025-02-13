@@ -20,7 +20,7 @@ namespace JobReporter2.Model
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
         public TimeSpan TotalTime { get; set; }
-        public TimeSpan? CutTime { get; set; }
+        public TimeSpan? WastedTime { get; set; }
 
         public TimeSpan? MachineTime { get; set; }
 
@@ -70,12 +70,13 @@ namespace JobReporter2.Model
                 InsideLabelPosition = 0.8,
                 AngleSpan = 360,
                 StartAngle = 0,
-                FontSize = 12
+                FontSize = 12,
+                InnerDiameter = 0.6
             };
 
             var timeData = new[]
             {
-                (Name: "Cut", Time: CutTime, Color: OxyColors.Green),
+                (Name: "Machine", Time: MachineTime, Color: OxyColors.Green),
                 (Name: "Slew", Time: SlewTime, Color: OxyColors.Blue),
                 (Name: "Pause", Time: PauseTime, Color: OxyColors.Red),
                 (Name: "Sheet Change", Time: SheetChangeTime, Color: OxyColors.Yellow),
@@ -95,7 +96,7 @@ namespace JobReporter2.Model
 
             plotModel.Series.Add(pieSeries);
             PieChartModel = plotModel;
-            Console.WriteLine(CutTime?.TotalSeconds);
+            Console.WriteLine(MachineTime?.TotalSeconds);
             Console.WriteLine("plotted");
         }
     }

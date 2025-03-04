@@ -43,13 +43,14 @@
             </StackPanel>
 
             <!-- DataGrid -->
+            <!-- DataGrid -->
             <DataGrid Grid.Row="1" 
-                      ItemsSource="{Binding FilteredJobs}" 
-                      SelectedItem="{Binding SelectedJob}" 
-                      AutoGenerateColumns="False"
-                      Margin="10"
-                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                      ScrollViewer.CanContentScroll="True">
+          ItemsSource="{Binding FilteredJobs}" 
+          SelectedItem="{Binding SelectedJob}" 
+          AutoGenerateColumns="False"
+          Margin="10"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          ScrollViewer.CanContentScroll="True">
                 <DataGrid.Columns>
                     <!-- Connection Column -->
                     <DataGridTextColumn Header="Connection" Binding="{Binding Connection}" />
@@ -57,8 +58,17 @@
                     <!-- Name Column -->
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
 
+                    <!-- Job File Column -->
+                    <DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" />
+
+                    <!-- OEM String Column -->
+                    <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMString}" />
+
                     <!-- Shift Column -->
                     <DataGridTextColumn Header="Shift" Binding="{Binding Shift}" />
+
+                    <!-- Start Type Column -->
+                    <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" />
 
                     <!-- Prep Time Column -->
                     <DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" />
@@ -72,28 +82,49 @@
                     <!-- Total Time Column -->
                     <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" />
 
+                    <!-- Wasted Time Column -->
+                    <DataGridTextColumn Header="Wasted Time" Binding="{Binding WastedTime}" />
+
                     <!-- Machine Time Column -->
                     <DataGridTextColumn Header="Machine Time" Binding="{Binding MachineTime}" />
 
-                    <!-- Start Type Column -->
-                    <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" />
+                    <!-- Feedrate Override Column -->
+                    <DataGridTextColumn Header="Feedrate Override" Binding="{Binding FeedrateOverride}" />
 
-                    <!-- OEM Name Column -->
-                    <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMName}" />
+                    <!-- Slew Time Column -->
+                    <DataGridTextColumn Header="Slew Time" Binding="{Binding SlewTime}" />
 
-                    <!-- Material Column -->
-                    <DataGridTextColumn Header="Material" Binding="{Binding Material}" />
+                    <!-- Pause Time Column -->
+                    <DataGridTextColumn Header="Pause Time" Binding="{Binding PauseTime}" />
+
+                    <!-- Sheet Count Column -->
+                    <DataGridTextColumn Header="Sheet Count" Binding="{Binding SheetCount}" />
 
                     <!-- PD Count Column -->
                     <DataGridTextColumn Header="PD Count" Binding="{Binding PD_Count}" />
 
-                    <!-- Length Column -->
-                    <DataGridTextColumn Header="Length" Binding="{Binding Length}" />
+                    <!-- Material Column -->
+                    <DataGridTextColumn Header="Material" Binding="{Binding Material}" />
+
+                    <!-- Sheet Change Time Column -->
+                    <DataGridTextColumn Header="Sheet Change Time" Binding="{Binding SheetChangeTime}" />
+
+                    <!-- Tools Column -->
+                    <DataGridTextColumn Header="Tools" Binding="{Binding Tools}" />
+
+                    <!-- Tool Change Time Column -->
+                    <DataGridTextColumn Header="Tool Change Time" Binding="{Binding ToolChangeTime}" />
+
+                    <!-- Tool Avg Times Column -->
+                    <DataGridTextColumn Header="Tool Avg Times" Binding="{Binding ToolAvgTimes}" />
 
                     <!-- Size Column -->
                     <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
 
-                    <!-- Status Column with Conditional Formatting -->
+                    <!-- Flagged Column -->
+                    <DataGridCheckBoxColumn Header="Flagged" Binding="{Binding Flagged}" />
+
+                    <!-- End Type Column with Conditional Formatting -->
                     <DataGridTemplateColumn Header="End Type">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
@@ -116,9 +147,6 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-
-                    <!-- Job File Column -->
-                    <DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

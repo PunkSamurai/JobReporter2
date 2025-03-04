@@ -11,6 +11,9 @@ using Newtonsoft.Json.Linq;
 using JobReporter2.Helpers;
 using System.Windows.Controls;
 using System.Windows;
+using System.Threading.Tasks;
+using OxyPlot.Series;
+using System.Windows.Threading;
 
 namespace JobReporter2.ViewModel
 {
@@ -134,12 +137,15 @@ namespace JobReporter2.ViewModel
             // Load jobs
             LoadJobs();
             var jobsContent = new JobsContent();
-            Tabs.Add(new TabItem
+            
+            var jobsTab = new TabItem
             {
                 Header = "Jobs",
                 Content = jobsContent
-            });
-
+            };
+            Tabs.Add(jobsTab);
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => jobsTab.IsSelected = true), DispatcherPriority.Loaded);
+            //jobsTab.IsSelected = true;
         }
 
         private void AssignShiftsToJobs()
@@ -276,8 +282,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 

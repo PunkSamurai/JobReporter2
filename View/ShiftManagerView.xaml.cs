@@ -75,7 +75,6 @@ namespace JobReporter2.View
             {
                 // Handle invalid time format
                 textBox.Text = "00:00";
-                // Optionally, you could show an error message here
             }
         }
     }

@@ -1,22 +1,22 @@
 {
   "Shifts": [
     {
-      "Name": "Morning",
+      "Name": "Shift 1",
       "IsEnabled": true,
-      "StartTime": "00:00:00",
-      "EndTime": "11:59:00"
+      "StartTime": "09:00:00",
+      "EndTime": "05:00:00"
     },
     {
-      "Name": "Evening",
+      "Name": "Shift 2",
       "IsEnabled": true,
       "StartTime": "12:00:00",
       "EndTime": "23:59:00"
     },
     {
       "Name": "Shift 3",
-      "IsEnabled": false,
-      "StartTime": "00:01:00",
-      "EndTime": "03:11:00"
+      "IsEnabled": true,
+      "StartTime": "00:00:00",
+      "EndTime": "11:59:00"
     },
     {
       "Name": "Shift 4",
@@ -31,15 +31,5 @@
       "EndTime": "00:02:00"
     }
   ],
-  "Filters": [
-    {
-      "Name": "FilterZ",
-      "TimeFrame": "Custom",
-      "StartDate": "2022-02-28T00:00:00",
-      "EndDate": "2025-02-15T23:59:59+05:30",
-      "Connections": [],
-      "EndTypes": [],
-      "Shifts": null
-    }
-  ]
+  "Filters": []
 }

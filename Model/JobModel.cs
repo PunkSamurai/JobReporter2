@@ -2,6 +2,7 @@
 using OxyPlot;
 using System;
 using System.ComponentModel;
+using OxyPlot.Legends;
 
 namespace JobReporter2.Model
 {
@@ -64,40 +65,42 @@ namespace JobReporter2.Model
         public void GeneratePieChart()
         {
             var plotModel = new PlotModel { Title = "Time Distribution" };
+
             var pieSeries = new PieSeries
             {
                 StrokeThickness = 2.0,
-                InsideLabelPosition = 0.8,
                 AngleSpan = 360,
                 StartAngle = 0,
+                InnerDiameter = 0.6,
+                OutsideLabelFormat = null, // Disable outside labels
+                InsideLabelFormat = null, // Disable inside labels
                 FontSize = 12,
-                InnerDiameter = 0.6
+                // LegendFormat = "{0}: {1}%"
             };
 
             var timeData = new[]
             {
-                (Name: "Machine", Time: MachineTime, Color: OxyColors.Green),
-                (Name: "Slew", Time: SlewTime, Color: OxyColors.Blue),
-                (Name: "Pause", Time: PauseTime, Color: OxyColors.Red),
-                (Name: "Sheet Change", Time: SheetChangeTime, Color: OxyColors.Yellow),
-                (Name: "Tool Change", Time: ToolChangeTime, Color: OxyColors.Purple)
-            };
+        (Name: "Machine", Time: MachineTime, Color: OxyColors.Green),
+        (Name: "Slew", Time: SlewTime, Color: OxyColors.Blue),
+        (Name: "Pause", Time: PauseTime, Color: OxyColors.Red),
+        (Name: "Sheet Change", Time: SheetChangeTime, Color: OxyColors.Yellow),
+        (Name: "Tool Change", Time: ToolChangeTime, Color: OxyColors.Purple)
+    };
 
             foreach (var data in timeData)
             {
-                pieSeries.Slices.Add(new PieSlice(
-                    FormatSliceLabel(data.Name, data.Time),
-                    TimeSpanToValue(data.Time))
+                pieSeries.Slices.Add(new PieSlice(data.Name, TimeSpanToValue(data.Time))
                 {
                     Fill = data.Color,
-                    IsExploded = true
+                    IsExploded = false // Optional: Disable exploded slices
                 });
             }
 
             plotModel.Series.Add(pieSeries);
             PieChartModel = plotModel;
-            Console.WriteLine(MachineTime?.TotalSeconds);
-            Console.WriteLine("plotted");
+
+            Console.WriteLine("Pie chart generated successfully.");
         }
+
     }
 }

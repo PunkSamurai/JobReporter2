@@ -146,6 +146,11 @@ namespace JobReporter2.ViewModel
 
         private string ShowFilterNameInputDialog()
         {
+            // Find the current window hosting this ViewModel
+            var currentWindow = Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.DataContext == this);
+
             // Create and configure the input dialog window
             var dialog = new Window
             {
@@ -153,7 +158,7 @@ namespace JobReporter2.ViewModel
                 Width = 300,
                 Height = 150,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Owner = Application.Current.MainWindow
+                Owner = currentWindow // Set to the current filter window
             };
 
             var stackPanel = new System.Windows.Controls.StackPanel
@@ -210,6 +215,7 @@ namespace JobReporter2.ViewModel
             // Show dialog and return result
             return dialog.ShowDialog() == true ? textBox.Text : null;
         }
+
 
         private void DeleteFilter()
         {

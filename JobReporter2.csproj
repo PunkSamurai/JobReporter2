@@ -79,6 +79,7 @@
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Model\ShiftModel.cs" />
     <Compile Include="ViewModel\FilterViewModel.cs" />
+    <Compile Include="ViewModel\JobViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ShiftManagerViewModel.cs" />
     <Compile Include="View\FilterView.xaml.cs">

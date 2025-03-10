@@ -348,6 +348,7 @@ namespace JobReporter2.ViewModel
                             Tools = row.Table.Columns.Contains("Tools") ? row["Tools"].ToString() : null,
                             ToolChangeTime = row.Table.Columns.Contains("ToolChangeTime") && TimeSpan.TryParse(row["ToolChangeTime"].ToString(), out TimeSpan toolChangeTime) ? toolChangeTime : (TimeSpan?)null,
                             ToolAvgTimes = row.Table.Columns.Contains("ToolAvgTimes") && TimeSpan.TryParse(row["ToolAvgTimes"].ToString(), out TimeSpan toolAvgTimes) ? toolAvgTimes : (TimeSpan?)null,
+                            Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null,
                             Flagged = row.Table.Columns.Contains("Flagged") && bool.TryParse(row["Flagged"].ToString(), out bool flagged) ? flagged : false
                         };
 

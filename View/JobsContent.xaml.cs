@@ -1,6 +1,7 @@
 ﻿using JobReporter2.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,8 +24,37 @@ namespace JobReporter2.View
     {
         public JobsContent()
         {
+            this.Resources["EndTypeToBrushConverter"] = new EndTypeToBrushConverter();
             InitializeComponent();
             // DataContext = new MainViewModel();
+            
+        }
+
+        private class EndTypeToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is string endType)
+                {
+                    switch (endType)
+                    {
+                        case "Job failed.":
+                            return Brushes.LightCoral;
+                        case "Job halted.":
+                            return Brushes.LightYellow;
+                        case "Job completed.":
+                            return Brushes.LightGreen;
+                        default:
+                            return Brushes.Transparent;
+                    }
+                }
+                return Brushes.Transparent;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
         }
     }
 }

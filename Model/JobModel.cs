@@ -24,7 +24,7 @@ namespace JobReporter2.Model
         public TimeSpan? WastedTime { get; set; }
 
         public TimeSpan? MachineTime { get; set; }
-
+        public TimeSpan? CutTime { get; set; }
         public double? FeedrateOverride { get; set; }
 
         public TimeSpan? SlewTime { get; set; }
@@ -43,6 +43,20 @@ namespace JobReporter2.Model
 
 
         public PlotModel PieChartModel { get; private set; }
+
+        public bool CalculateFlagged()
+        {
+            if (TotalTime.TotalSeconds == 0)
+                return false;
+
+            if (EndType != "Job completed.")
+                return true;
+
+            double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            double pauseRatio = PauseTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+
+            return (cutRatio <= 0.75) || (pauseRatio >= 0.25);
+        }
 
         public JobModel()
         {
@@ -80,12 +94,12 @@ namespace JobReporter2.Model
 
             var timeData = new[]
             {
-        (Name: "Machine", Time: MachineTime, Color: OxyColors.Green),
-        (Name: "Slew", Time: SlewTime, Color: OxyColors.Blue),
-        (Name: "Pause", Time: PauseTime, Color: OxyColors.Red),
-        (Name: "Sheet Change", Time: SheetChangeTime, Color: OxyColors.Yellow),
-        (Name: "Tool Change", Time: ToolChangeTime, Color: OxyColors.Purple)
-    };
+                (Name: "Cut", Time: CutTime, Color: OxyColors.LightGreen),
+                (Name: "Slew", Time: SlewTime, Color: OxyColors.LightBlue),
+                (Name: "Pause", Time: PauseTime, Color: OxyColors.LightCoral),
+                (Name: "Sheet Change", Time: SheetChangeTime, Color: OxyColors.Yellow),
+                (Name: "Tool Change", Time: ToolChangeTime, Color: OxyColors.Violet)
+            };
 
             foreach (var data in timeData)
             {

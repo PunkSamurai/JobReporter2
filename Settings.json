@@ -2,9 +2,9 @@
   "Shifts": [
     {
       "Name": "Shift 1",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "StartTime": "09:00:00",
-      "EndTime": "05:00:00"
+      "EndTime": "17:00:00"
     },
     {
       "Name": "Shift 2",
@@ -13,7 +13,7 @@
       "EndTime": "23:59:00"
     },
     {
-      "Name": "Shift 2",
+      "Name": "Shift 3",
       "IsEnabled": true,
       "StartTime": "00:00:00",
       "EndTime": "11:59:00"
@@ -22,13 +22,13 @@
       "Name": "Shift 4",
       "IsEnabled": false,
       "StartTime": "00:00:00",
-      "EndTime": "00:00:00"
+      "EndTime": "23:59:00"
     },
     {
       "Name": "Shift 5",
-      "IsEnabled": false,
+      "IsEnabled": true,
       "StartTime": "00:01:00",
-      "EndTime": "00:02:00"
+      "EndTime": "23:59:00"
     }
   ],
   "Filters": []

@@ -44,96 +44,149 @@
 
             <!-- DataGrid -->
             <DataGrid
-                 x:Name="JobDataGrid"
+                x:Name="JobDataGrid"
                 Grid.Row="1" 
-          ItemsSource="{Binding FilteredJobs}" 
-          SelectedItem="{Binding SelectedJob}" 
-          AutoGenerateColumns="False"
-          Margin="10"
-          ScrollViewer.VerticalScrollBarVisibility="Auto"
-          ScrollViewer.CanContentScroll="True">
+                ItemsSource="{Binding FilteredJobs}" 
+                SelectedItem="{Binding SelectedJob}" 
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                SelectionMode="Single"
+                Margin="10"
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                ScrollViewer.CanContentScroll="True"> 
                 <DataGrid.Columns>
+                    <!-- Flagged Column -->
+                    <DataGridCheckBoxColumn Header="Flagged" Binding="{Binding Flagged}" IsReadOnly="False"/>
+
                     <!-- Connection Column -->
-                    <DataGridTextColumn Header="Connection" Binding="{Binding Connection}" />
-
-                    <!-- Name Column -->
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
-
-                    <!-- Job File Column -->
-                    <DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" />
+                    <DataGridTextColumn Header="Connection" Binding="{Binding Connection}" IsReadOnly="True"/>
 
                     <!-- OEM String Column -->
-                    <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMString}" />
-
-                    <!-- Shift Column -->
-                    <DataGridTextColumn Header="Shift" Binding="{Binding Shift}" />
-
-                    <!-- Start Type Column -->
-                    <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" />
-
-                    <!-- Prep Time Column -->
-                    <DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" />
-
-                    <!-- Start Time Column -->
-                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" />
-
-                    <!-- End Time Column -->
-                    <DataGridTextColumn Header="End Time" Binding="{Binding EndTime}" />
-
-                    <!-- Total Time Column -->
-                    <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" />
-
-                    <!-- Wasted Time Column -->
-                    <DataGridTextColumn Header="Wasted Time" Binding="{Binding WastedTime}" />
-
-                    <!-- Machine Time Column -->
-                    <DataGridTextColumn Header="Machine Time" Binding="{Binding MachineTime}" />
-
-                    <!-- Feedrate Override Column -->
-                    <DataGridTextColumn Header="Feedrate Override" Binding="{Binding FeedrateOverride}" />
-
-                    <!-- Slew Time Column -->
-                    <DataGridTextColumn Header="Slew Time" Binding="{Binding SlewTime}" />
-
-                    <!-- Pause Time Column -->
-                    <DataGridTextColumn Header="Pause Time" Binding="{Binding PauseTime}" />
-
-                    <!-- Sheet Count Column -->
-                    <DataGridTextColumn Header="Sheet Count" Binding="{Binding SheetCount}" />
-
-                    <!-- PD Count Column -->
-                    <DataGridTextColumn Header="PD Count" Binding="{Binding PD_Count}" />
-
-                    <!-- Material Column -->
-                    <DataGridTextColumn Header="Material" Binding="{Binding Material}" />
-
-                    <!-- Sheet Change Time Column -->
-                    <DataGridTextColumn Header="Sheet Change Time" Binding="{Binding SheetChangeTime}" />
-
-                    <!-- Tools Column -->
-                    <DataGridTextColumn Header="Tools" Binding="{Binding Tools}" />
-
-                    <!-- Tool Change Time Column -->
-                    <DataGridTextColumn Header="Tool Change Time" Binding="{Binding ToolChangeTime}" />
-
-                    <!-- Tool Avg Times Column -->
-                    <DataGridTextColumn Header="Tool Avg Times" Binding="{Binding ToolAvgTimes}" />
+                    <DataGridTextColumn Header="OEM Name" Binding="{Binding OEMString}" IsReadOnly="True"/>
+                    
+                    <!-- Name Column -->
+                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
 
                     <!-- Size Column -->
-                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" />
+                    <DataGridTextColumn Header="Size" Binding="{Binding Size}" IsReadOnly="True"/>
 
-                    <!-- Flagged Column -->
-                    <DataGridCheckBoxColumn Header="Flagged" Binding="{Binding Flagged}" />
-
-                    <!-- End Type Column with Conditional Formatting -->
-                    <DataGridTemplateColumn Header="EndType">
+                    <!-- Shift Column -->
+                    <DataGridTemplateColumn Header="Shift" SortMemberPath="Shift">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" 
+                                        Value="{Binding Shift, Converter={StaticResource ShiftToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding EndType}"
-                       Background="{Binding EndType, Converter={StaticResource EndTypeToBrushConverter}}" />
+                                <TextBlock Text="{Binding Shift}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+
+                    <!-- Start Type Column -->
+                    <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" IsReadOnly="True"/>
+
+                    <!-- End Type Column with Conditional Formatting -->
+                    <DataGridTemplateColumn Header="End Type" SortMemberPath="EndType" IsReadOnly="True">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background"
+                                    Value="{Binding EndType, Converter={StaticResource EndTypeToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding EndType}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
+                    <!-- Prep Time Column -->
+                    <DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" IsReadOnly="True"/>
+
+                    <!-- Start Time Column -->
+                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" IsReadOnly="True"/>
+
+                    <!-- End Time Column -->
+                    <DataGridTextColumn Header="End Time" Binding="{Binding EndTime}" IsReadOnly="True"/>
+
+                    <!-- Total Time Column -->
+                    <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" IsReadOnly="True"/>
+
+                    <!-- Machine Time Column -->
+                    <DataGridTextColumn Header="Machine Time" Binding="{Binding MachineTime}" IsReadOnly="True"/>
+
+                    <!-- Cut time column -->
+                    <DataGridTemplateColumn Header="Cut Time" SortMemberPath="CutTime">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" 
+                                        Value="{Binding Converter={StaticResource CutTimeToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CutTime}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
+                    <!-- Pause Time Column -->
+                    <DataGridTemplateColumn Header="Pause Time" SortMemberPath="PauseTime">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" 
+                                        Value="{Binding Converter={StaticResource PauseTimeToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PauseTime}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+
+
+                    <!-- Wasted Time Column -->
+                    <!-- <DataGridTextColumn Header="Wasted Time" Binding="{Binding WastedTime}" /> -->
+
+
+                    <!-- Slew Time Column -->
+                    <DataGridTextColumn Header="Slew Time" Binding="{Binding SlewTime}" IsReadOnly="True"/>
+
+                    <!-- Sheet Change Time Column -->
+                    <DataGridTextColumn Header="SC Time" Binding="{Binding SheetChangeTime}" IsReadOnly="True"/>
+
+                    <!-- Tool Change Time Column -->
+                    <DataGridTextColumn Header="TC Time" Binding="{Binding ToolChangeTime}" IsReadOnly="True"/>
+
+                    <!-- Feedrate Override Column -->
+                    <DataGridTextColumn Header="Feedrate Override" Binding="{Binding FeedrateOverride}" IsReadOnly="True"/>
+
+                    <!-- PD Count Column -->
+                    <DataGridTextColumn Header="PD Count" Binding="{Binding PD_Count}" IsReadOnly="True"/>
+
+                    <!-- Material Column -->
+                    <DataGridTextColumn Header="Material" Binding="{Binding Material}" IsReadOnly="True"/>
+
+                    <!-- Sheet Count Column -->
+                    <DataGridTextColumn Header="Sheet Count" Binding="{Binding SheetCount}" IsReadOnly="True"/>
+
+                    <!-- Tools Column -->
+                    <DataGridTextColumn Header="Tools" Binding="{Binding Tools}" IsReadOnly="True"/>
+                    
+                    <!-- Tool Avg Times Column -->
+                    <DataGridTextColumn Header="Tool Avg Times" Binding="{Binding ToolAvgTimes}" IsReadOnly="True"/>
+
+                    <!-- Job File Column -->
+                    <DataGridTextColumn Header="Job File" Binding="{Binding JobFile}" IsReadOnly="True"/>
+
+                    
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
@@ -149,6 +202,7 @@
                         <!-- Value column -->
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
@@ -201,32 +255,35 @@
                     <TextBlock Grid.Column="0" Grid.Row="9" FontWeight="Bold" Text="Total Time:" TextWrapping="Wrap" Margin="0,0,5,0" />
                     <TextBlock Grid.Column="1" Grid.Row="9" Text="{Binding SelectedJob.TotalTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="10" FontWeight="Bold" Text="Machine Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Green"/>
+                    <TextBlock Grid.Column="0" Grid.Row="10" FontWeight="Bold" Text="Machine Time:" TextWrapping="Wrap" Margin="0,0,5,0"/>
                     <TextBlock Grid.Column="1" Grid.Row="10" Text="{Binding SelectedJob.MachineTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="11" FontWeight="Bold" Text="Feedrate Override %:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding SelectedJob.FeedrateOverride}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="11" FontWeight="Bold" Text="Cut Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightGreen"/>
+                    <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding SelectedJob.CutTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="12" FontWeight="Bold" Text="Slew Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Blue"/>
-                    <TextBlock Grid.Column="1" Grid.Row="12" Text="{Binding SelectedJob.SlewTime}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="12" FontWeight="Bold" Text="Feedrate Override %:" TextWrapping="Wrap" Margin="0,0,5,0" />
+                    <TextBlock Grid.Column="1" Grid.Row="12" Text="{Binding SelectedJob.FeedrateOverride}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="13" FontWeight="Bold" Text="Pause Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Red"/>
-                    <TextBlock Grid.Column="1" Grid.Row="13" Text="{Binding SelectedJob.PauseTime}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="13" FontWeight="Bold" Text="Slew Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightBlue"/>
+                    <TextBlock Grid.Column="1" Grid.Row="13" Text="{Binding SelectedJob.SlewTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="14" FontWeight="Bold" Text="Sheet Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Yellow"/>
-                    <TextBlock Grid.Column="1" Grid.Row="14" Text="{Binding SelectedJob.SheetChangeTime}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="14" FontWeight="Bold" Text="Pause Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightCoral"/>
+                    <TextBlock Grid.Column="1" Grid.Row="14" Text="{Binding SelectedJob.PauseTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="15" FontWeight="Bold" Text="Sheet Count:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="15" Text="{Binding SelectedJob.SheetCount}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="15" FontWeight="Bold" Text="Sheet Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Yellow"/>
+                    <TextBlock Grid.Column="1" Grid.Row="15" Text="{Binding SelectedJob.SheetChangeTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="16" FontWeight="Bold" Text="Tool Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Purple"/>
-                    <TextBlock Grid.Column="1" Grid.Row="16" Text="{Binding SelectedJob.ToolChangeTime}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="16" FontWeight="Bold" Text="Sheet Count:" TextWrapping="Wrap" Margin="0,0,5,0" />
+                    <TextBlock Grid.Column="1" Grid.Row="16" Text="{Binding SelectedJob.SheetCount}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="17" FontWeight="Bold" Text="Tools:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="17" Text="{Binding SelectedJob.Tools}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="17" FontWeight="Bold" Text="Tool Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Violet"/>
+                    <TextBlock Grid.Column="1" Grid.Row="17" Text="{Binding SelectedJob.ToolChangeTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="18" FontWeight="Bold" Text="Tool Avg Times:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="18" Text="{Binding SelectedJob.ToolAvgTimes}" TextWrapping="Wrap" />
+                    <TextBlock Grid.Column="0" Grid.Row="18" FontWeight="Bold" Text="Tools:" TextWrapping="Wrap" Margin="0,0,5,0" />
+                    <TextBlock Grid.Column="1" Grid.Row="18" Text="{Binding SelectedJob.Tools}" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Column="0" Grid.Row="19" FontWeight="Bold" Text="Tool Avg Times:" TextWrapping="Wrap" Margin="0,0,5,0" />
+                    <TextBlock Grid.Column="1" Grid.Row="19" Text="{Binding SelectedJob.ToolAvgTimes}" TextWrapping="Wrap" />
                 </Grid>
 
                 <oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 

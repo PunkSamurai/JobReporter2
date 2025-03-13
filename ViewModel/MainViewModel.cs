@@ -36,6 +36,7 @@ namespace JobReporter2.ViewModel
         public ObservableCollection<TabItem> Tabs { get; } = new ObservableCollection<TabItem>();
         public ObservableCollection<string> ReportTypes { get; } = new ObservableCollection<string>
         {
+            "Advanced Shift Productivity (Time)",
             "Shift Productivity (Time)",
             "Shift Productivity (Number of Jobs)"
         };
@@ -136,7 +137,7 @@ namespace JobReporter2.ViewModel
 
             // Load jobs
             LoadJobs();
-            var jobsContent = new JobsContent();
+            var jobsContent = new JobsContent { Jobs = FilteredJobs };
             JobViewModel = new JobViewModel { DataGrid = jobsContent.JobDataGrid, Jobs = FilteredJobs};
             //jobsContent.DataContext = JobViewModel;
 
@@ -284,8 +285,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
@@ -311,7 +312,7 @@ namespace JobReporter2.ViewModel
                         DateTime startTime = DateTime.Parse(row["StartTime"].ToString()); // Guaranteed
                         DateTime endTime = DateTime.Parse(row["EndTime"].ToString()); // Guaranteed
                         TimeSpan totalTime = endTime - startTime; // Use TimeSpan for durations
-
+                        TimeSpan machineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime2) ? machineTime2 : TimeSpan.Zero;
                         // Calculate PrepTime
                         /* TimeSpan prepTime = TimeSpan.Zero;
                         if (!string.IsNullOrEmpty(connection) && machineLastEndTimes.ContainsKey(connection))
@@ -339,19 +340,19 @@ namespace JobReporter2.ViewModel
                             StartTime = startTime,
                             EndTime = endTime,
                             TotalTime = totalTime,
-                            MachineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime) ? machineTime : (TimeSpan?)null,
+                            MachineTime = machineTime,
+                            CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : machineTime,
                             FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : 0,
                             SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
-                            PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : (TimeSpan?)null,
+                            PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : totalTime - machineTime,
                             SheetCount = row.Table.Columns.Contains("SheetCount") && float.TryParse(row["SheetCount"].ToString(), out float sheetCount) ? sheetCount : 0,
                             SheetChangeTime = row.Table.Columns.Contains("SheetChangeTime") && TimeSpan.TryParse(row["SheetChangeTime"].ToString(), out TimeSpan sheetChangeTime) ? sheetChangeTime : (TimeSpan?)null,
                             Tools = row.Table.Columns.Contains("Tools") ? row["Tools"].ToString() : null,
                             ToolChangeTime = row.Table.Columns.Contains("ToolChangeTime") && TimeSpan.TryParse(row["ToolChangeTime"].ToString(), out TimeSpan toolChangeTime) ? toolChangeTime : (TimeSpan?)null,
                             ToolAvgTimes = row.Table.Columns.Contains("ToolAvgTimes") && TimeSpan.TryParse(row["ToolAvgTimes"].ToString(), out TimeSpan toolAvgTimes) ? toolAvgTimes : (TimeSpan?)null,
-                            Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null,
-                            Flagged = row.Table.Columns.Contains("Flagged") && bool.TryParse(row["Flagged"].ToString(), out bool flagged) ? flagged : false
+                            Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null
                         };
-
+                        job.Flagged = job.CalculateFlagged();
                         job.WastedTime = job.TotalTime - job.MachineTime;
                         job.GeneratePieChart();
 
@@ -414,7 +415,7 @@ namespace JobReporter2.ViewModel
             FilteredJobs = AllJobs;
             FilteredRecordCount = AllJobs.Count;
             JobViewModel.Jobs = FilteredJobs;
-            JobViewModel.UpdateVisibleColumns();
+            //JobViewModel.UpdateVisibleColumns();
 
         }
 
@@ -435,7 +436,7 @@ namespace JobReporter2.ViewModel
             );
             FilteredRecordCount = FilteredJobs.Count;
             JobViewModel.Jobs = FilteredJobs;
-            JobViewModel.UpdateVisibleColumns();
+            //JobViewModel.UpdateVisibleColumns();
             Console.WriteLine(FilteredRecordCount);
             var filters = new List<string>();
             if (startDate.HasValue) filters.Add($"Start Date: {startDate.Value.ToShortDateString()}");

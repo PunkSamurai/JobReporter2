@@ -26,6 +26,10 @@ public static class ReportFactory
         {
             return GenerateShiftJobReport(filteredJobs, timeFrame);
         }
+        else if (reportType == "Advanced Shift Productivity (Time)")
+        {
+            return GenerateAdvancedShiftTimeReport(filteredJobs, timeFrame);
+        }
         else
         {
             return null;
@@ -62,7 +66,7 @@ public static class ReportFactory
     {
         Position = AxisPosition.Bottom,  // Changed to Left
         Title = timeFrame,
-        Key = "TimeFrames",
+        Key = "yaxis",
         ItemsSource = groupedData.Keys
     };
 
@@ -89,7 +93,7 @@ public static class ReportFactory
             IsStacked = false,  // Ensure bars aren't stacked
             BaseValue = 0,  // Start bars from 0
             XAxisKey = "xaxis",
-            YAxisKey = "TimeFrames"
+            YAxisKey = "yaxis"
         };
 
         // Populate the series
@@ -210,7 +214,7 @@ public static class ReportFactory
         {
             Position = AxisPosition.Bottom,
             Title = timeFrame,
-            Key = "TimeFrames",
+            Key = "yaxis",
             ItemsSource = groupedData.Keys
         };
 
@@ -239,7 +243,7 @@ public static class ReportFactory
                 IsStacked = false,
                 BaseValue = 0,
                 XAxisKey = "xaxis",
-                YAxisKey = "TimeFrames"
+                YAxisKey = "yaxis"
             };
 
             // Populate the series
@@ -264,5 +268,111 @@ public static class ReportFactory
 
         return plotModel;
     }
+
+    public static PlotModel GenerateAdvancedShiftTimeReport(ObservableCollection<JobModel> filteredJobs, string timeFrame)
+    {
+        // Validate input
+        if (filteredJobs == null || filteredJobs.Count == 0)
+            throw new ArgumentException("No job data provided");
+
+        // Create the plot model
+        var plotModel = new PlotModel
+        {
+            Title = $"Advanced Shift Time Report - {timeFrame}"
+        };
+
+        // Get unique shifts
+        var uniqueShifts = filteredJobs
+            .Select(j => j.Shift)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList();
+
+        // Group data based on timeframe
+        var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
+
+        
+        var categoryAxis = new CategoryAxis
+        {
+            Position = AxisPosition.Bottom,
+            Title = timeFrame,
+            Key = "yaxis",
+            ItemsSource = groupedData.Keys
+        };
+
+        var valueAxis = new LinearAxis
+        {
+            Position = AxisPosition.Left,
+            Title = "Hours",
+            MinimumPadding = 0.1,
+            MaximumPadding = 0.1,
+            Key = "xaxis"
+        };
+
+        // Add bar series for each time type (Machine Time, Prep Time, Wasted Time) for each shift
+        foreach (var shift in uniqueShifts)
+        {
+            // Machine Time series
+            var machineTimeSeries = new BarSeries
+            {
+                Title = $"{shift} - Machine Time",
+                IsStacked = true,
+                FillColor = OxyColors.SkyBlue,
+                XAxisKey = "xaxis",
+                YAxisKey = "yaxis"
+            };
+
+            // Prep Time series
+            var prepTimeSeries = new BarSeries
+            {
+                Title = $"{shift} - Prep Time",
+                IsStacked = true,
+                FillColor = OxyColors.LightGreen,
+                XAxisKey = "xaxis",
+                YAxisKey = "yaxis"
+            };
+
+            // Wasted Time series
+            var wastedTimeSeries = new BarSeries
+            {
+                Title = $"{shift} - Wasted Time",
+                IsStacked = true,
+                FillColor = OxyColors.LightCoral,
+                XAxisKey = "xaxis",
+                YAxisKey = "yaxis"
+            };
+
+            // Populate series with data
+            foreach (var timeGroup in groupedData)
+            {
+                var machineTime = timeGroup.Value
+                    .Where(j => j.Shift == shift && j.MachineTime.HasValue)
+                    .Sum(j => j.MachineTime.Value.TotalHours);
+
+                var prepTime = timeGroup.Value
+                    .Where(j => j.Shift == shift && j.PrepTime.HasValue)
+                    .Sum(j => j.PrepTime.Value.TotalHours);
+
+                var wastedTime = timeGroup.Value
+                    .Where(j => j.Shift == shift && j.WastedTime.HasValue)
+                    .Sum(j => j.WastedTime.Value.TotalHours);
+
+                machineTimeSeries.Items.Add(new BarItem { Value = machineTime });
+                prepTimeSeries.Items.Add(new BarItem { Value = prepTime });
+                wastedTimeSeries.Items.Add(new BarItem { Value = wastedTime });
+            }
+
+            plotModel.Series.Add(machineTimeSeries);
+            plotModel.Series.Add(prepTimeSeries);
+            plotModel.Series.Add(wastedTimeSeries);
+        }
+
+        // Add axes to the plot
+        plotModel.Axes.Add(categoryAxis);
+        plotModel.Axes.Add(valueAxis);
+
+        return plotModel;
+    }
+
 }
 

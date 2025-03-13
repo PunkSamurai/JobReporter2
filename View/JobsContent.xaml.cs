@@ -1,6 +1,9 @@
-﻿using JobReporter2.ViewModel;
+﻿using JobReporter2.Helpers;
+using JobReporter2.Model;
+using JobReporter2.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -22,12 +25,19 @@ namespace JobReporter2.View
     /// </summary>
     public partial class JobsContent
     {
+        public ObservableCollection<JobModel> Jobs { get; set; }
+
         public JobsContent()
         {
             this.Resources["EndTypeToBrushConverter"] = new EndTypeToBrushConverter();
+            this.Resources["FlagToBrushConverter"] = new FlagToBrushConverter();
+            this.Resources["CutTimeToBrushConverter"] = new CutTimeToBrushConverter();
+            this.Resources["PauseTimeToBrushConverter"] = new PauseTimeToBrushConverter();
+            this.Resources["ShiftToBrushConverter"] = new ShiftToBrushConverter();
             InitializeComponent();
+            Loaded += JobsContent_Loaded;
             // DataContext = new MainViewModel();
-            
+
         }
 
         private class EndTypeToBrushConverter : IValueConverter
@@ -36,17 +46,10 @@ namespace JobReporter2.View
             {
                 if (value is string endType)
                 {
-                    switch (endType)
-                    {
-                        case "Job failed.":
-                            return Brushes.LightCoral;
-                        case "Job halted.":
-                            return Brushes.LightYellow;
-                        case "Job completed.":
-                            return Brushes.LightGreen;
-                        default:
-                            return Brushes.Transparent;
-                    }
+                    if (endType == "Job completed.")
+                        return Brushes.LightGreen;
+                    else
+                        return Brushes.LightCoral;
                 }
                 return Brushes.Transparent;
             }
@@ -54,6 +57,158 @@ namespace JobReporter2.View
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
                 throw new NotSupportedException();
+            }
+        }
+
+        private class CutTimeToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data)
+                {
+                    if (data.TotalTime.TotalSeconds > 0)
+                    {
+                        double ratio = data.CutTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
+
+                        if (ratio > 0.75)
+                            return Brushes.LightGreen;
+                        else if (ratio > 0.5)
+                            return Brushes.Yellow;
+                        return Brushes.LightCoral;
+                    }
+                }
+
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+
+        private class PauseTimeToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data)
+                {
+                    if (data.TotalTime.TotalSeconds > 0)
+                    {
+                        double ratio = data.PauseTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
+
+                        if (ratio < 0.25)
+                            return Brushes.LightGreen;
+                        else if (ratio < 0.5)
+                            return Brushes.Yellow;
+                        return Brushes.LightCoral;
+                    }
+                }
+
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        private class FlagToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is bool isFlagged)
+                {
+                    return isFlagged ? Brushes.Red : Brushes.White;
+                }
+                return Brushes.White; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        private class ShiftToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                ObservableCollection<ShiftModel> Shifts;
+                Shifts = SettingsHelper.LoadShifts();
+                ObservableCollection<String> ShiftNames = new ObservableCollection<String>();
+                foreach (ShiftModel shift in Shifts)
+                {
+                    ShiftNames.Add(shift.Name);
+                }
+                Console.Write(ShiftNames);
+                if(value is string shiftName)
+                {
+                    if (shiftName == ShiftNames[0])
+                        return Brushes.LightSteelBlue;
+                    else if (shiftName == ShiftNames[1])
+                        return Brushes.PowderBlue;
+                    else if (shiftName == ShiftNames[2])
+                        return Brushes.LightSkyBlue;
+                    else if (shiftName == ShiftNames[3])
+                        return Brushes.LightSeaGreen;
+                    else if(shiftName == ShiftNames[4])
+                        return Brushes.Aqua;
+                    return Brushes.Transparent;
+                }
+                // Additional logic to convert ShiftNames to Brush can be added here
+                return Brushes.Transparent; // Default return value
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+
+        private void JobsContent_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Call UpdateVisibleColumns when the component is initialized
+            UpdateVisibleColumns();
+        }
+
+        private void UpdateVisibleColumns()
+        {
+            if (JobDataGrid == null || Jobs == null || !Jobs.Any())
+                return;
+
+            foreach (var column in JobDataGrid.Columns)
+            {
+                if (column is DataGridBoundColumn boundColumn && boundColumn.Binding is Binding binding)
+                {
+                    var bindingPath = binding.Path.Path;
+                    if (string.IsNullOrEmpty(bindingPath))
+                        continue;
+
+                    // Get distinct values for the column
+                    var distinctValues = Jobs
+                        .Select(job => typeof(JobModel).GetProperty(bindingPath)?.GetValue(job))
+                        .Distinct()
+                        .ToList();
+
+                    // Logic for column visibility
+                    if (bindingPath == "Connection" || bindingPath == "OEMString")
+                    {
+                        column.Visibility = distinctValues.Count <= 1
+                            ? Visibility.Collapsed
+                            : Visibility.Visible;
+                    }
+                    else
+                    {
+                        // Hide if all values are null
+                        column.Visibility = distinctValues.All(value => value == null)
+                            ? Visibility.Collapsed
+                            : Visibility.Visible;
+                    }
+                }
             }
         }
     }

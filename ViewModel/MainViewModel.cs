@@ -285,8 +285,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
@@ -355,7 +355,8 @@ namespace JobReporter2.ViewModel
                         job.Flagged = job.CalculateFlagged();
                         job.WastedTime = job.TotalTime - job.MachineTime;
                         job.GeneratePieChart();
-
+                        job.PreviewImagePath = job.GetPreviewImagePath();
+                        Console.WriteLine($"PREVIEW IMAGE PATH: {job.PreviewImagePath}");
                         return job;
                     })
                 );

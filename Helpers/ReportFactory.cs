@@ -291,7 +291,7 @@ public static class ReportFactory
         // Group data based on timeframe
         var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
 
-        
+        // Create category axis
         var categoryAxis = new CategoryAxis
         {
             Position = AxisPosition.Bottom,
@@ -300,6 +300,7 @@ public static class ReportFactory
             ItemsSource = groupedData.Keys
         };
 
+        // Create value axis
         var valueAxis = new LinearAxis
         {
             Position = AxisPosition.Left,
@@ -309,62 +310,109 @@ public static class ReportFactory
             Key = "xaxis"
         };
 
-        // Add bar series for each time type (Machine Time, Prep Time, Wasted Time) for each shift
-        foreach (var shift in uniqueShifts)
+        // Add a legend
+        plotModel.Legends.Add(new Legend
         {
-            // Machine Time series
-            var machineTimeSeries = new BarSeries
-            {
-                Title = $"{shift} - Machine Time",
-                IsStacked = true,
-                FillColor = OxyColors.SkyBlue,
-                XAxisKey = "xaxis",
-                YAxisKey = "yaxis"
-            };
+            LegendPosition = LegendPosition.RightTop,
+            LegendPlacement = LegendPlacement.Outside
+        });
 
-            // Prep Time series
-            var prepTimeSeries = new BarSeries
-            {
-                Title = $"{shift} - Prep Time",
-                IsStacked = true,
-                FillColor = OxyColors.LightGreen,
-                XAxisKey = "xaxis",
-                YAxisKey = "yaxis"
-            };
+        // Calculate number of categories
+        int categoryCount = groupedData.Count;
 
-            // Wasted Time series
-            var wastedTimeSeries = new BarSeries
+        // Loop through each time period (categories on the x-axis)
+        int categoryIndex = 0;
+        foreach (var timeGroup in groupedData)
+        {
+            // Loop through each shift (groups within each category)
+            int shiftIndex = 0;
+            foreach (var shift in uniqueShifts)
             {
-                Title = $"{shift} - Wasted Time",
-                IsStacked = true,
-                FillColor = OxyColors.LightCoral,
-                XAxisKey = "xaxis",
-                YAxisKey = "yaxis"
-            };
+                var jobsInShift = timeGroup.Value.Where(j => j.Shift == shift).ToList();
 
-            // Populate series with data
-            foreach (var timeGroup in groupedData)
-            {
-                var machineTime = timeGroup.Value
-                    .Where(j => j.Shift == shift && j.MachineTime.HasValue)
+                var machineTime = jobsInShift
+                    .Where(j => j.MachineTime.HasValue)
                     .Sum(j => j.MachineTime.Value.TotalHours);
 
-                var prepTime = timeGroup.Value
-                    .Where(j => j.Shift == shift && j.PrepTime.HasValue)
+                var prepTime = jobsInShift
+                    .Where(j => j.PrepTime.HasValue)
                     .Sum(j => j.PrepTime.Value.TotalHours);
 
-                var wastedTime = timeGroup.Value
-                    .Where(j => j.Shift == shift && j.WastedTime.HasValue)
+                var wastedTime = jobsInShift
+                    .Where(j => j.WastedTime.HasValue)
                     .Sum(j => j.WastedTime.Value.TotalHours);
 
-                machineTimeSeries.Items.Add(new BarItem { Value = machineTime });
-                prepTimeSeries.Items.Add(new BarItem { Value = prepTime });
-                wastedTimeSeries.Items.Add(new BarItem { Value = wastedTime });
-            }
+                // Create or retrieve series for each time type
+                string machineTimeKey = $"{shift} - Machine Time";
+                string prepTimeKey = $"{shift} - Prep Time";
+                string wastedTimeKey = $"{shift} - Wasted Time";
 
-            plotModel.Series.Add(machineTimeSeries);
-            plotModel.Series.Add(prepTimeSeries);
-            plotModel.Series.Add(wastedTimeSeries);
+                // Find existing series or create new ones
+                BarSeries machineTimeSeries = plotModel.Series.OfType<BarSeries>().FirstOrDefault(s => s.Title == machineTimeKey);
+                BarSeries prepTimeSeries = plotModel.Series.OfType<BarSeries>().FirstOrDefault(s => s.Title == prepTimeKey);
+                BarSeries wastedTimeSeries = plotModel.Series.OfType<BarSeries>().FirstOrDefault(s => s.Title == wastedTimeKey);
+
+                if (machineTimeSeries == null)
+                {
+                    machineTimeSeries = new BarSeries
+                    {
+                        Title = machineTimeKey,
+                        StrokeColor = OxyColors.Black,
+                        StrokeThickness = 1,
+                        FillColor = GetColorForIndex(shiftIndex),
+                        IsStacked = true,
+                        StackGroup = $"{categoryIndex}-{shiftIndex}",
+                        XAxisKey = "xaxis",
+                        YAxisKey = "yaxis"
+                    };
+                    plotModel.Series.Add(machineTimeSeries);
+                }
+
+                if (prepTimeSeries == null)
+                {
+                    prepTimeSeries = new BarSeries
+                    {
+                        Title = prepTimeKey,
+                        StrokeColor = OxyColors.Black,
+                        StrokeThickness = 1,
+                        FillColor = LightenColor(GetColorForIndex(shiftIndex), 0.3),
+                        IsStacked = true,
+                        StackGroup = $"{categoryIndex}-{shiftIndex}",
+                        XAxisKey = "xaxis",
+                        YAxisKey = "yaxis"
+                    };
+                    plotModel.Series.Add(prepTimeSeries);
+                }
+
+                if (wastedTimeSeries == null)
+                {
+                    wastedTimeSeries = new BarSeries
+                    {
+                        Title = wastedTimeKey,
+                        StrokeColor = OxyColors.Black,
+                        StrokeThickness = 1,
+                        FillColor = LightenColor(GetColorForIndex(shiftIndex), 0.6),
+                        IsStacked = true,
+                        StackGroup = $"{categoryIndex}-{shiftIndex}",
+                        XAxisKey = "xaxis",
+                        YAxisKey = "yaxis"
+                    };
+                    plotModel.Series.Add(wastedTimeSeries);
+                }
+
+                // Calculate offset for this shift's group within the category
+                double barGroupWidth = 0.8; // Width of the entire bar group as a fraction of category width
+                double barWidth = barGroupWidth / uniqueShifts.Count;
+                double offset = shiftIndex * barWidth - (barGroupWidth / 2) + (barWidth / 2);
+
+                // Add data points with calculated offset
+                machineTimeSeries.Items.Add(new BarItem { Value = machineTime, CategoryIndex = categoryIndex + (int) offset });
+                prepTimeSeries.Items.Add(new BarItem { Value = prepTime, CategoryIndex = categoryIndex + (int)offset });
+                wastedTimeSeries.Items.Add(new BarItem { Value = wastedTime, CategoryIndex = categoryIndex + (int)offset });
+
+                shiftIndex++;
+            }
+            categoryIndex++;
         }
 
         // Add axes to the plot
@@ -372,6 +420,17 @@ public static class ReportFactory
         plotModel.Axes.Add(valueAxis);
 
         return plotModel;
+    }
+
+    // Helper method to create lighter versions of colors for the stacked segments
+    private static OxyColor LightenColor(OxyColor color, double factor)
+    {
+        // Create a lighter version of the provided color
+        byte r = (byte)Math.Min(255, color.R + (255 - color.R) * factor);
+        byte g = (byte)Math.Min(255, color.G + (255 - color.G) * factor);
+        byte b = (byte)Math.Min(255, color.B + (255 - color.B) * factor);
+
+        return OxyColor.FromRgb(r, g, b);
     }
 
 }

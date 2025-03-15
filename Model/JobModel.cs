@@ -3,6 +3,7 @@ using OxyPlot;
 using System;
 using System.ComponentModel;
 using OxyPlot.Legends;
+using System.IO;
 
 namespace JobReporter2.Model
 {
@@ -41,7 +42,7 @@ namespace JobReporter2.Model
         public string Size { get; set; }
         public bool Flagged { get; set; }
 
-
+        public string PreviewImagePath { get; set; }
         public PlotModel PieChartModel { get; private set; }
 
         public bool CalculateFlagged()
@@ -114,6 +115,82 @@ namespace JobReporter2.Model
             PieChartModel = plotModel;
 
             Console.WriteLine("Pie chart generated successfully.");
+        }
+
+        public string GetPreviewImagePath()
+        {
+            if (string.IsNullOrEmpty(JobFile))
+            {
+                Console.WriteLine("Debug: JobFile is null or empty.");
+                return string.Empty;
+            }
+
+            // Determine the base application data path for "MachineToolSuite510"
+            string appDataPath = GetApplicationDataPath("MachineToolSuite510", useAllUsers: true);
+            // Build the preview cache directory: "Temp\PreviewCache"
+            string cacheDir = Path.Combine(appDataPath, "Temp", "PreviewCache");
+
+            if (!Directory.Exists(cacheDir))
+            {
+                Console.WriteLine($"Debug: Cache directory not found. Creating directory at: {cacheDir}");
+                Directory.CreateDirectory(cacheDir);
+            }
+
+            // Get the job file name without folder and extension
+            string jobFileName = Path.GetFileNameWithoutExtension(JobFile);
+            Console.WriteLine($"Debug: Job file name (no extension): {jobFileName}");
+
+            // Compute the hash using a case-insensitive method
+            uint hash = HashKeyNoCase(jobFileName);
+            Console.WriteLine($"Debug: Computed hash: {hash}");
+
+            // Construct the final preview file path with PNG extension
+            string cacheFile = Path.Combine(cacheDir, $"{hash}.png");
+            Console.WriteLine($"Debug: Generated preview image path: {cacheFile}");
+
+            return cacheFile;
+        }
+
+        /// <summary>
+        /// Retrieves the application data path for the specified application name.
+        /// Creates the directory if it does not exist.
+        /// </summary>
+        private string GetApplicationDataPath(string appName, bool useAllUsers)
+        {
+            string basePath = useAllUsers
+                ? Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)
+                : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            string targetPath = Path.Combine(basePath, appName);
+
+            if (!Directory.Exists(targetPath))
+            {
+                Console.WriteLine($"Debug: Creating application data path: {targetPath}");
+                Directory.CreateDirectory(targetPath);
+            }
+
+            return targetPath;
+        }
+
+        /// <summary>
+        /// Computes a simple hash for the given key.
+        /// </summary>
+        private uint HashKey(string key)
+        {
+            uint hash = 0;
+            foreach (char c in key)
+            {
+                hash = (hash << 5) + hash + c;
+            }
+            return hash;
+        }
+
+        /// <summary>
+        /// Computes a case-insensitive hash by converting the key to lowercase first.
+        /// </summary>
+        private uint HashKeyNoCase(string key)
+        {
+            return HashKey(key.ToLowerInvariant());
         }
 
     }

@@ -129,7 +129,19 @@
                     <DataGridTextColumn Header="End Time" Binding="{Binding EndTime, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True"/>
 
                     <!-- Total Time Column -->
-                    <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="Total Time" SortMemberPath="TotalTime">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" 
+                                        Value="{Binding Converter={StaticResource TotalTimeToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding TotalTime}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
                     <!-- Time Estimate Column -->
                     <DataGridTextColumn Header="Estimated Time" Binding="{Binding TimeEstimate}" IsReadOnly="True"/>

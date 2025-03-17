@@ -14,6 +14,7 @@ using System.Windows;
 using System.Threading.Tasks;
 using OxyPlot.Series;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace JobReporter2.ViewModel
 {
@@ -26,8 +27,10 @@ namespace JobReporter2.ViewModel
         private string _selectedFilter;
         private string _selectedReportType;
         private string _selectedTimeFrame;
+        private string _filePath;
         private int _recordCount;
         private int _filteredRecordCount;
+        private int _selectedTabIndex;
 
         private ObservableCollection<ShiftModel> _shifts;
         private ShiftModel _selectedShift;
@@ -59,6 +62,19 @@ namespace JobReporter2.ViewModel
         {
             get => _filteredJobs;
             set => SetProperty(ref _filteredJobs, value);
+        }
+
+        public int SelectedTabIndex
+        {
+            get => _selectedTabIndex;
+            set
+            {
+                if (_selectedTabIndex != value)
+                {
+                    _selectedTabIndex = value;
+                    OnPropertyChanged(nameof(SelectedTabIndex));
+                }
+            }
         }
 
         public JobModel SelectedJob
@@ -94,7 +110,11 @@ namespace JobReporter2.ViewModel
             get => _filteredRecordCount;
             set => SetProperty(ref _filteredRecordCount, value);
         }
-
+        public string FilePath
+        {
+            get => _filePath;
+            set => SetProperty(ref _filePath, value);
+        }
         public ObservableCollection<ShiftModel> Shifts
         {
             get => _shifts;
@@ -297,8 +317,23 @@ namespace JobReporter2.ViewModel
         {
             try
             {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "XML Job History files (*.xjh)|*.xjh|All files (*.*)|*.*";
+                // openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                openFileDialog.Title = "Select Job History File";
                 DataSet dataSet = new DataSet();
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+
+                if (openFileDialog.ShowDialog() == true)
+                {
+                    FilePath = openFileDialog.FileName;
+                    dataSet.ReadXml(FilePath);
+                }
+                else
+                {
+                    return;
+                }
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
@@ -486,27 +521,39 @@ namespace JobReporter2.ViewModel
         {
             try
             {
-                // Create a new tab
-                var reportTab = new TabItem
-                {
-                    Header = $"Report {Tabs.Count}"
-                };
+                int reportNumber = Tabs.Count;
 
-                // Create and configure the ReportContent
+                // Create the content first
                 var reportContent = new ReportContent
                 {
-                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, SelectedReportType, SelectedTimeFrame) // Generate the PlotModel for the report
+                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, SelectedReportType, SelectedTimeFrame)
                 };
 
-                // Set the ReportContent as the content of the tab
-                reportTab.Content = reportContent;
+                // Create a tab item with a custom header object
+                var reportTab = new TabItem
+                {
+                    Content = reportContent,
+                    HeaderTemplate = Application.Current.Resources["CloseableTabHeaderTemplate"] as DataTemplate
+                };
+
+                // Create the header with a close action
+                var header = new ReportTabHeader(
+                    $"Report {reportNumber}",
+                    h => Tabs.Remove(reportTab) // This is the close action
+                );
+
+                // Set the header as the Header property
+                reportTab.Header = header;
 
                 // Add the tab to the TabControl
                 Tabs.Add(reportTab);
 
+                // Select the newly created tab
+                SelectedTabIndex = Tabs.Count - 1;
             }
             catch (Exception ex)
             {
+                // Show error message - in MVVM this would be better with a message service
                 MessageBox.Show($"Error generating report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

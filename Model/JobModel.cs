@@ -51,16 +51,20 @@ namespace JobReporter2.Model
 
         public bool CalculateFlagged()
         {
-            if (TotalTime.TotalSeconds == 0)
+            if (TotalTime.TotalSeconds != 0)
+            {
+                double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+                double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+
+                return (cutRatio <= 0.75) || (prepRatio >= 0.25 || EndType != "Job completed.");
+            }
+            else if (TotalTime.TotalSeconds == 0)
+            {
                 return true;
+            }
 
-            if (EndType != "Job completed.")
-                return true;
+            return false;
 
-            double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-
-            return (cutRatio <= 0.75) || (prepRatio >= 0.25);
         }
 
         public JobModel()

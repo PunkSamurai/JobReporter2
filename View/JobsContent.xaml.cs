@@ -35,6 +35,7 @@ namespace JobReporter2.View
             this.Resources["PauseTimeToBrushConverter"] = new PauseTimeToBrushConverter();
             this.Resources["PrepTimeToBrushConverter"] = new PrepTimeToBrushConverter();
             this.Resources["ShiftToBrushConverter"] = new ShiftToBrushConverter();
+            this.Resources["TotalTimeToBrushConverter"] = new TotalTimeToBrushConverter();
             InitializeComponent();
             Loaded += JobsContent_Loaded;
             // DataContext = new MainViewModel();
@@ -105,6 +106,7 @@ namespace JobReporter2.View
                             return Brushes.Yellow;
                         return Brushes.LightCoral;
                     }
+                    
                 }
 
                 return Brushes.Transparent; // Default
@@ -132,6 +134,8 @@ namespace JobReporter2.View
                             return Brushes.Yellow;
                         return Brushes.LightCoral;
                     }
+                    else if (data.TotalTime.TotalSeconds == 0)
+                        return Brushes.LightCoral;
                 }
 
                 return Brushes.Transparent; // Default
@@ -159,9 +163,11 @@ namespace JobReporter2.View
                             return Brushes.Yellow;
                         return Brushes.LightCoral;
                     }
+                    else if (data.TotalTime.TotalSeconds == 0)
+                        return Brushes.LightCoral;
                 }
 
-                return Brushes.Transparent; // Default
+                return null; // Default
             }
 
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

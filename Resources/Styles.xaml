@@ -19,4 +19,32 @@
     <SolidColorBrush x:Key="BackgroundShift4" Color="#F5D491" />
     <SolidColorBrush x:Key="BackgroundShift5" Color="#E899DC" />
 
+    <DataTemplate x:Key="CloseableTabHeaderTemplate">
+        <Grid Margin="2,0,2,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Tab Header Text -->
+            <TextBlock Text="{Binding Title}" Grid.Column="0" Margin="2,0,8,0" VerticalAlignment="Center" />
+
+            <!-- Close Button - Styled Better -->
+            <Button Grid.Column="1" 
+                Content="✕" 
+                FontSize="12"
+                FontWeight="Bold"
+                Width="16" 
+                Height="16" 
+                Padding="0"
+                Margin="0,0,2,0"
+                Background="Transparent"
+                BorderThickness="0"
+                Foreground= "Crimson"
+                Command="{Binding CloseCommand}">
+                
+            </Button>
+        </Grid>
+    </DataTemplate>
+
 </ResourceDictionary>

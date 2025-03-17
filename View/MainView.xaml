@@ -37,7 +37,12 @@
 
         <!-- Status Bar -->
         <Grid Grid.Row="1" Background="{StaticResource StatusBarBackground}" >
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding FilePath}" Grid.Column="0" HorizontalAlignment="Left" Foreground="White" Margin="10, 0, 0, 0"/>
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="Records Loaded:" Margin="0,0,10,0" Foreground="White" />
 				<TextBlock Text="{Binding FilteredRecordCount}" Margin="0,0,10,0" Foreground="White" />
 				<TextBlock Text="/" Margin="0,0,10,0" Foreground="White" />

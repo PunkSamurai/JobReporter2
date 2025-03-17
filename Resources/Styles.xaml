@@ -11,6 +11,12 @@
 
     <!-- StatusBar Background Brush -->
     <SolidColorBrush x:Key="StatusBarBackground" Color="#0078D7" />
-
+       
+    <!-- Shift Colours-->
+    <SolidColorBrush x:Key="BackgroundShift1" Color="#8A7FB4" />
+    <SolidColorBrush x:Key="BackgroundShift2" Color="#71A9F7" />
+    <SolidColorBrush x:Key="BackgroundShift3" Color="#5F9EA0" />
+    <SolidColorBrush x:Key="BackgroundShift4" Color="#F5D491" />
+    <SolidColorBrush x:Key="BackgroundShift5" Color="#E899DC" />
 
 </ResourceDictionary>

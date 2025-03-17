@@ -25,8 +25,19 @@
                 </Style>
             </DataGrid.Resources>
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Shift Name" 
-                          Binding="{Binding Name}" />
+                <DataGridTemplateColumn Header="Shift Name" SortMemberPath="Name">
+                    <DataGridTemplateColumn.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Background" 
+                                    Value="{Binding Name, Converter={StaticResource ShiftToBrushConverter}}" />
+                        </Style>
+                    </DataGridTemplateColumn.CellStyle>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
                 <DataGridTextColumn Header="Start Time" 
                           Binding="{Binding StartTime, StringFormat=hh\\:mm}">
                     <DataGridTextColumn.EditingElementStyle>

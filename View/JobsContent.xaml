@@ -67,6 +67,9 @@
                     <!-- Name Column -->
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
 
+                    <!-- CutLenght Column -->
+                    <DataGridTextColumn Header="Cut Length" Binding="{Binding CutLength}" IsReadOnly="True"/>
+
                     <!-- Size Column -->
                     <DataGridTextColumn Header="Size" Binding="{Binding Size}" IsReadOnly="True"/>
 
@@ -86,7 +89,7 @@
                     </DataGridTemplateColumn>
 
                     <!-- Start Type Column -->
-                    <DataGridTextColumn Header="Start Type" Binding="{Binding StartType}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Start Type" Binding="{Binding ShortenedStartType}" IsReadOnly="True"/>
 
                     <!-- End Type Column with Conditional Formatting -->
                     <DataGridTemplateColumn Header="End Type" SortMemberPath="EndType" IsReadOnly="True">
@@ -105,7 +108,19 @@
 
 
                     <!-- Prep Time Column -->
-                    <DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" IsReadOnly="True"/>
+                    <DataGridTemplateColumn Header="Prep Time" SortMemberPath="PrepTime">
+                        <DataGridTemplateColumn.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Background" 
+                                        Value="{Binding Converter={StaticResource PrepTimeToBrushConverter}}" />
+                            </Style>
+                        </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding PrepTime}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
 
                     <!-- Start Time Column -->
                     <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True"/>
@@ -115,6 +130,9 @@
 
                     <!-- Total Time Column -->
                     <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" IsReadOnly="True"/>
+
+                    <!-- Time Estimate Column -->
+                    <DataGridTextColumn Header="Estimated Time" Binding="{Binding TimeEstimate}" IsReadOnly="True"/>
 
                     <!-- Machine Time Column -->
                     <DataGridTextColumn Header="Machine Time" Binding="{Binding MachineTime}" IsReadOnly="True"/>
@@ -137,12 +155,12 @@
 
                     <!-- Pause Time Column -->
                     <DataGridTemplateColumn Header="Pause Time" SortMemberPath="PauseTime">
-                        <DataGridTemplateColumn.CellStyle>
+                        <!--<DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background" 
                                         Value="{Binding Converter={StaticResource PauseTimeToBrushConverter}}" />
                             </Style>
-                        </DataGridTemplateColumn.CellStyle>
+                        </DataGridTemplateColumn.CellStyle>-->
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding PauseTime}" />

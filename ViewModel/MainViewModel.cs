@@ -116,6 +116,7 @@ namespace JobReporter2.ViewModel
         public HashSet<string> UniqueNames { get; private set; }
         public HashSet<string> UniqueConnections { get; private set; }
         public HashSet<string> UniqueEndTypes { get; private set; }
+        public HashSet<string> UniqueShifts { get; private set; }
 
         // Constructor
         public JobViewModel JobViewModel { get; }
@@ -126,6 +127,11 @@ namespace JobReporter2.ViewModel
             FilteredJobs = new ObservableCollection<JobModel>();
             Shifts = new ObservableCollection<ShiftModel>();
             Shifts = SettingsHelper.LoadShifts();
+            UniqueShifts = new HashSet<string>();
+            foreach (var shift in Shifts)
+            {
+                UniqueShifts.Add(shift.Name);
+            }
             Console.WriteLine(Shifts);
             SelectedFilter = "No filters applied";
 
@@ -259,7 +265,8 @@ namespace JobReporter2.ViewModel
 
             var shiftManagerView = new ShiftManagerView
             {
-                DataContext = shiftManagerViewModel
+                DataContext = shiftManagerViewModel,
+                Owner = Application.Current.MainWindow
             };
 
             if (shiftManagerView.ShowDialog() == true)
@@ -275,6 +282,12 @@ namespace JobReporter2.ViewModel
                         EndTime = s.EndTime
                     })
                 );
+                UniqueShifts.Clear();
+                foreach (var shift in Shifts)
+                {
+                    UniqueShifts.Add(shift.Name);
+                    Console.WriteLine(shift.Name);
+                }
                 AssignShiftsToJobs();
             }
         }
@@ -285,8 +298,8 @@ namespace JobReporter2.ViewModel
             try
             {
                 DataSet dataSet = new DataSet();
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
+                dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
+                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
                 // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
@@ -347,7 +360,7 @@ namespace JobReporter2.ViewModel
                             FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : (float?)null,
                             SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
                             PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : totalTime - machineTime,
-                            SheetCount = row.Table.Columns.Contains("SheetCount") && float.TryParse(row["SheetCount"].ToString(), out float sheetCount) ? sheetCount : 0,
+                            SheetCount = row.Table.Columns.Contains("SheetCount") && float.TryParse(row["SheetCount"].ToString(), out float sheetCount) ? sheetCount : (float?) null,
                             TimeEstimate = row.Table.Columns.Contains("TimeEstimate") && TimeSpan.TryParse(row["TimeEstimate"].ToString(), out TimeSpan timeEstimate) ? timeEstimate : (TimeSpan?)null,
                             SheetChangeTime = row.Table.Columns.Contains("SheetChangeTime") && TimeSpan.TryParse(row["SheetChangeTime"].ToString(), out TimeSpan sheetChangeTime) ? sheetChangeTime : (TimeSpan?)null,
                             Tools = row.Table.Columns.Contains("Tools") ? row["Tools"].ToString() : null,
@@ -359,6 +372,7 @@ namespace JobReporter2.ViewModel
                         job.WastedTime = job.TotalTime - job.MachineTime;
                         job.GeneratePieChart();
                         job.PreviewImagePath = job.GetPreviewImagePath();
+                        job.ShortenedStartType = job.FindShortenedStartType();
                         Console.WriteLine($"PREVIEW IMAGE PATH: {job.PreviewImagePath}");
                         return job;
                     })
@@ -398,12 +412,16 @@ namespace JobReporter2.ViewModel
                 AvailableConnections = UniqueConnections.ToList(),
                 SelectedConnections = new ObservableCollection<string>(),
                 AvailableEndTypes = UniqueEndTypes.ToList(),
-                SelectedEndTypes = new ObservableCollection<string>()
+                SelectedEndTypes = new ObservableCollection<string>(),
+                AvailableShifts = UniqueShifts.ToList(),
+                SelectedShifts = new ObservableCollection<string>(),
+                FlaggedStatus = "All"
             };
 
             var filterWindow = new FilterView
             {
-                DataContext = filterViewModel
+                DataContext = filterViewModel,
+                Owner = Application.Current.MainWindow
             };
 
             // Show filter window modally
@@ -429,24 +447,33 @@ namespace JobReporter2.ViewModel
             var endDate = filterViewModel.EndDate;
             var selectedConnections = filterViewModel.SelectedConnections;
             var selectedEndTypes = filterViewModel.SelectedEndTypes;
+            var selectedShifts = filterViewModel.SelectedShifts;
+            var flaggedStatus = filterViewModel.FlaggedStatus;
 
             FilteredJobs = new ObservableCollection<JobModel>(
                 AllJobs.Where(job =>
                     (startDate == null || job.StartTime >= startDate) &&
                     (endDate == null || job.EndTime <= endDate) &&
                     (!selectedConnections.Any() || selectedConnections.Contains(job.Connection)) &&
-                    (!selectedEndTypes.Any() || selectedEndTypes.Contains(job.EndType))
+                    (!selectedEndTypes.Any() || selectedEndTypes.Contains(job.EndType)) &&
+                    (!selectedShifts.Any() || selectedShifts.Contains(job.Shift)) &&
+                    (flaggedStatus == "All" ||
+                     (flaggedStatus == "Flagged" && job.Flagged) ||
+                     (flaggedStatus == "Unflagged" && !job.Flagged))
                 )
             );
+
             FilteredRecordCount = FilteredJobs.Count;
             JobViewModel.Jobs = FilteredJobs;
-            //JobViewModel.UpdateVisibleColumns();
-            Console.WriteLine(FilteredRecordCount);
+
+            // Update the filter display text
             var filters = new List<string>();
             if (startDate.HasValue) filters.Add($"Start Date: {startDate.Value.ToShortDateString()}");
             if (endDate.HasValue) filters.Add($"End Date: {endDate.Value.ToShortDateString()}");
             if (selectedConnections.Any()) filters.Add($"Connections: {string.Join(", ", selectedConnections)}");
             if (selectedEndTypes.Any()) filters.Add($"End Types: {string.Join(", ", selectedEndTypes)}");
+            if (selectedShifts.Any()) filters.Add($"Shifts: {string.Join(", ", selectedShifts)}");
+            if (flaggedStatus != "All") filters.Add($"Status: {flaggedStatus}");
 
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }

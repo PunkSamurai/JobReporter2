@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using JobReporter2.Model;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -171,19 +172,34 @@ public static class ReportFactory
                 DayOfWeek.Monday);
         }
 
-        private static OxyColor GetColorForIndex(int index)
+    private static OxyColor GetColorForIndex(int index)
+    {
+        // Get the colors from the resource dictionary
+        var colors = new[]
         {
-            var colors = new[]
-            {
-            OxyColors.SkyBlue,
-            OxyColors.LightGreen,
-            OxyColors.LightPink,
-            OxyColors.Orange,
-            OxyColors.Purple
-        };
+        GetOxyColorFromResource("BackgroundShift1"),
+        GetOxyColorFromResource("BackgroundShift2"),
+        GetOxyColorFromResource("BackgroundShift3"),
+        GetOxyColorFromResource("BackgroundShift4"),
+        GetOxyColorFromResource("BackgroundShift5")
+    };
 
-            return colors[index % colors.Length];
+        return colors[index % colors.Length];
+    }
+
+    private static OxyColor GetOxyColorFromResource(string resourceKey)
+    {
+        // Get the brush from the resource dictionary
+        if (Application.Current.Resources[resourceKey] is SolidColorBrush brush)
+        {
+            // Convert the brush's color to OxyColor
+            Color color = brush.Color;
+            return OxyColor.FromArgb(color.A, color.R, color.G, color.B);
         }
+
+        // Return a default color if the resource is not found
+        return OxyColors.Black;
+    }
 
 
 

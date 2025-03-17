@@ -33,6 +33,7 @@ namespace JobReporter2.View
             this.Resources["FlagToBrushConverter"] = new FlagToBrushConverter();
             this.Resources["CutTimeToBrushConverter"] = new CutTimeToBrushConverter();
             this.Resources["PauseTimeToBrushConverter"] = new PauseTimeToBrushConverter();
+            this.Resources["PrepTimeToBrushConverter"] = new PrepTimeToBrushConverter();
             this.Resources["ShiftToBrushConverter"] = new ShiftToBrushConverter();
             InitializeComponent();
             Loaded += JobsContent_Loaded;
@@ -115,6 +116,60 @@ namespace JobReporter2.View
             }
         }
 
+        private class PrepTimeToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data)
+                {
+                    if (data.TotalTime.TotalSeconds > 0)
+                    {
+                        double ratio = data.PrepTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
+                        Console.WriteLine(ratio);
+                        if (ratio < 0.25)
+                            return Brushes.LightGreen;
+                        else if (ratio < 0.5)
+                            return Brushes.Yellow;
+                        return Brushes.LightCoral;
+                    }
+                }
+
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        private class TotalTimeToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data)
+                {
+                    if (data.TotalTime.TotalSeconds > 0 && data.TimeEstimate.HasValue)
+                    {
+                        double ratio = data.TimeEstimate?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
+                        Console.WriteLine(ratio);
+                        if (ratio > 0.75)
+                            return Brushes.LightGreen;
+                        else if (ratio > 0.5)
+                            return Brushes.Yellow;
+                        return Brushes.LightCoral;
+                    }
+                }
+
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         private class FlagToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -147,15 +202,15 @@ namespace JobReporter2.View
                 if(value is string shiftName)
                 {
                     if (shiftName == ShiftNames[0])
-                        return Brushes.LightSteelBlue;
+                        return Application.Current.Resources["BackgroundShift1"];
                     else if (shiftName == ShiftNames[1])
-                        return Brushes.PowderBlue;
+                        return Application.Current.Resources["BackgroundShift2"];
                     else if (shiftName == ShiftNames[2])
-                        return Brushes.LightSkyBlue;
+                        return Application.Current.Resources["BackgroundShift3"];
                     else if (shiftName == ShiftNames[3])
-                        return Brushes.LightSeaGreen;
+                        return Application.Current.Resources["BackgroundShift4"];
                     else if(shiftName == ShiftNames[4])
-                        return Brushes.Aqua;
+                        return Application.Current.Resources["BackgroundShift5"];
                     return Brushes.Transparent;
                 }
                 // Additional logic to convert ShiftNames to Brush can be added here

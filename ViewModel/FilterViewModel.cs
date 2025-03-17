@@ -51,10 +51,24 @@ namespace JobReporter2.ViewModel
 
         public List<string> AvailableConnections { get; set; }
         public ObservableCollection<string> SelectedConnections { get; set; }
-
+        public List<string> AvailableShifts { get; set; }
+        public ObservableCollection<string> SelectedShifts { get; set; }
         public List<string> AvailableEndTypes { get; set; }
         public ObservableCollection<string> SelectedEndTypes { get; set; }
         public ObservableCollection<FilterModel> Filters { get; set; } = new ObservableCollection<FilterModel>();
+        public List<string> FlaggedStatusOptions => new List<string>
+        {
+            "All",
+            "Flagged",
+            "Unflagged"
+        };
+
+        private string _flaggedStatus = "All";
+        public string FlaggedStatus
+        {
+            get => _flaggedStatus;
+            set => SetProperty(ref _flaggedStatus, value);
+        }
 
         public FilterModel SelectedFilter
         {
@@ -80,6 +94,7 @@ namespace JobReporter2.ViewModel
         {
             SelectedConnections = new ObservableCollection<string>();
             SelectedEndTypes = new ObservableCollection<string>();
+            SelectedShifts = new ObservableCollection<string>();
 
             NewFilterCommand = new RelayCommand(CreateNewFilter);
             SaveFilterCommand = new RelayCommand(SaveCurrentFilter);
@@ -87,6 +102,7 @@ namespace JobReporter2.ViewModel
             ResetCommand = new RelayCommand(ResetFilter);
             CancelCommand = new RelayCommand(CancelFilter);
             DeleteFilterCommand = new RelayCommand(DeleteFilter);  // New delete command
+
 
             TimeFrame = "Today";
             LoadFiltersFromSettings();
@@ -136,7 +152,9 @@ namespace JobReporter2.ViewModel
                     StartDate = DateTime.Today,
                     EndDate = DateTime.Today.AddDays(1).AddSeconds(-1),
                     Connections = new ObservableCollection<string>(),
-                    EndTypes = new ObservableCollection<string>()
+                    EndTypes = new ObservableCollection<string>(),
+                    Shifts = new ObservableCollection<string>(),
+                    FlaggedStatus = "All"
                 };
 
                 Filters.Add(newFilter);
@@ -251,6 +269,8 @@ namespace JobReporter2.ViewModel
                 SelectedFilter.EndDate = EndDate;
                 SelectedFilter.Connections = new ObservableCollection<string>(SelectedConnections);
                 SelectedFilter.EndTypes = new ObservableCollection<string>(SelectedEndTypes);
+                SelectedFilter.Shifts = new ObservableCollection<string>(SelectedShifts);
+                SelectedFilter.FlaggedStatus = FlaggedStatus;
                 SettingsHelper.SaveFilters(Filters);
             }
         }
@@ -262,6 +282,8 @@ namespace JobReporter2.ViewModel
             EndDate = filter.EndDate;
             SelectedConnections = new ObservableCollection<string>(filter.Connections);
             SelectedEndTypes = new ObservableCollection<string>(filter.EndTypes);
+            SelectedShifts = new ObservableCollection<string>(filter.Shifts ?? new ObservableCollection<string>());
+            FlaggedStatus = filter.FlaggedStatus ?? "All";
         }
 
         private void LoadFiltersFromSettings()
@@ -291,6 +313,8 @@ namespace JobReporter2.ViewModel
             EndDate = null;
             SelectedConnections.Clear();
             SelectedEndTypes.Clear();
+            SelectedShifts.Clear();
+            FlaggedStatus = "All";
         }
 
         private void CancelFilter()

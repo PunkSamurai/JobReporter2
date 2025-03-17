@@ -2,21 +2,21 @@
   "Shifts": [
     {
       "Name": "Shift 1",
-      "IsEnabled": false,
+      "IsEnabled": true,
       "StartTime": "09:00:00",
-      "EndTime": "17:00:00"
+      "EndTime": "13:59:00"
     },
     {
       "Name": "Shift 2",
       "IsEnabled": true,
-      "StartTime": "12:00:00",
-      "EndTime": "23:59:00"
+      "StartTime": "14:00:00",
+      "EndTime": "17:59:00"
     },
     {
       "Name": "Shift 3",
       "IsEnabled": true,
       "StartTime": "00:00:00",
-      "EndTime": "11:59:00"
+      "EndTime": "23:59:00"
     },
     {
       "Name": "Shift 4",
@@ -26,10 +26,28 @@
     },
     {
       "Name": "Shift 5",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "StartTime": "00:01:00",
       "EndTime": "23:59:00"
     }
   ],
-  "Filters": []
+  "Filters": [
+    {
+      "Name": "Filter 1",
+      "TimeFrame": "Custom",
+      "FlaggedStatus": "All",
+      "StartDate": "2022-01-03T00:00:00",
+      "EndDate": "2025-03-17T23:59:59+05:30",
+      "Connections": [
+        "ADVA (21163)",
+        "M3521 (21163)"
+      ],
+      "EndTypes": [
+        "Job completed."
+      ],
+      "Shifts": [
+        "Shift 1"
+      ]
+    }
+  ]
 }

@@ -28,6 +28,12 @@ namespace JobReporter2.View
                     viewModel.SelectedEndTypes = new ObservableCollection<string>(
                         EndTypesListBox.SelectedItems.Cast<string>());
                 };
+
+                ShiftsListBox.SelectionChanged += (s, ev) =>
+                {
+                    viewModel.SelectedShifts = new ObservableCollection<string>(
+                        ShiftsListBox.SelectedItems.Cast<string>());
+                };
             }
         }
     }

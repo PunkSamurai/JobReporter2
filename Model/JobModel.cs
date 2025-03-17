@@ -19,6 +19,7 @@ namespace JobReporter2.Model
         public TimeSpan? TimeEstimate { get; set; }
 
         public string StartType { get; set; }
+        public string ShortenedStartType { get; set; }
         public string EndType { get; set; }
 
         public TimeSpan? PrepTime { get; set; }
@@ -51,15 +52,15 @@ namespace JobReporter2.Model
         public bool CalculateFlagged()
         {
             if (TotalTime.TotalSeconds == 0)
-                return false;
+                return true;
 
             if (EndType != "Job completed.")
                 return true;
 
             double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-            double pauseRatio = PauseTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
 
-            return (cutRatio <= 0.75) || (pauseRatio >= 0.25);
+            return (cutRatio <= 0.75) || (prepRatio >= 0.25);
         }
 
         public JobModel()
@@ -197,5 +198,14 @@ namespace JobReporter2.Model
             return HashKey(key.ToLowerInvariant());
         }
 
+        public string FindShortenedStartType()
+        {
+            if (StartType.Contains("|"))
+            {
+                string jobPath = StartType.Split('|')[0];
+                return Path.GetFileName(jobPath);
+            }
+            return StartType;
+        }
     }
 }

@@ -1,6 +1,10 @@
-﻿using JobReporter2.ViewModel;
+﻿using JobReporter2.Helpers;
+using JobReporter2.Model;
+using JobReporter2.ViewModel;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,6 +27,7 @@ namespace JobReporter2.View
     {
         public ShiftManagerView()
         {
+            this.Resources["ShiftToBrushConverter"] = new ShiftToBrushConverter();
             InitializeComponent();
         }
         private void TimeTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -75,6 +80,42 @@ namespace JobReporter2.View
             {
                 // Handle invalid time format
                 textBox.Text = "00:00";
+            }
+        }
+
+        private class ShiftToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                ObservableCollection<ShiftModel> Shifts;
+                Shifts = SettingsHelper.LoadShifts();
+                ObservableCollection<String> ShiftNames = new ObservableCollection<String>();
+                foreach (ShiftModel shift in Shifts)
+                {
+                    ShiftNames.Add(shift.Name);
+                }
+                Console.Write(ShiftNames);
+                if (value is string shiftName)
+                {
+                    if (shiftName == ShiftNames[0])
+                        return Application.Current.Resources["BackgroundShift1"];
+                    else if (shiftName == ShiftNames[1])
+                        return Application.Current.Resources["BackgroundShift2"];
+                    else if (shiftName == ShiftNames[2])
+                        return Application.Current.Resources["BackgroundShift3"];
+                    else if (shiftName == ShiftNames[3])
+                        return Application.Current.Resources["BackgroundShift4"];
+                    else if (shiftName == ShiftNames[4])
+                        return Application.Current.Resources["BackgroundShift5"];
+                    return Brushes.Transparent;
+                }
+                // Additional logic to convert ShiftNames to Brush can be added here
+                return Brushes.Transparent; // Default return value
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
             }
         }
     }

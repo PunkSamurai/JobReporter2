@@ -11,6 +11,7 @@ namespace JobReporter2.Model
     {
         public string Name {get; set;}
         public string TimeFrame { get; set; }
+        public string FlaggedStatus { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public ObservableCollection<string> Connections { get; set; }

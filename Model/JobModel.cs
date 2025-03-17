@@ -14,6 +14,9 @@ namespace JobReporter2.Model
         public string JobFile { get; set; }
         public string OEMString { get; set; }
         public string Shift { get; set; }
+        public int? FileSize { get; set; }
+        public float? CutLength { get; set; }
+        public TimeSpan? TimeEstimate { get; set; }
 
         public string StartType { get; set; }
         public string EndType { get; set; }
@@ -26,7 +29,7 @@ namespace JobReporter2.Model
 
         public TimeSpan? MachineTime { get; set; }
         public TimeSpan? CutTime { get; set; }
-        public double? FeedrateOverride { get; set; }
+        public float? FeedrateOverride { get; set; }
 
         public TimeSpan? SlewTime { get; set; }
         public TimeSpan? PauseTime { get; set; }
@@ -90,6 +93,7 @@ namespace JobReporter2.Model
                 OutsideLabelFormat = null, // Disable outside labels
                 InsideLabelFormat = null, // Disable inside labels
                 FontSize = 12,
+                
                 // LegendFormat = "{0}: {1}%"
             };
 

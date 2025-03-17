@@ -9,19 +9,6 @@
         <Setter Property="Margin" Value="4" />
     </Style>
 
-    <!-- DataGrid Cell Coloring -->
-    <Style TargetType="DataGridCell">
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding EndType}" Value="Cancelled">
-                <Setter Property="Background" Value="Red" />
-                <Setter Property="Foreground" Value="White" />
-            </DataTrigger>
-            <DataTrigger Binding="{Binding EndType}" Value="Normal">
-                <Setter Property="Background" Value="LightGreen" />
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
-
     <!-- StatusBar Background Brush -->
     <SolidColorBrush x:Key="StatusBarBackground" Color="#0078D7" />
 

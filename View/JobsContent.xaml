@@ -108,10 +108,10 @@
                     <DataGridTextColumn Header="Prep Time" Binding="{Binding PrepTime}" IsReadOnly="True"/>
 
                     <!-- Start Time Column -->
-                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Start Time" Binding="{Binding StartTime, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True"/>
 
                     <!-- End Time Column -->
-                    <DataGridTextColumn Header="End Time" Binding="{Binding EndTime}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="End Time" Binding="{Binding EndTime, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" IsReadOnly="True"/>
 
                     <!-- Total Time Column -->
                     <DataGridTextColumn Header="Total Time" Binding="{Binding TotalTime}" IsReadOnly="True"/>
@@ -192,107 +192,185 @@
         </Grid>
 
         <!-- Side Panel for Selected Job Details -->
-        <Expander Grid.Column="1" Grid.Row="0" Margin="10" IsExpanded="False" ExpandDirection="Left" MaxWidth="400">
+        <Expander Grid.Column="1" Grid.Row="0" Margin="10" IsExpanded="False" ExpandDirection="Left" MaxWidth="500">
+
             <StackPanel>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
-                        <!-- Label column -->
-                        <ColumnDefinition Width="*" />
-                        <!-- Value column -->
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
+                    <!-- Border containing image and side fields -->
+                    <Border BorderBrush="Gray" BorderThickness="1" Width="472" Margin="0 0 5 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <!-- Image column -->
+                                <ColumnDefinition Width="*"/>
+                                <!-- Side fields column -->
+                            </Grid.ColumnDefinitions>
 
-                    <!-- Labels and Values -->
-                    <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="OEM String:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SelectedJob.OEMString}" TextWrapping="Wrap" />
+                            <!-- Image on left -->
+                            <Image Grid.Column="0" 
+                               Stretch="None" 
+                               Source="{Binding SelectedJob.PreviewImagePath}" 
+                               HorizontalAlignment="Left" 
+                               VerticalAlignment="Center"
+                               RenderOptions.BitmapScalingMode="HighQuality">
+                                <Image.LayoutTransform>
+                                    <ScaleTransform ScaleX="0.25" ScaleY="0.25"/>
+                                </Image.LayoutTransform>
+                            </Image>
 
-                    <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="Connection:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SelectedJob.Connection}" TextWrapping="Wrap" />
-                    
-                    <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Shift:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding SelectedJob.Shift}" TextWrapping="Wrap" />
+                            <!-- Fields on right -->
+                            <Grid Grid.Column="1" Margin="5,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <!-- Label column -->
+                                    <ColumnDefinition Width="*" />
+                                    <!-- Value column -->
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Job File:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding SelectedJob.JobFile}" TextWrapping="Wrap" />
+                                <!-- Job File Row -->
+                                <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="Job File:" />
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SelectedJob.JobFile}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" Text="Start Type:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding SelectedJob.StartType}" TextWrapping="Wrap" />
+                                <!-- OEM String Row -->
+                                <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="File Size:" />
+                                <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SelectedJob.FileSize}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="5" FontWeight="Bold" Text="End Type:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding SelectedJob.EndType}" TextWrapping="Wrap" />
+                                <!-- Connection Row -->
+                                <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Dimensions:" />
+                                <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding SelectedJob.Size}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="6" FontWeight="Bold" Text="Prep Time:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding SelectedJob.PrepTime}" TextWrapping="Wrap" />
+                                <!-- OEM String Row -->
+                                <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Cut Length:" />
+                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding SelectedJob.CutLength}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="7" FontWeight="Bold" Text="Start Time:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="7" Text="{Binding SelectedJob.StartTime}" TextWrapping="Wrap" />
+                                <!-- Connection Row -->
+                                <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" Text="Time Estimate:" />
+                                <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding SelectedJob.TimeEstimate}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="8" FontWeight="Bold" Text="End Time:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="8" Text="{Binding SelectedJob.EndTime}" TextWrapping="Wrap" />
+                            </Grid>
+                        </Grid>
+                    </Border>
 
-                    <TextBlock Grid.Column="0" Grid.Row="9" FontWeight="Bold" Text="Total Time:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="9" Text="{Binding SelectedJob.TotalTime}" TextWrapping="Wrap" />
+                    <!-- Main details grid for remaining fields -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <!-- Label column -->
+                            <ColumnDefinition Width="*" />
+                            <!-- Value column -->
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Column="0" Grid.Row="10" FontWeight="Bold" Text="Machine Time:" TextWrapping="Wrap" Margin="0,0,5,0"/>
-                    <TextBlock Grid.Column="1" Grid.Row="10" Text="{Binding SelectedJob.MachineTime}" TextWrapping="Wrap" />
+                        <!-- OEM String Row -->
+                        <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="OEM String:" />
+                        <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SelectedJob.OEMString}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="11" FontWeight="Bold" Text="Cut Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightGreen"/>
-                    <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding SelectedJob.CutTime}" TextWrapping="Wrap" />
+                        <!-- Connection Row -->
+                        <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="Connection:" />
+                        <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SelectedJob.Connection}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="12" FontWeight="Bold" Text="Feedrate Override %:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="12" Text="{Binding SelectedJob.FeedrateOverride}" TextWrapping="Wrap" />
+                        <!-- Shift -->
+                        <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Shift:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding SelectedJob.Shift}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="13" FontWeight="Bold" Text="Slew Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightBlue"/>
-                    <TextBlock Grid.Column="1" Grid.Row="13" Text="{Binding SelectedJob.SlewTime}" TextWrapping="Wrap" />
+                        <!-- Start Type -->
+                        <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Start Type:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding SelectedJob.StartType}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="14" FontWeight="Bold" Text="Pause Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="LightCoral"/>
-                    <TextBlock Grid.Column="1" Grid.Row="14" Text="{Binding SelectedJob.PauseTime}" TextWrapping="Wrap" />
+                        <!-- End Type -->
+                        <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" Text="End Type:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding SelectedJob.EndType}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="15" FontWeight="Bold" Text="Sheet Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Yellow"/>
-                    <TextBlock Grid.Column="1" Grid.Row="15" Text="{Binding SelectedJob.SheetChangeTime}" TextWrapping="Wrap" />
+                        <!-- Prep Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="5" FontWeight="Bold" Text="Prep Time:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="5" Text="{Binding SelectedJob.PrepTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="16" FontWeight="Bold" Text="Sheet Count:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="16" Text="{Binding SelectedJob.SheetCount}" TextWrapping="Wrap" />
+                        <!-- Start Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="6" FontWeight="Bold" Text="Start Time:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="6" Text="{Binding SelectedJob.StartTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="17" FontWeight="Bold" Text="Tool Change Time:" TextWrapping="Wrap" Margin="0,0,5,0" Background="Violet"/>
-                    <TextBlock Grid.Column="1" Grid.Row="17" Text="{Binding SelectedJob.ToolChangeTime}" TextWrapping="Wrap" />
+                        <!-- End Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="7" FontWeight="Bold" Text="End Time:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="7" Text="{Binding SelectedJob.EndTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="18" FontWeight="Bold" Text="Tools:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="18" Text="{Binding SelectedJob.Tools}" TextWrapping="Wrap" />
+                        <!-- Total Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="8" FontWeight="Bold" Text="Total Time:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="8" Text="{Binding SelectedJob.TotalTime}" TextWrapping="Wrap" />
 
-                    <TextBlock Grid.Column="0" Grid.Row="19" FontWeight="Bold" Text="Tool Avg Times:" TextWrapping="Wrap" Margin="0,0,5,0" />
-                    <TextBlock Grid.Column="1" Grid.Row="19" Text="{Binding SelectedJob.ToolAvgTimes}" TextWrapping="Wrap" />
-                </Grid>
+                        <!-- Machine Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="9" FontWeight="Bold" Text="Machine Time:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="9" Text="{Binding SelectedJob.MachineTime}" TextWrapping="Wrap" />
 
-                <oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 
-                      Height="300" 
-                      Width="300" 
-                      Margin="50" />
-            </StackPanel>
+                        <!-- Cut Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="10" FontWeight="Bold" Text="Cut Time:" Background="LightGreen"/>
+                        <TextBlock Grid.Column="1" Grid.Row="10" Text="{Binding SelectedJob.CutTime}" TextWrapping="Wrap" />
+
+                        <!-- Feedrate Override -->
+                        <TextBlock Grid.Column="0" Grid.Row="11" FontWeight="Bold" Text="Feedrate Override %:"/>
+                        <TextBlock Grid.Column="1" Grid.Row="11" Text="{Binding SelectedJob.FeedrateOverride}" TextWrapping="Wrap" />
+
+                        <!-- Slew Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="12" FontWeight="Bold" Text="Slew Time:" Background="LightBlue"/>
+                        <TextBlock Grid.Column="1" Grid.Row="12" Text="{Binding SelectedJob.SlewTime}" TextWrapping="Wrap" />
+
+                        <!-- Pause Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="13" FontWeight="Bold" Text="Pause Time:" Background="LightCoral"/>
+                        <TextBlock Grid.Column="1" Grid.Row="13" Text="{Binding SelectedJob.PauseTime}" TextWrapping="Wrap" />
+
+                        <!-- Sheet Change Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="14" FontWeight="Bold" Text="Sheet Change Time:" Background="Yellow"/>
+                        <TextBlock Grid.Column="1" Grid.Row="14" Text="{Binding SelectedJob.SheetChangeTime}" TextWrapping="Wrap" />
+
+                        <!-- Sheet Count -->
+                        <TextBlock Grid.Column="0" Grid.Row="15" FontWeight="Bold" Text="Sheet Count:" />
+                        <TextBlock Grid.Column="1" Grid.Row="15" Text="{Binding SelectedJob.SheetCount}" TextWrapping="Wrap" />
+
+                        <!-- Tool Change Time -->
+                        <TextBlock Grid.Column="0" Grid.Row="16" FontWeight="Bold" Text="Tool Change Time:" Background="Violet"/>
+                        <TextBlock Grid.Column="1" Grid.Row="16" Text="{Binding SelectedJob.ToolChangeTime}" TextWrapping="Wrap" />
+
+                        <!-- Tools -->
+                        <TextBlock Grid.Column="0" Grid.Row="17" FontWeight="Bold" Text="Tools:" />
+                        <TextBlock Grid.Column="1" Grid.Row="17" Text="{Binding SelectedJob.Tools}" TextWrapping="Wrap" />
+
+                        <!-- Tool Avg Times -->
+                        <TextBlock Grid.Column="0" Grid.Row="18" FontWeight="Bold" Text="Tool Avg Times:" />
+                        <TextBlock Grid.Column="1" Grid.Row="18" Text="{Binding SelectedJob.ToolAvgTimes}" TextWrapping="Wrap" />
+                    </Grid>
+
+                    <oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 
+                   Height="300" 
+                   Width="300" 
+                   Margin="100 10 100 10 " />
+                </StackPanel>
         </Expander>
-
+        
 
 
     </Grid>

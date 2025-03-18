@@ -8,13 +8,13 @@
     },
     {
       "Name": "Shift 2",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "StartTime": "14:00:00",
       "EndTime": "17:59:00"
     },
     {
       "Name": "Shift 3",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "StartTime": "00:00:00",
       "EndTime": "23:59:00"
     },

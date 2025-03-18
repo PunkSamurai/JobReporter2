@@ -232,6 +232,7 @@ namespace JobReporter2.ViewModel
                         {
                             currentJob.PrepTime = TimeSpan.Zero; // No valid shift
                         }
+                        
                     }
                     else
                     {
@@ -259,7 +260,9 @@ namespace JobReporter2.ViewModel
 
                         // Ensure prep time is not negative
                         currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
+                        
                     }
+                    currentJob.Flagged = currentJob.CalculateFlagged();
                 }
             }
         }
@@ -403,7 +406,7 @@ namespace JobReporter2.ViewModel
                             ToolAvgTimes = row.Table.Columns.Contains("ToolAvgTimes") && TimeSpan.TryParse(row["ToolAvgTimes"].ToString(), out TimeSpan toolAvgTimes) ? toolAvgTimes : (TimeSpan?)null,
                             Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null
                         };
-                        job.Flagged = job.CalculateFlagged();
+                        // job.Flagged = job.CalculateFlagged();
                         job.WastedTime = job.TotalTime - job.MachineTime;
                         job.GeneratePieChart();
                         job.PreviewImagePath = job.GetPreviewImagePath();

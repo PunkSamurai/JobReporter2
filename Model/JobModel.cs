@@ -51,20 +51,29 @@ namespace JobReporter2.Model
 
         public bool CalculateFlagged()
         {
-            if (TotalTime.TotalSeconds != 0)
-            {
-                double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-                double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            if (TotalTime.TotalSeconds == 0)
+                return true;
 
-                return (cutRatio <= 0.75) || (prepRatio >= 0.25 || EndType != "Job completed.");
-            }
-            else if (TotalTime.TotalSeconds == 0)
+            if (EndType != "Job completed.")
+                return true;
+
+            double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+
+            return (cutRatio <= 0.75 || prepRatio >= 0.25);
+        }
+
+        public bool CalculateFlagPrepTime()
+        {
+            if (TotalTime.TotalSeconds == 0)
             {
+                Console.WriteLine(Name + " TT is zero " + Flagged);
                 return true;
             }
-
-            return false;
-
+                
+            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            Console.WriteLine(Name + " " + prepRatio + " " + Flagged);
+            return (prepRatio >= 0.25 || Flagged);
         }
 
         public JobModel()

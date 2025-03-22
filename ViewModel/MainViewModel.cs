@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using OxyPlot.Series;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using OxyPlot;
 
 namespace JobReporter2.ViewModel
 {
@@ -33,6 +34,7 @@ namespace JobReporter2.ViewModel
         private int _selectedTabIndex;
 
         private ObservableCollection<ShiftModel> _shifts;
+        private ObservableCollection<ThresholdModel> _thresholds;
         private ShiftModel _selectedShift;
 
         // Properties
@@ -121,6 +123,12 @@ namespace JobReporter2.ViewModel
             set => SetProperty(ref _shifts, value);
         }
 
+        public ObservableCollection<ThresholdModel> Thresholds
+        {
+            get => _thresholds;
+            set => SetProperty(ref _thresholds, value);
+        }
+
         public ShiftModel SelectedShift
         {
             get => _selectedShift;
@@ -147,12 +155,15 @@ namespace JobReporter2.ViewModel
             FilteredJobs = new ObservableCollection<JobModel>();
             Shifts = new ObservableCollection<ShiftModel>();
             Shifts = SettingsHelper.LoadShifts();
+            Thresholds = SettingsHelper.LoadThresholds();
+            Console.WriteLine("SHIFTS LOADED");
             UniqueShifts = new HashSet<string>();
             foreach (var shift in Shifts)
             {
                 UniqueShifts.Add(shift.Name);
+                Console.WriteLine("SHIFT:" + shift);
             }
-            Console.WriteLine(Shifts);
+            
             SelectedFilter = "No filters applied";
 
             OpenFilterCommand = new RelayCommand(OpenFilter);
@@ -203,7 +214,7 @@ namespace JobReporter2.ViewModel
             OnPropertyChanged(nameof(FilteredJobs));
         }
 
-        private void CalculatePrepTimes()
+        private void CalculatePrepTimesOriginal()
         {
             // Group jobs by machine and shift
             var groupedJobs = AllJobs
@@ -267,6 +278,55 @@ namespace JobReporter2.ViewModel
             }
         }
 
+        private void CalculatePrepTimes()
+        {
+            // Group jobs by machine only
+            var groupedJobs = AllJobs
+                .Where(job => job != null) // Filter out any null jobs
+                .GroupBy(job => job.Connection)
+                .ToList();
+
+            foreach (var group in groupedJobs)
+            {
+                var jobsInGroup = group.OrderBy(job => job.StartTime).ToList();
+
+                for (int i = 0; i < jobsInGroup.Count; i++)
+                {
+                    var currentJob = jobsInGroup[i];
+
+                    // Initialize prep time to max value
+                    TimeSpan prepFromShiftStart = TimeSpan.MaxValue;
+                    TimeSpan prepFromPreviousJob = TimeSpan.MaxValue;
+
+                    // Calculate prep time relative to shift start (if shift exists)
+                    if (!string.IsNullOrEmpty(currentJob.Shift))
+                    {
+                        var shift = Shifts.FirstOrDefault(s => s.Name == currentJob.Shift);
+                        if (shift != null)
+                        {
+                            prepFromShiftStart = currentJob.StartTime.TimeOfDay - shift.StartTime;
+                        }
+                    }
+
+                    // Calculate prep time relative to previous job (if it exists)
+                    if (i > 0)
+                    {
+                        var previousJob = jobsInGroup[i - 1];
+                        prepFromPreviousJob = currentJob.StartTime - previousJob.EndTime;
+                    }
+
+                    // Use the smaller of the two values, but ensure it's not negative
+                    currentJob.PrepTime = new[] { prepFromShiftStart, prepFromPreviousJob }
+                        .Where(ts => ts != TimeSpan.MaxValue)
+                        .DefaultIfEmpty(TimeSpan.Zero)
+                        .Min();
+
+                    currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
+                    currentJob.Flagged = currentJob.CalculateFlagged();
+                }
+            }
+        }
+
 
         private void OpenShiftManager()
         {
@@ -314,22 +374,80 @@ namespace JobReporter2.ViewModel
                 AssignShiftsToJobs();
             }
         }
+        
+
+        /* private void OpenSettings()
+        {
+            // Create deep copies of the shifts for editing
+            ObservableCollection<ShiftModel> shiftCopies = new ObservableCollection<ShiftModel>(
+                Shifts.Select(s => new ShiftModel
+                {
+                    Name = s.Name,
+                    IsEnabled = s.IsEnabled,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime
+                })
+            );
+            ObservableCollection<ThresholdModel> thresholdCopies = new ObservableCollection<ThresholdModel>(
+                Thresholds.Select(t => new ThresholdModel
+                {
+                    Name = t.Name,
+                    IsEnabled = t.IsEnabled,
+                    Value1 = t.Value1,
+                    Value2 = t.Value2
+                })
+            );
+
+            var settingsViewModel = new SettingsViewModel( shiftCopies, thresholdCopies);
+
+            var settingsView = new SettingsView
+            {
+                DataContext = settingsViewModel,
+                Owner = Application.Current.MainWindow
+            };
+
+            if (settingsView.ShowDialog() == true)
+            {
+                Console.WriteLine("update");
+                // Only update the main collection if OK was clicked
+                Shifts = new ObservableCollection<ShiftModel>(
+                    settingsViewModel.Shifts.Select(s => new ShiftModel
+                    {
+                        Name = s.Name,
+                        IsEnabled = s.IsEnabled,
+                        StartTime = s.StartTime,
+                        EndTime = s.EndTime
+                    })
+                );
+                UniqueShifts.Clear();
+                foreach (var shift in Shifts)
+                {
+                    UniqueShifts.Add(shift.Name);
+                    Console.WriteLine(shift.Name);
+                }
+                AssignShiftsToJobs();
+            }
+        } */
 
         // Load jobs from XML into ObservableCollection
         private void LoadJobs()
         {
+            string PreviousXjhPath = SettingsHelper.LoadXjhDirectory();
             try
             {
-                OpenFileDialog openFileDialog = new OpenFileDialog();
-                openFileDialog.Filter = "XML Job History files (*.xjh)|*.xjh|All files (*.*)|*.*";
-                // openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                openFileDialog.Title = "Select Job History File";
+                OpenFileDialog openFileDialog = new OpenFileDialog
+                {
+                    Filter = "XML Job History files (*.xjh)|*.xjh|All files (*.*)|*.*",
+                    // openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    InitialDirectory = PreviousXjhPath != "" ? PreviousXjhPath : AppDomain.CurrentDomain.BaseDirectory,
+                    Title = "Select Job History File"
+                };
                 DataSet dataSet = new DataSet();
 
                 if (openFileDialog.ShowDialog() == true)
                 {
                     FilePath = openFileDialog.FileName;
+                    SettingsHelper.SaveXjhDirectory(Path.GetDirectoryName(FilePath));
                     dataSet.ReadXml(FilePath);
                 }
                 else
@@ -394,7 +512,7 @@ namespace JobReporter2.ViewModel
                             MachineTime = machineTime,
                             FileSize = row.Table.Columns.Contains("FileSize") && int.TryParse(row["FileSize"].ToString(), out int fileSize) ? fileSize : (int?)null,
                             CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : machineTime,
-                            CutLength = row.Table.Columns.Contains("CutLength") && float.TryParse(row["CutLength"].ToString(), out float cutLength) ? cutLength : (float?) null,
+                            Length = row.Table.Columns.Contains("Length") && float.TryParse(row["Length"].ToString(), out float length) ? length : (float?) null,
                             FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : (float?)null,
                             SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
                             PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : totalTime - machineTime,
@@ -447,6 +565,7 @@ namespace JobReporter2.ViewModel
             {
                 StartDate = null,
                 EndDate = null,
+                TimeFrame = "Custom",
                 AvailableConnections = UniqueConnections.ToList(),
                 SelectedConnections = new ObservableCollection<string>(),
                 AvailableEndTypes = UniqueEndTypes.ToList(),
@@ -476,6 +595,7 @@ namespace JobReporter2.ViewModel
             FilteredRecordCount = AllJobs.Count;
             JobViewModel.Jobs = FilteredJobs;
             //JobViewModel.UpdateVisibleColumns();
+            SelectedFilter = "No filters applied";
 
         }
 
@@ -516,6 +636,8 @@ namespace JobReporter2.ViewModel
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
 
+        
+
         private bool CanGenerateReport()
         {
             return !string.IsNullOrEmpty(SelectedReportType) && !string.IsNullOrEmpty(SelectedTimeFrame);
@@ -532,6 +654,13 @@ namespace JobReporter2.ViewModel
                     ReportModel = ReportFactory.GenerateReport(FilteredJobs, SelectedReportType, SelectedTimeFrame)
                 };
 
+                /* string fileName = "C:\\Users\\LENOVO\\Downloads\\report.pdf";
+                using (var stream = File.Create(fileName))
+                {
+                    var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
+                    pdfExporter.Export(reportContent.ReportModel, stream);
+                } */
+
                 // Create a tab item with a custom header object
                 var reportTab = new TabItem
                 {
@@ -542,7 +671,8 @@ namespace JobReporter2.ViewModel
                 // Create the header with a close action
                 var header = new ReportTabHeader(
                     $"Report {reportNumber}",
-                    h => Tabs.Remove(reportTab) // This is the close action
+                    h => Tabs.Remove(reportTab), // This is the close action
+                    h => ExportReportToPdf(reportContent)
                 );
 
                 // Set the header as the Header property
@@ -561,6 +691,49 @@ namespace JobReporter2.ViewModel
             }
         }
 
+        private void ExportReportToPdf(ReportContent reportContent)
+        {
+            string PreviousReportPath = SettingsHelper.LoadReportDirectory();
+            try
+            {
+                // Create SaveFileDialog
+                var saveFileDialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Filter = "PDF Files (*.pdf)|*.pdf",
+                    DefaultExt = "pdf",
+                    Title = "Save Report as PDF"
+                    
+                };
+
+                if (PreviousReportPath != "")
+                {
+                    saveFileDialog.InitialDirectory = PreviousReportPath;
+                }
+
+                saveFileDialog.FileName = reportContent.ReportModel.Title;
+
+                // Show the dialog and process the result
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    string fileName = saveFileDialog.FileName;
+                    using (var stream = File.Create(fileName))
+                    {
+                        var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
+                        pdfExporter.Export(reportContent.ReportModel, stream);
+                    }
+
+                    SettingsHelper.SaveReportDirectory(Path.GetDirectoryName(fileName));
+                    // Optionally show success message
+                    MessageBox.Show($"Report successfully exported to:\n{fileName}", "Export Successful",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting report: {ex.Message}", "Export Error",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 }
 

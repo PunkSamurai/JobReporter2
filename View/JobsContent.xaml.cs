@@ -36,6 +36,9 @@ namespace JobReporter2.View
             this.Resources["PrepTimeToBrushConverter"] = new PrepTimeToBrushConverter();
             this.Resources["ShiftToBrushConverter"] = new ShiftToBrushConverter();
             this.Resources["TotalTimeToBrushConverter"] = new TotalTimeToBrushConverter();
+            this.Resources["BoolToColorConverter"] = new BoolToColorConverter();
+            this.Resources["NullToVisibilityConverter"] = new NullToVisibilityConverter();
+            this.Resources["NullToRowHeightConverter"] = new NullToRowHeightConverter();
             InitializeComponent();
             Loaded += JobsContent_Loaded;
             // DataContext = new MainViewModel();
@@ -80,7 +83,7 @@ namespace JobReporter2.View
                     }
                 }
 
-                return Brushes.Transparent; // Default
+                return Brushes.LightGray; // Default
             }
 
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -226,6 +229,48 @@ namespace JobReporter2.View
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
                 throw new NotSupportedException();
+            }
+        }
+
+        public class BoolToColorConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is bool flagged && flagged)
+                    return new SolidColorBrush(Colors.Red);
+                else
+                    return new SolidColorBrush(Colors.Transparent);
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class NullToVisibilityConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                return value == null ? Visibility.Hidden : Visibility.Visible;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class NullToRowHeightConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                return value == null ? new GridLength(0) : new GridLength(1, GridUnitType.Auto);
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
             }
         }
 

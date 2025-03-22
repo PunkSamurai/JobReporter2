@@ -22,11 +22,13 @@ namespace JobReporter2.Model
         }
 
         public ICommand CloseCommand { get; }
+        public ICommand ExportCommand { get; } // New command for PDF export
 
-        public ReportTabHeader(string title, Action<ReportTabHeader> closeAction)
+        public ReportTabHeader(string title, Action<ReportTabHeader> closeAction, Action<ReportTabHeader> exportAction)
         {
             Title = title;
             CloseCommand = new RelayCommand(() => closeAction(this));
+            ExportCommand = new RelayCommand(() => exportAction(this)); // Initialize the export command
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -35,5 +37,4 @@ namespace JobReporter2.Model
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
-
 }

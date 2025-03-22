@@ -8,9 +8,9 @@
     },
     {
       "Name": "Shift 2",
-      "IsEnabled": false,
+      "IsEnabled": true,
       "StartTime": "14:00:00",
-      "EndTime": "17:59:00"
+      "EndTime": "19:59:00"
     },
     {
       "Name": "Shift 3",
@@ -26,28 +26,85 @@
     },
     {
       "Name": "Shift 5",
-      "IsEnabled": false,
+      "IsEnabled": true,
       "StartTime": "00:01:00",
       "EndTime": "23:59:00"
     }
   ],
   "Filters": [
     {
-      "Name": "Filter 1",
+      "Name": "Custom 1",
+      "TimeFrame": "This Year",
+      "FlaggedStatus": "Flagged",
+      "StartDate": "2025-01-01T00:00:00",
+      "EndDate": "2025-12-31T23:59:59",
+      "Connections": [],
+      "EndTypes": [],
+      "Shifts": [
+        "Shift 1",
+        "Shift 2"
+      ]
+    },
+    {
+      "Name": "Custom 2",
       "TimeFrame": "Custom",
-      "FlaggedStatus": "All",
-      "StartDate": "2022-01-03T00:00:00",
-      "EndDate": "2025-03-17T23:59:59+05:30",
+      "FlaggedStatus": "Flagged",
+      "StartDate": "2022-01-14T00:00:00",
+      "EndDate": "2025-03-03T00:00:00",
       "Connections": [
-        "ADVA (21163)",
         "M3521 (21163)"
       ],
       "EndTypes": [
-        "Job completed."
+        "Job completed.",
+        "Job failed."
       ],
       "Shifts": [
-        "Shift 1"
+        "Shift 1",
+        "Shift 2",
+        "Shift 3"
       ]
+    },
+    {
+      "Name": "Custom 2",
+      "TimeFrame": "Custom",
+      "FlaggedStatus": "All",
+      "StartDate": null,
+      "EndDate": null,
+      "Connections": [
+        "ADVA (21163)"
+      ],
+      "EndTypes": [
+        "Job halted."
+      ],
+      "Shifts": []
     }
-  ]
+  ],
+  "Thresholds": [
+    {
+      "Name": "TotalTime",
+      "IsEnabled": false,
+      "Value1": 10.0,
+      "Value2": 20.0
+    },
+    {
+      "Name": "CutTime",
+      "IsEnabled": false,
+      "Value1": 20.0,
+      "Value2": 30.0
+    },
+    {
+      "Name": "PrepTime",
+      "IsEnabled": false,
+      "Value1": 30.0,
+      "Value2": 40.0
+    },
+    {
+      "Name": "PauseTime",
+      "IsEnabled": false,
+      "Value1": 40.0,
+      "Value2": 50.0
+    }
+  ],
+  "XjhDirectory": "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2",
+  "ReportDirectory": "C:\\Users\\LENOVO\\OneDrive\\Documents"
 }

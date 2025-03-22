@@ -15,7 +15,7 @@ namespace JobReporter2.Model
         public string OEMString { get; set; }
         public string Shift { get; set; }
         public int? FileSize { get; set; }
-        public float? CutLength { get; set; }
+        public float? Length { get; set; }
         public TimeSpan? TimeEstimate { get; set; }
 
         public string StartType { get; set; }

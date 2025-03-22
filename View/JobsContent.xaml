@@ -68,7 +68,7 @@
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" IsReadOnly="True"/>
 
                     <!-- CutLenght Column -->
-                    <DataGridTextColumn Header="Cut Length" Binding="{Binding CutLength}" IsReadOnly="True"/>
+                    <DataGridTextColumn Header="Cut Length" Binding="{Binding Length}" IsReadOnly="True"/>
 
                     <!-- Size Column -->
                     <DataGridTextColumn Header="Size" Binding="{Binding Size}" IsReadOnly="True"/>
@@ -226,7 +226,7 @@
 
             <StackPanel>
                     <!-- Border containing image and side fields -->
-                    <Border BorderBrush="Gray" BorderThickness="1" Width="472" Margin="0 0 5 0">
+                <Border BorderBrush="Gray" BorderThickness="1" Width="472" Margin="0 0 5 5" Background="#f0f0f0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" />
@@ -257,29 +257,24 @@
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{Binding SelectedJob.FileSize, Converter={StaticResource NullToRowHeightConverter}}" />
                                     <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="{Binding SelectedJob.Length, Converter={StaticResource NullToRowHeightConverter}}" />
+                                    <RowDefinition Height="{Binding SelectedJob.TimeEstimate, Converter={StaticResource NullToRowHeightConverter}}" />
                                 </Grid.RowDefinitions>
 
-                                <!-- Job File Row -->
                                 <TextBlock Grid.Column="0" Grid.Row="0" FontWeight="Bold" Text="Job File:" />
                                 <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding SelectedJob.JobFile}" TextWrapping="Wrap" />
 
-                                <!-- OEM String Row -->
                                 <TextBlock Grid.Column="0" Grid.Row="1" FontWeight="Bold" Text="File Size:" />
                                 <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding SelectedJob.FileSize}" TextWrapping="Wrap" />
 
-                                <!-- Connection Row -->
                                 <TextBlock Grid.Column="0" Grid.Row="2" FontWeight="Bold" Text="Dimensions:" />
                                 <TextBlock Grid.Column="1" Grid.Row="2" Text="{Binding SelectedJob.Size}" TextWrapping="Wrap" />
 
-                                <!-- OEM String Row -->
                                 <TextBlock Grid.Column="0" Grid.Row="3" FontWeight="Bold" Text="Cut Length:" />
-                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding SelectedJob.CutLength}" TextWrapping="Wrap" />
+                                <TextBlock Grid.Column="1" Grid.Row="3" Text="{Binding SelectedJob.Length}" TextWrapping="Wrap"  />
 
-                                <!-- Connection Row -->
                                 <TextBlock Grid.Column="0" Grid.Row="4" FontWeight="Bold" Text="Time Estimate:" />
                                 <TextBlock Grid.Column="1" Grid.Row="4" Text="{Binding SelectedJob.TimeEstimate}" TextWrapping="Wrap" />
 
@@ -307,14 +302,14 @@
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{Binding SelectedJob.FeedrateOverride, Converter={StaticResource NullToRowHeightConverter}}" />
+                            <RowDefinition Height="{Binding SelectedJob.SlewTime, Converter={StaticResource NullToRowHeightConverter}}" />
                             <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="{Binding SelectedJob.SheetChangeTime, Converter={StaticResource NullToRowHeightConverter}}" />
+                            <RowDefinition Height="{Binding SelectedJob.SheetCount, Converter={StaticResource NullToRowHeightConverter}}" />
+                            <RowDefinition Height="{Binding SelectedJob.ToolChangeTime, Converter={StaticResource NullToRowHeightConverter}}" />
+                            <RowDefinition Height="{Binding SelectedJob.Tools, Converter={StaticResource NullToRowHeightConverter}}" />
+                            <RowDefinition Height="{Binding SelectedJob.ToolAvgTimes, Converter={StaticResource NullToRowHeightConverter}}" />
                         </Grid.RowDefinitions>
 
                         <!-- OEM String Row -->

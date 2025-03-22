@@ -78,11 +78,15 @@
     <Compile Include="Helpers\ReportFactory.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
     <Compile Include="Model\ReportTabHeader.cs" />
+    <Compile Include="Model\SettingsModel.cs" />
     <Compile Include="Model\ShiftModel.cs" />
+    <Compile Include="Model\ThresholdModel.cs" />
     <Compile Include="ViewModel\FilterViewModel.cs" />
     <Compile Include="ViewModel\JobViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\ShiftManagerViewModel.cs" />
+    <Compile Include="ViewModel\ThresholdManagerViewModel.cs" />
     <Compile Include="View\FilterView.xaml.cs">
       <DependentUpon>FilterView.xaml</DependentUpon>
     </Compile>
@@ -95,8 +99,14 @@
     <Compile Include="View\ReportContent.xaml.cs">
       <DependentUpon>ReportContent.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="View\ShiftManagerView.xaml.cs">
       <DependentUpon>ShiftManagerView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ThresholdManagerView.xaml.cs">
+      <DependentUpon>ThresholdManagerView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -130,7 +140,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="View\SettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="View\ShiftManagerView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ThresholdManagerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

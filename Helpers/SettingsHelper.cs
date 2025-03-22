@@ -1,28 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.IO;
-using JobReporter2.Model;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using JobReporter2.Model;
+using Newtonsoft.Json;
 
 namespace JobReporter2.Helpers
 {
     public static class SettingsHelper
     {
         private static readonly string SettingsFilePath = "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
+        /* private static string SettingsFilePath
+        {
+            get
+            {
+                // Options for settings file location, in order of preference:
+
+                // 1. Check if there's a settings file in the application directory
+                string appDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string appSettingsPath = Path.Combine(appDirectory, "Settings.json");
+                if (File.Exists(appSettingsPath))
+                {
+                    return appSettingsPath;
+                }
+                Console.WriteLine($"Settings file not found in application directory: {appSettingsPath}");
+                return "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
+            }
+        } */
+
 
         // Load shifts from the settings file
         public static ObservableCollection<ShiftModel> LoadShifts()
         {
             if (!File.Exists(SettingsFilePath))
             {
+                Console.WriteLine("Settings.json not found");
                 return new ObservableCollection<ShiftModel>();
             }
             try
             {
+                Console.WriteLine("Settings.json :" + SettingsFilePath);
                 string json = File.ReadAllText(SettingsFilePath);
                 var settings = JsonConvert.DeserializeObject<SettingsModel>(json);
                 return settings?.Shifts != null
@@ -113,18 +132,157 @@ namespace JobReporter2.Helpers
                 Console.WriteLine($"Error saving filters: {ex.Message}");
             }
         }
-    }
 
-    // Root object for the settings file
-    public class SettingsModel
-    {
-        public SettingsModel()
+        // Load thresholds from the settings file
+        public static ObservableCollection<ThresholdModel> LoadThresholds()
         {
-            Shifts = new ObservableCollection<ShiftModel>();
-            Filters = new List<FilterModel>();
+            if (!File.Exists(SettingsFilePath))
+            {
+                return new ObservableCollection<ThresholdModel>();
+            }
+            try
+            {
+                string json = File.ReadAllText(SettingsFilePath);
+                var settings = JsonConvert.DeserializeObject<SettingsModel>(json);
+                return settings?.Thresholds != null
+                    ? new ObservableCollection<ThresholdModel>(settings.Thresholds)
+                    : new ObservableCollection<ThresholdModel>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading thresholds: {ex.Message}");
+                return new ObservableCollection<ThresholdModel>();
+            }
         }
 
-        public ObservableCollection<ShiftModel> Shifts { get; set; }
-        public List<FilterModel> Filters { get; set; }
+        // Save thresholds to the settings file
+        public static void SaveThresholds(ObservableCollection<ThresholdModel> thresholds)
+        {
+            try
+            {
+                // First, load existing settings
+                SettingsModel settings;
+                if (File.Exists(SettingsFilePath))
+                {
+                    string existingJson = File.ReadAllText(SettingsFilePath);
+                    settings = JsonConvert.DeserializeObject<SettingsModel>(existingJson) ?? new SettingsModel();
+                }
+                else
+                {
+                    settings = new SettingsModel();
+                }
+
+                // Update only the thresholds
+                settings.Thresholds = thresholds.ToList();
+
+                // Save back to file
+                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                File.WriteAllText(SettingsFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving thresholds: {ex.Message}");
+            }
+        }
+
+        // Load XjhDirectory from the settings file
+        public static string LoadXjhDirectory()
+        {
+            if (!File.Exists(SettingsFilePath))
+            {
+                return string.Empty;
+            }
+            try
+            {
+                string json = File.ReadAllText(SettingsFilePath);
+                var settings = JsonConvert.DeserializeObject<SettingsModel>(json);
+                return settings?.XjhDirectory ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading XjhDirectory: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        // Save XjhDirectory to the settings file
+        public static void SaveXjhDirectory(string xjhDirectory)
+        {
+            try
+            {
+                // First, load existing settings
+                SettingsModel settings;
+                if (File.Exists(SettingsFilePath))
+                {
+                    string existingJson = File.ReadAllText(SettingsFilePath);
+                    settings = JsonConvert.DeserializeObject<SettingsModel>(existingJson) ?? new SettingsModel();
+                }
+                else
+                {
+                    settings = new SettingsModel();
+                }
+
+                // Update only the XjhDirectory
+                settings.XjhDirectory = xjhDirectory;
+
+                // Save back to file
+                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                File.WriteAllText(SettingsFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving XjhDirectory: {ex.Message}");
+            }
+        }
+
+        // Load ReportDirectory from the settings file
+        public static string LoadReportDirectory()
+        {
+            if (!File.Exists(SettingsFilePath))
+            {
+                return string.Empty;
+            }
+            try
+            {
+                string json = File.ReadAllText(SettingsFilePath);
+                var settings = JsonConvert.DeserializeObject<SettingsModel>(json);
+                return settings?.ReportDirectory ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading ReportDirectory: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        // Save ReportDirectory to the settings file
+        public static void SaveReportDirectory(string reportDirectory)
+        {
+            try
+            {
+                // First, load existing settings
+                SettingsModel settings;
+                if (File.Exists(SettingsFilePath))
+                {
+                    string existingJson = File.ReadAllText(SettingsFilePath);
+                    settings = JsonConvert.DeserializeObject<SettingsModel>(existingJson) ?? new SettingsModel();
+                }
+                else
+                {
+                    settings = new SettingsModel();
+                }
+
+                // Update only the ReportDirectory
+                settings.ReportDirectory = reportDirectory;
+
+                // Save back to file
+                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                File.WriteAllText(SettingsFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving ReportDirectory: {ex.Message}");
+            }
+        }
     }
 }

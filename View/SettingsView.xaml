@@ -1,0 +1,23 @@
+﻿<Window x:Class="JobReporter2.View.SettingsView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:JobReporter2.View"
+        mc:Ignorable="d"
+        Title="Settings" Height="450" Width="800">
+    <Grid>
+        <TabControl x:Name="SettingsTabControl">
+            <TabItem Header="Shift Manager">
+                <local:ShiftManagerView />
+            </TabItem>
+            <TabItem Header="Threshold Manager">
+                <local:ThresholdManagerView />
+            </TabItem>
+        </TabControl>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
+            <Button Content="Save" Command="{Binding SaveAllCommand}" Width="75" Margin="5" />
+            <Button Content="Close" Command="{Binding CloseCommand}" Width="75" Margin="5" />
+        </StackPanel>
+    </Grid>
+</Window>

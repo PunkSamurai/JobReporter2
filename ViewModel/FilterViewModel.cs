@@ -104,7 +104,7 @@ namespace JobReporter2.ViewModel
             DeleteFilterCommand = new RelayCommand(DeleteFilter);  // New delete command
 
 
-            TimeFrame = "Today";
+            TimeFrame = "Custom";
             LoadFiltersFromSettings();
         }
 
@@ -148,9 +148,9 @@ namespace JobReporter2.ViewModel
                 var newFilter = new FilterModel
                 {
                     Name = filterName,
-                    TimeFrame = "Today",
-                    StartDate = DateTime.Today,
-                    EndDate = DateTime.Today.AddDays(1).AddSeconds(-1),
+                    TimeFrame = "Custom",
+                    // StartDate = DateTime.Today,
+                    // EndDate = DateTime.Today.AddDays(1).AddSeconds(-1),
                     Connections = new ObservableCollection<string>(),
                     EndTypes = new ObservableCollection<string>(),
                     Shifts = new ObservableCollection<string>(),
@@ -308,7 +308,7 @@ namespace JobReporter2.ViewModel
 
         private void ResetFilter()
         {
-            TimeFrame = "Today";
+            TimeFrame = "Custom";
             StartDate = null;
             EndDate = null;
             SelectedConnections.Clear();
@@ -319,7 +319,13 @@ namespace JobReporter2.ViewModel
 
         private void CancelFilter()
         {
-            Application.Current.Windows[Application.Current.Windows.Count - 1]?.Close();
+            if (System.Windows.Application.Current.Windows
+                    .OfType<Window>()
+                    .FirstOrDefault(w => w.DataContext == this) is Window window)
+            {
+                //window.DialogResult = false;
+                window.Close();
+            }
         }
     }
 }

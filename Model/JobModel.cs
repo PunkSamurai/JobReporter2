@@ -96,7 +96,7 @@ namespace JobReporter2.Model
 
         public void GeneratePieChart()
         {
-            var plotModel = new PlotModel { Title = "Time Distribution" };
+            var plotModel = new PlotModel();
 
             var pieSeries = new PieSeries
             {

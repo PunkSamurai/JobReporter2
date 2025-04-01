@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -39,6 +40,8 @@ namespace JobReporter2.View
             this.Resources["BoolToColorConverter"] = new BoolToColorConverter();
             this.Resources["NullToVisibilityConverter"] = new NullToVisibilityConverter();
             this.Resources["NullToRowHeightConverter"] = new NullToRowHeightConverter();
+            this.Resources["GreaterThanThresholdToBrushConverter"] = new GreaterThanThresholdToBrushConverter();
+            this.Resources["LesserThanThresholdToBrushConverter"] = new LesserThanThresholdToBrushConverter();
             InitializeComponent();
             Loaded += JobsContent_Loaded;
             // DataContext = new MainViewModel();
@@ -179,6 +182,7 @@ namespace JobReporter2.View
             }
         }
 
+
         private class FlagToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -317,5 +321,90 @@ namespace JobReporter2.View
                 }
             }
         }
+
+
+        private class GreaterThanThresholdToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data && parameter is string timeType)
+                {
+                    var thresholds = GetThresholds(timeType);
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+
+                    double ratio = GetRatio(data, timeType);
+                    if (ratio == -1) return Brushes.Transparent;
+                    if (ratio > thresholds.Value2) return Brushes.LightGreen;
+                    if (ratio > thresholds.Value1) return Brushes.Yellow;
+                    return Brushes.LightCoral;
+                }
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        private class LesserThanThresholdToBrushConverter : IValueConverter
+        {
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                if (value is JobModel data && parameter is string timeType)
+                {
+                    var thresholds = GetThresholds(timeType);
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+
+                    double ratio = GetRatio(data, timeType);
+                    if (ratio < thresholds.Value1) return Brushes.LightGreen;
+                    if (ratio < thresholds.Value2) return Brushes.Yellow;
+                    return Brushes.LightCoral;
+                }
+                return Brushes.Transparent; // Default
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        private static ThresholdModel GetThresholds(string name)
+        {
+            // Retrieve threshold data dynamically, assuming it's preloaded
+            return SettingsHelper.LoadThresholds().FirstOrDefault(t => t.Name == name) ?? new ThresholdModel();
+        }
+
+        private static double GetRatio(JobModel data, string timeType)
+        {
+            double ratio = 0;
+
+            if (timeType == "CutTime")
+            {
+                ratio = (data.CutTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
+            }
+            else if (timeType == "PauseTime")
+            {
+                ratio = (data.PauseTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
+            }
+            else if (timeType == "PrepTime")
+            {
+                ratio = (data.PrepTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
+            }
+            else if (timeType == "TotalTime")
+            {
+                if (data.TimeEstimate.HasValue)
+                    ratio = (data.TimeEstimate?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
+                else
+                    ratio = -1;
+            }
+
+            return ratio;
+        }
+
+
+
+
     }
 }

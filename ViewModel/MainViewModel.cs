@@ -158,6 +158,8 @@ namespace JobReporter2.ViewModel
             Thresholds = SettingsHelper.LoadThresholds();
             Console.WriteLine("SHIFTS LOADED");
             UniqueShifts = new HashSet<string>();
+            SelectedReportType = ReportTypes.FirstOrDefault();
+            SelectedTimeFrame = TimeFrames.FirstOrDefault();
             foreach (var shift in Shifts)
             {
                 UniqueShifts.Add(shift.Name);
@@ -341,9 +343,20 @@ namespace JobReporter2.ViewModel
                 })
             );
 
+            var thresholdCopies = new ObservableCollection<ThresholdModel>(
+                Thresholds.Select(t => new ThresholdModel
+                {
+                    Name = t.Name,
+                    IsEnabled = t.IsEnabled,
+                    Value1 = t.Value1,
+                    Value2 = t.Value2
+                })
+            );
+
             var shiftManagerViewModel = new ShiftManagerViewModel
             {
-                Shifts = shiftCopies
+                Shifts = shiftCopies,
+                Thresholds = thresholdCopies
             };
 
             var shiftManagerView = new ShiftManagerView
@@ -366,11 +379,28 @@ namespace JobReporter2.ViewModel
                     })
                 );
                 UniqueShifts.Clear();
+
+                Thresholds = new ObservableCollection<ThresholdModel>(
+                    shiftManagerViewModel.Thresholds.Select(t => new ThresholdModel
+                    {
+                        Name = t.Name,
+                        IsEnabled = t.IsEnabled,
+                        Value1 = t.Value1,
+                        Value2 = t.Value2
+                    })
+                );
+
                 foreach (var shift in Shifts)
                 {
                     UniqueShifts.Add(shift.Name);
                     Console.WriteLine(shift.Name);
                 }
+
+                foreach (var threshold in Thresholds)
+                {
+                    Console.WriteLine(threshold.Name + " " + threshold.Value1 + " " + threshold.Value2);
+                }
+
                 AssignShiftsToJobs();
             }
         }

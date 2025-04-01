@@ -14,7 +14,7 @@
     },
     {
       "Name": "Shift 3",
-      "IsEnabled": false,
+      "IsEnabled": true,
       "StartTime": "00:00:00",
       "EndTime": "23:59:00"
     },
@@ -26,7 +26,7 @@
     },
     {
       "Name": "Shift 5",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "StartTime": "00:01:00",
       "EndTime": "23:59:00"
     }
@@ -63,46 +63,32 @@
         "Shift 2",
         "Shift 3"
       ]
-    },
-    {
-      "Name": "Custom 2",
-      "TimeFrame": "Custom",
-      "FlaggedStatus": "All",
-      "StartDate": null,
-      "EndDate": null,
-      "Connections": [
-        "ADVA (21163)"
-      ],
-      "EndTypes": [
-        "Job halted."
-      ],
-      "Shifts": []
     }
   ],
   "Thresholds": [
     {
-      "Name": "TotalTime",
-      "IsEnabled": false,
-      "Value1": 10.0,
-      "Value2": 20.0
-    },
-    {
       "Name": "CutTime",
-      "IsEnabled": false,
-      "Value1": 20.0,
-      "Value2": 30.0
-    },
-    {
-      "Name": "PrepTime",
-      "IsEnabled": false,
-      "Value1": 30.0,
-      "Value2": 40.0
+      "IsEnabled": true,
+      "Value1": 0.5,
+      "Value2": 0.75
     },
     {
       "Name": "PauseTime",
+      "IsEnabled": true,
+      "Value1": 0.25,
+      "Value2": 0.5
+    },
+    {
+      "Name": "PrepTime",
+      "IsEnabled": true,
+      "Value1": 0.25,
+      "Value2": 0.5
+    },
+    {
+      "Name": "TotalTime",
       "IsEnabled": false,
-      "Value1": 40.0,
-      "Value2": 50.0
+      "Value1": 0.5,
+      "Value2": 0.75
     }
   ],
   "XjhDirectory": "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2",

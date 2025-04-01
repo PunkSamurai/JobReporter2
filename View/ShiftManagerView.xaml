@@ -4,56 +4,71 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Shift Manager" Height="230" Width="290">
+        Title="Settings" Height="260" Width="295">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
-        <!-- DataGrid for managing shifts -->
-        <DataGrid ItemsSource="{Binding Shifts}" 
-         AutoGenerateColumns="False" 
-         CanUserAddRows="False" 
-         Grid.Row="0" 
-         Margin="0,0,0,10">
-            <DataGrid.Resources>
-                <Style x:Key="TimeEditingStyle" TargetType="TextBox">
-                    <Setter Property="MaxLength" Value="5" />
-                    <EventSetter Event="PreviewTextInput" Handler="TimeTextBox_PreviewTextInput" />
-                    <EventSetter Event="LostFocus" Handler="TimeTextBox_LostFocus" />
-                </Style>
-            </DataGrid.Resources>
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Shift Name" SortMemberPath="Name">
-                    <DataGridTemplateColumn.CellStyle>
-                        <Style TargetType="DataGridCell">
-                            <Setter Property="Background" 
-                                    Value="{Binding Name, Converter={StaticResource ShiftToBrushConverter}}" />
+        <TabControl Grid.Row="0">
+            <TabItem Header="Edit Shifts">
+                <DataGrid ItemsSource="{Binding Shifts}" 
+                             AutoGenerateColumns="False" 
+                             CanUserAddRows="False" 
+                             SelectionMode="Single">
+                    <DataGrid.Resources>
+                        <Style x:Key="TimeEditingStyle" TargetType="TextBox">
+                            <Setter Property="MaxLength" Value="5" />
+                            <EventSetter Event="PreviewTextInput" Handler="TimeTextBox_PreviewTextInput" />
+                            <EventSetter Event="LostFocus" Handler="TimeTextBox_LostFocus" />
                         </Style>
-                    </DataGridTemplateColumn.CellStyle>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Start Time" 
-                          Binding="{Binding StartTime, StringFormat=hh\\:mm}">
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
-                    </DataGridTextColumn.EditingElementStyle>
-                </DataGridTextColumn>
-                <DataGridTextColumn Header="End Time" 
-                          Binding="{Binding EndTime, StringFormat=hh\\:mm}">
-                    <DataGridTextColumn.EditingElementStyle>
-                        <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
-                    </DataGridTextColumn.EditingElementStyle>
-                </DataGridTextColumn>
-                <DataGridCheckBoxColumn Header="Enabled" 
-                              Binding="{Binding IsEnabled}" />
-            </DataGrid.Columns>
-        </DataGrid>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Shift Name" SortMemberPath="Name">
+                            <DataGridTemplateColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="Background" 
+                                            Value="{Binding Name, Converter={StaticResource ShiftToBrushConverter}}" />
+                                </Style>
+                            </DataGridTemplateColumn.CellStyle>
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Start Time" 
+                                            Binding="{Binding StartTime, StringFormat=hh\\:mm}">
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="End Time" 
+                                            Binding="{Binding EndTime, StringFormat=hh\\:mm}">
+                            <DataGridTextColumn.EditingElementStyle>
+                                <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
+                            </DataGridTextColumn.EditingElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridCheckBoxColumn Header="Enabled" 
+                      Binding="{Binding IsEnabled}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+            <TabItem Header="Edit Thresholds">
+                <DataGrid ItemsSource="{Binding Thresholds}"
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False" 
+                          Grid.Row="0"
+                          SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Threshold Name" Binding="{Binding Name}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Value 1" Binding="{Binding Value1}" />
+                        <DataGridTextColumn Header="Value 2" Binding="{Binding Value2}" />
+                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+        </TabControl>
 
         <!-- Buttons -->
         <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Right">

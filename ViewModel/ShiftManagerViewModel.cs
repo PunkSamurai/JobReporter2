@@ -18,6 +18,14 @@ namespace JobReporter2.ViewModel
             get => _shifts;
             set => SetProperty(ref _shifts, value);
         }
+
+        private ObservableCollection<ThresholdModel> _thresholds;
+        public ObservableCollection<ThresholdModel> Thresholds
+        {
+            get => _thresholds;
+            set => SetProperty(ref _thresholds, value);
+        }
+
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand AddShiftCommand { get; }
@@ -48,6 +56,7 @@ namespace JobReporter2.ViewModel
                 Console.WriteLine(shift.Name + " " + shift.StartTime + " " + shift.EndTime + " " + shift.IsEnabled);
             }
             SettingsHelper.SaveShifts(Shifts);
+            SettingsHelper.SaveThresholds(Thresholds);
             if (System.Windows.Application.Current.Windows
                     .OfType<Window>()
                     .FirstOrDefault(w => w.DataContext == this) is Window window)

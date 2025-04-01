@@ -28,7 +28,7 @@
                 </StackPanel>
                 <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="400" TextWrapping="Wrap" AcceptsReturn="True" 
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
-                <Button Content="Manage Shifts" Command="{Binding OpenShiftManagerCommand}" Width="120" Margin="5"/>
+                <Button Content="Settings" Command="{Binding OpenShiftManagerCommand}" Width="120" Margin="5"/>
                 <StackPanel Orientation="Vertical">
                     <ComboBox Width="200" Margin="5"
                              ItemsSource="{Binding ReportTypes}"
@@ -79,6 +79,24 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background" 
                                         Value="{Binding Shift, Converter={StaticResource ShiftToBrushConverter}}" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
@@ -97,6 +115,24 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background"
                                     Value="{Binding EndType, Converter={StaticResource EndTypeToBrushConverter}}" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
@@ -111,8 +147,30 @@
                     <DataGridTemplateColumn Header="Prep Time" SortMemberPath="PrepTime">
                         <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Background" 
-                                        Value="{Binding Converter={StaticResource PrepTimeToBrushConverter}}" />
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <Binding Converter="{StaticResource LesserThanThresholdToBrushConverter}" 
+                                                 ConverterParameter="PrepTime" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
@@ -132,8 +190,30 @@
                     <DataGridTemplateColumn Header="Total Time" SortMemberPath="TotalTime">
                         <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Background" 
-                                        Value="{Binding Converter={StaticResource TotalTimeToBrushConverter}}" />
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <Binding Converter="{StaticResource GreaterThanThresholdToBrushConverter}" 
+                                                 ConverterParameter="TotalTime" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
@@ -153,8 +233,30 @@
                     <DataGridTemplateColumn Header="Cut Time" SortMemberPath="CutTime">
                         <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Background" 
-                                        Value="{Binding Converter={StaticResource CutTimeToBrushConverter}}" />
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <Binding Converter="{StaticResource GreaterThanThresholdToBrushConverter}" 
+                                                 ConverterParameter="CutTime" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
                         </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
@@ -167,12 +269,34 @@
 
                     <!-- Pause Time Column -->
                     <DataGridTemplateColumn Header="Pause Time" SortMemberPath="PauseTime">
-                        <!--<DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn.CellStyle>
                             <Style TargetType="DataGridCell">
-                                <Setter Property="Background" 
-                                        Value="{Binding Converter={StaticResource PauseTimeToBrushConverter}}" />
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <Binding Converter="{StaticResource LesserThanThresholdToBrushConverter}" 
+                                                 ConverterParameter="PauseTime" />
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="True" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#0078d7" />
+                                        <Setter Property="Foreground" Value="White" />
+                                    </MultiDataTrigger>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=IsSelected}" Value="True" />
+                                            <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGrid}}, Path=IsKeyboardFocusWithin}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Background" Value="#f0f0f0" />
+                                        <Setter Property="Foreground" Value="Black" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
                             </Style>
-                        </DataGridTemplateColumn.CellStyle>-->
+                        </DataGridTemplateColumn.CellStyle>
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding PauseTime}" />
@@ -391,7 +515,7 @@
 
                     <oxy:PlotView Model="{Binding SelectedJob.PieChartModel}" 
                    Height="300" 
-                   Width="300" 
+                   Width="250" 
                    Margin="100 10 100 10 " />
                 </StackPanel>
         </Expander>

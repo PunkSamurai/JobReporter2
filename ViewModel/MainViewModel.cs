@@ -676,20 +676,40 @@ namespace JobReporter2.ViewModel
         {
             try
             {
-                int reportNumber = Tabs.Count;
+                // Create and configure the parameters view model
+                var parametersViewModel = new ReportParametersViewModel(
+                    ReportTypes.ToList(),  // Pass the available report types
+                    TimeFrames.ToList()    // Pass the available time frames
+                );
 
-                // Create the content first
-                var reportContent = new ReportContent
+                // Create and show the parameters window
+                var parametersView = new ReportParametersView
                 {
-                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, SelectedReportType, SelectedTimeFrame)
+                    DataContext = parametersViewModel,
+                    Owner = Application.Current.MainWindow
                 };
 
-                /* string fileName = "C:\\Users\\LENOVO\\Downloads\\report.pdf";
-                using (var stream = File.Create(fileName))
+                // Show the dialog and check result
+                bool? result = parametersView.ShowDialog();
+
+                // If dialog was cancelled, return early
+                if (result != true)
+                    return;
+
+                // Get the title for the report
+                string reportTitle = parametersViewModel.ReportTitle;
+
+                // Get the selected report type and time frame
+                string selectedReportType = parametersViewModel.SelectedReportType;
+                string selectedTimeFrame = parametersViewModel.SelectedTimeFrame;
+
+                int reportNumber = Tabs.Count;
+
+                // Create the content
+                var reportContent = new ReportContent
                 {
-                    var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
-                    pdfExporter.Export(reportContent.ReportModel, stream);
-                } */
+                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, selectedReportType, selectedTimeFrame)
+                };
 
                 // Create a tab item with a custom header object
                 var reportTab = new TabItem
@@ -700,7 +720,7 @@ namespace JobReporter2.ViewModel
 
                 // Create the header with a close action
                 var header = new ReportTabHeader(
-                    $"Report {reportNumber}",
+                    reportTitle,  // Use the custom title from the dialog
                     h => Tabs.Remove(reportTab), // This is the close action
                     h => ExportReportToPdf(reportContent)
                 );
@@ -716,7 +736,7 @@ namespace JobReporter2.ViewModel
             }
             catch (Exception ex)
             {
-                // Show error message - in MVVM this would be better with a message service
+                // Show error message
                 MessageBox.Show($"Error generating report: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

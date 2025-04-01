@@ -84,6 +84,8 @@
     <Compile Include="ViewModel\FilterViewModel.cs" />
     <Compile Include="ViewModel\JobViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ReportParametersViewModel.cs" />
+    <Compile Include="ViewModel\ReportViewModel.cs" />
     <Compile Include="ViewModel\SettingsViewModel.cs" />
     <Compile Include="ViewModel\ShiftManagerViewModel.cs" />
     <Compile Include="View\FilterView.xaml.cs">
@@ -97,6 +99,9 @@
     </Compile>
     <Compile Include="View\ReportContent.xaml.cs">
       <DependentUpon>ReportContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ReportParametersView.xaml.cs">
+      <DependentUpon>ReportParametersView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\ShiftManagerView.xaml.cs">
       <DependentUpon>ShiftManagerView.xaml</DependentUpon>
@@ -130,6 +135,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\ReportContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\ReportParametersView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -29,7 +29,7 @@
                 <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="400" TextWrapping="Wrap" AcceptsReturn="True" 
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
                 <Button Content="Settings" Command="{Binding OpenShiftManagerCommand}" Width="120" Margin="5"/>
-                <StackPanel Orientation="Vertical">
+                <!-- <StackPanel Orientation="Vertical">
                     <ComboBox Width="200" Margin="5"
                              ItemsSource="{Binding ReportTypes}"
                              SelectedItem="{Binding SelectedReportType}"
@@ -38,7 +38,7 @@
                              ItemsSource="{Binding TimeFrames}"
                              SelectedItem="{Binding SelectedTimeFrame}"
                              Text="Select Time Frame" />
-                </StackPanel>
+                </StackPanel> -->
                 <Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Margin="5" />
             </StackPanel>
 

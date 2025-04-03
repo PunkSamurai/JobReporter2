@@ -7,9 +7,16 @@
              mc:Ignorable="d">
 
     <Grid>
-        <TextBlock Text="Report Content"/>
-        <!-- Display the graph -->
+        <!-- Plot View for graphical reports -->
         <oxy:PlotView x:Name="ReportPlotView"/>
+
+        <!-- ScrollViewer for text reports (hidden by default) -->
+        <ScrollViewer x:Name="TextReportScrollViewer" Visibility="Collapsed">
+            <TextBlock x:Name="TextReportBlock" 
+                     FontFamily="Consolas" 
+                     TextWrapping="NoWrap" 
+                     FontSize="12"
+                     Padding="10"/>
+        </ScrollViewer>
     </Grid>
 </UserControl>
-

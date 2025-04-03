@@ -17,25 +17,29 @@ using OxyPlot.Wpf;
 
 public static class ReportFactory
 {
-    public static PlotModel GenerateReport(ObservableCollection<JobModel> filteredJobs, string reportType, string timeFrame)
+    public static object GenerateReport(ObservableCollection<JobModel> filteredJobs, string reportType, string timeFrame)
+{
+    if (reportType == "Shift Productivity (Time)")
     {
-        if (reportType == "Shift Productivity (Time)")
-        {
-            return GenerateShiftTimeReport(filteredJobs, timeFrame);
-        }
-        else if (reportType == "Shift Productivity (Number of Jobs)")
-        {
-            return GenerateShiftJobReport(filteredJobs, timeFrame);
-        }
-        else if (reportType == "Advanced Shift Productivity (Time)")
-        {
-            return GenerateAdvancedShiftTimeReport(filteredJobs, timeFrame);
-        }
-        else
-        {
-            return null;
-        }
+        return GenerateShiftTimeReport(filteredJobs, timeFrame);
     }
+    else if (reportType == "Shift Productivity (Number of Jobs)")
+    {
+        return GenerateShiftJobReport(filteredJobs, timeFrame);
+    }
+    else if (reportType == "Advanced Shift Productivity (Time)")
+    {
+        return GenerateAdvancedShiftTimeReport(filteredJobs, timeFrame);
+    }
+    else if (reportType == "Text Report") // Add new report type
+    {
+        return GenerateTextReport(filteredJobs, timeFrame);
+    }
+    else
+    {
+        return null;
+    }
+}
 
 
 
@@ -456,13 +460,10 @@ public static class ReportFactory
             return "No job data available for report.";
 
         StringBuilder report = new StringBuilder();
-        report.AppendLine("Job File " + GetTimeFrameTitle(timeFrame) + " Report");
-        report.AppendLine($"{DateTime.Now.ToShortDateString()}");
+        report.AppendLine($"Job File {GetTimeFrameTitle(timeFrame)} Report");
+        report.AppendLine($"{DateTime.Now.ToString("MM/dd/yyyy")}");
         report.AppendLine("title");
         report.AppendLine();
-
-        // Group data based on timeframe
-        var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
 
         // Get unique shifts
         var uniqueShifts = filteredJobs
@@ -471,36 +472,50 @@ public static class ReportFactory
             .OrderBy(s => s)
             .ToList();
 
-        // Header row for shifts
-        report.AppendLine($"{"",40}First Shift{"",10}Second Shift{"",10}Third Shift{"",10}Total");
+        // Group data based on timeframe
+        var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
 
-        // Weekly totals for counting across the entire report
-        int totalFirstShiftJobs = 0;
-        TimeSpan totalFirstShiftRunTime = TimeSpan.Zero;
-        TimeSpan totalFirstShiftIdleTime = TimeSpan.Zero;
+        // Build header row with proper spacing
+        StringBuilder headerRow = new StringBuilder();
+        headerRow.Append($"{"",20}");
+        foreach (var shift in uniqueShifts)
+        {
+            headerRow.Append($"{shift,15}");
+        }
+        headerRow.Append($"{"Total",15}");
+        report.AppendLine(headerRow.ToString());
 
-        int totalSecondShiftJobs = 0;
-        TimeSpan totalSecondShiftRunTime = TimeSpan.Zero;
-        TimeSpan totalSecondShiftIdleTime = TimeSpan.Zero;
+        // Create dictionary to track shift totals
+        Dictionary<string, int> totalShiftJobs = new Dictionary<string, int>();
+        Dictionary<string, TimeSpan> totalShiftRunTime = new Dictionary<string, TimeSpan>();
+        Dictionary<string, TimeSpan> totalShiftIdleTime = new Dictionary<string, TimeSpan>();
 
-        int totalThirdShiftJobs = 0;
-        TimeSpan totalThirdShiftRunTime = TimeSpan.Zero;
-        TimeSpan totalThirdShiftIdleTime = TimeSpan.Zero;
+        // Initialize totals for each shift
+        foreach (var shift in uniqueShifts)
+        {
+            totalShiftJobs[shift] = 0;
+            totalShiftRunTime[shift] = TimeSpan.Zero;
+            totalShiftIdleTime[shift] = TimeSpan.Zero;
+        }
 
-        // For weekly timeframe, we'll group the days into weeks
-        int weekCounter = 0;
+        // For weekly tracking
         DateTime? currentWeekStart = null;
+        bool isInWeek = false;
 
         // Process each time period
-        foreach (var timePeriod in groupedData)
+        foreach (var timePeriod in groupedData.OrderBy(g => DateTime.TryParse(g.Key, out DateTime date) ? date : DateTime.MaxValue))
         {
             string periodLabel = timePeriod.Key;
+            DateTime periodDate;
 
-            // For weekly reports with daily breakdowns
-            if (timeFrame.ToLower() == "weekly" && !periodLabel.StartsWith("Week"))
+            // Try to parse date for consistent formatting
+            if (DateTime.TryParse(periodLabel, out periodDate))
             {
-                // Parse the date from the period label
-                if (DateTime.TryParse(periodLabel, out DateTime periodDate))
+                // Format date consistently as MM/dd/yyyy
+                periodLabel = periodDate.ToString("MM/dd/yyyy");
+
+                // Weekly report handling
+                if (timeFrame.ToLower() == "weekly")
                 {
                     // Check if we need to start a new week
                     if (currentWeekStart == null || (periodDate - currentWeekStart.Value).Days >= 7)
@@ -508,138 +523,151 @@ public static class ReportFactory
                         // If we were tracking a week, output week totals
                         if (currentWeekStart != null)
                         {
-                            AppendWeeklyTotals(report,
-                                totalFirstShiftJobs, totalFirstShiftRunTime, totalFirstShiftIdleTime,
-                                totalSecondShiftJobs, totalSecondShiftRunTime, totalSecondShiftIdleTime,
-                                totalThirdShiftJobs, totalThirdShiftRunTime, totalThirdShiftIdleTime);
+                            AppendPeriodTotals(report, "End of Week Totals:", uniqueShifts, totalShiftJobs, totalShiftRunTime, totalShiftIdleTime);
 
                             // Reset totals for the new week
-                            totalFirstShiftJobs = totalSecondShiftJobs = totalThirdShiftJobs = 0;
-                            totalFirstShiftRunTime = totalSecondShiftRunTime = totalThirdShiftRunTime = TimeSpan.Zero;
-                            totalFirstShiftIdleTime = totalSecondShiftIdleTime = totalThirdShiftIdleTime = TimeSpan.Zero;
-
-                            report.AppendLine();
-                            weekCounter++;
+                            foreach (var shift in uniqueShifts)
+                            {
+                                totalShiftJobs[shift] = 0;
+                                totalShiftRunTime[shift] = TimeSpan.Zero;
+                                totalShiftIdleTime[shift] = TimeSpan.Zero;
+                            }
                         }
 
                         currentWeekStart = periodDate;
+                        isInWeek = true;
                     }
-
-                    // Use the full date as the period label
-                    periodLabel = periodDate.ToString("dddd, MMMM d, yyyy");
                 }
             }
 
-            // Calculate metrics for this time period
-            var firstShiftJobs = timePeriod.Value.Count(j => j.Shift == "First Shift");
-            var secondShiftJobs = timePeriod.Value.Count(j => j.Shift == "Second Shift");
-            var thirdShiftJobs = timePeriod.Value.Count(j => j.Shift == "Third Shift");
-            var totalJobs = firstShiftJobs + secondShiftJobs + thirdShiftJobs;
-
-            var firstShiftRunTime = CalculateTotalTime(timePeriod.Value.Where(j => j.Shift == "First Shift"));
-            var secondShiftRunTime = CalculateTotalTime(timePeriod.Value.Where(j => j.Shift == "Second Shift"));
-            var thirdShiftRunTime = CalculateTotalTime(timePeriod.Value.Where(j => j.Shift == "Third Shift"));
-            var totalRunTime = firstShiftRunTime + secondShiftRunTime + thirdShiftRunTime;
-
-            // Assuming 48 hours (24 * 2) available per shift per day as in the example
-            var shiftAvailableTime = TimeSpan.FromHours(48);
-            var firstShiftIdleTime = shiftAvailableTime - firstShiftRunTime;
-            var secondShiftIdleTime = shiftAvailableTime - secondShiftRunTime;
-            var thirdShiftIdleTime = shiftAvailableTime - thirdShiftRunTime;
-            var totalIdleTime = firstShiftIdleTime + secondShiftIdleTime + thirdShiftIdleTime;
-
-            // Add to running totals
-            totalFirstShiftJobs += firstShiftJobs;
-            totalFirstShiftRunTime += firstShiftRunTime;
-            totalFirstShiftIdleTime += firstShiftIdleTime;
-
-            totalSecondShiftJobs += secondShiftJobs;
-            totalSecondShiftRunTime += secondShiftRunTime;
-            totalSecondShiftIdleTime += secondShiftIdleTime;
-
-            totalThirdShiftJobs += thirdShiftJobs;
-            totalThirdShiftRunTime += thirdShiftRunTime;
-            totalThirdShiftIdleTime += thirdShiftIdleTime;
-
-            // Output the period header
+            // Output the period heading
             report.AppendLine(periodLabel);
 
+            // Dictionaries to hold this period's metrics
+            Dictionary<string, int> periodJobCounts = new Dictionary<string, int>();
+            Dictionary<string, TimeSpan> periodRunTimes = new Dictionary<string, TimeSpan>();
+            Dictionary<string, TimeSpan> periodIdleTimes = new Dictionary<string, TimeSpan>();
+
+            int periodTotalJobs = 0;
+            TimeSpan periodTotalRunTime = TimeSpan.Zero;
+            TimeSpan periodTotalIdleTime = TimeSpan.Zero;
+
+            // Calculate metrics for each shift in this period
+            foreach (var shift in uniqueShifts)
+            {
+                // Count jobs for this shift
+                int shiftJobs = timePeriod.Value.Count(j => j.Shift == shift);
+                periodJobCounts[shift] = shiftJobs;
+                periodTotalJobs += shiftJobs;
+                totalShiftJobs[shift] += shiftJobs;
+
+                // Calculate run time for this shift
+                TimeSpan shiftRunTime = CalculateTotalTime(timePeriod.Value.Where(j => j.Shift == shift));
+                periodRunTimes[shift] = shiftRunTime;
+                periodTotalRunTime += shiftRunTime;
+                totalShiftRunTime[shift] += shiftRunTime;
+
+                // Calculate idle time - use 48 hours as the shift available time (can be adjusted if needed)
+                TimeSpan shiftAvailableTime = TimeSpan.FromHours(48);
+                TimeSpan shiftIdleTime = shiftAvailableTime - shiftRunTime;
+                periodIdleTimes[shift] = shiftIdleTime;
+                periodTotalIdleTime += shiftIdleTime;
+                totalShiftIdleTime[shift] += shiftIdleTime;
+            }
+
             // Output job counts
-            report.AppendLine(FormatMetricLine("Number of Jobs:",
-                firstShiftJobs, secondShiftJobs, thirdShiftJobs, totalJobs));
+            report.AppendLine(FormatMetricLine("Number of Jobs:", uniqueShifts, periodJobCounts, periodTotalJobs));
 
             // Output run times
-            report.AppendLine(FormatMetricLine("Run Time:",
-                firstShiftRunTime, secondShiftRunTime, thirdShiftRunTime, totalRunTime));
+            report.AppendLine(FormatMetricLine("Run Time:", uniqueShifts, periodRunTimes, periodTotalRunTime));
 
             // Output idle times
-            report.AppendLine(FormatMetricLine("Idle Time:",
-                firstShiftIdleTime, secondShiftIdleTime, thirdShiftIdleTime, totalIdleTime));
+            report.AppendLine(FormatMetricLine("Idle Time:", uniqueShifts, periodIdleTimes, periodTotalIdleTime));
 
             report.AppendLine();
         }
 
-        // Output final week totals if needed
-        if (timeFrame.ToLower() == "weekly" && currentWeekStart != null)
+        // Output final week totals if needed for weekly reports
+        if (timeFrame.ToLower() == "weekly" && isInWeek)
         {
-            AppendWeeklyTotals(report,
-                totalFirstShiftJobs, totalFirstShiftRunTime, totalFirstShiftIdleTime,
-                totalSecondShiftJobs, totalSecondShiftRunTime, totalSecondShiftIdleTime,
-                totalThirdShiftJobs, totalThirdShiftRunTime, totalThirdShiftIdleTime);
-
+            AppendPeriodTotals(report, "End of Week Totals:", uniqueShifts, totalShiftJobs, totalShiftRunTime, totalShiftIdleTime);
             report.AppendLine();
         }
 
         // Add grand totals for all time periods
+        int grandTotalJobs = uniqueShifts.Sum(shift => totalShiftJobs[shift]);
+        TimeSpan grandTotalRunTime = TimeSpan.Zero;
+        TimeSpan grandTotalIdleTime = TimeSpan.Zero;
+
+        foreach (var shift in uniqueShifts)
+        {
+            grandTotalRunTime += totalShiftRunTime[shift];
+            grandTotalIdleTime += totalShiftIdleTime[shift];
+        }
+
         report.AppendLine("Grand Totals:");
-        report.AppendLine(FormatMetricLine("Number of Jobs:",
-            totalFirstShiftJobs, totalSecondShiftJobs, totalThirdShiftJobs,
-            totalFirstShiftJobs + totalSecondShiftJobs + totalThirdShiftJobs));
-
-        report.AppendLine(FormatMetricLine("Run Time:",
-            totalFirstShiftRunTime, totalSecondShiftRunTime, totalThirdShiftRunTime,
-            totalFirstShiftRunTime + totalSecondShiftRunTime + totalThirdShiftRunTime));
-
-        report.AppendLine(FormatMetricLine("Idle Time:",
-            totalFirstShiftIdleTime, totalSecondShiftIdleTime, totalThirdShiftIdleTime,
-            totalFirstShiftIdleTime + totalSecondShiftIdleTime + totalThirdShiftIdleTime));
+        report.AppendLine(FormatMetricLine("Number of Jobs:", uniqueShifts, totalShiftJobs, grandTotalJobs));
+        report.AppendLine(FormatMetricLine("Run Time:", uniqueShifts, totalShiftRunTime, grandTotalRunTime));
+        report.AppendLine(FormatMetricLine("Idle Time:", uniqueShifts, totalShiftIdleTime, grandTotalIdleTime));
 
         return report.ToString();
     }
 
-    private static void AppendWeeklyTotals(StringBuilder report,
-        int firstShiftJobs, TimeSpan firstShiftRunTime, TimeSpan firstShiftIdleTime,
-        int secondShiftJobs, TimeSpan secondShiftRunTime, TimeSpan secondShiftIdleTime,
-        int thirdShiftJobs, TimeSpan thirdShiftRunTime, TimeSpan thirdShiftIdleTime)
+    private static void AppendPeriodTotals(
+        StringBuilder report,
+        string headerText,
+        List<string> shifts,
+        Dictionary<string, int> jobCounts,
+        Dictionary<string, TimeSpan> runTimes,
+        Dictionary<string, TimeSpan> idleTimes)
     {
-        var totalJobs = firstShiftJobs + secondShiftJobs + thirdShiftJobs;
-        var totalRunTime = firstShiftRunTime + secondShiftRunTime + thirdShiftRunTime;
-        var totalIdleTime = firstShiftIdleTime + secondShiftIdleTime + thirdShiftIdleTime;
+        int totalJobs = shifts.Sum(shift => jobCounts[shift]);
+        TimeSpan totalRunTime = TimeSpan.Zero;
+        TimeSpan totalIdleTime = TimeSpan.Zero;
 
-        report.AppendLine("End of Week Totals:");
-        report.AppendLine(FormatMetricLine("Number of Jobs:",
-            firstShiftJobs, secondShiftJobs, thirdShiftJobs, totalJobs));
+        foreach (var shift in shifts)
+        {
+            totalRunTime += runTimes[shift];
+            totalIdleTime += idleTimes[shift];
+        }
 
-        report.AppendLine(FormatMetricLine("Run Time:",
-            firstShiftRunTime, secondShiftRunTime, thirdShiftRunTime, totalRunTime));
-
-        report.AppendLine(FormatMetricLine("Idle Time:",
-            firstShiftIdleTime, secondShiftIdleTime, thirdShiftIdleTime, totalIdleTime));
+        report.AppendLine(headerText);
+        report.AppendLine(FormatMetricLine("Number of Jobs:", shifts, jobCounts, totalJobs));
+        report.AppendLine(FormatMetricLine("Run Time:", shifts, runTimes, totalRunTime));
+        report.AppendLine(FormatMetricLine("Idle Time:", shifts, idleTimes, totalIdleTime));
     }
 
-    private static string FormatMetricLine(string metricName, int first, int second, int third, int total)
+    private static string FormatMetricLine(string metricName, List<string> shifts, Dictionary<string, int> values, int total)
     {
-        return $"{metricName,-20} {first,10} {second,10} {third,10} {total,10}";
+        StringBuilder line = new StringBuilder();
+        line.Append($"{metricName,-20}");
+
+        foreach (var shift in shifts)
+        {
+            line.Append($"{values[shift],15}");
+        }
+
+        line.Append($"{total,15}");
+        return line.ToString();
     }
 
-    private static string FormatMetricLine(string metricName, TimeSpan first, TimeSpan second, TimeSpan third, TimeSpan total)
+    private static string FormatMetricLine(string metricName, List<string> shifts, Dictionary<string, TimeSpan> values, TimeSpan total)
     {
-        return $"{metricName,-20} {FormatTimeSpan(first),10} {FormatTimeSpan(second),10} {FormatTimeSpan(third),10} {FormatTimeSpan(total),10}";
+        StringBuilder line = new StringBuilder();
+        line.Append($"{metricName,-20}");
+
+        foreach (var shift in shifts)
+        {
+            line.Append($"{FormatTimeSpan(values[shift]),15}");
+        }
+
+        line.Append($"{FormatTimeSpan(total),15}");
+        return line.ToString();
     }
 
     private static string FormatTimeSpan(TimeSpan time)
     {
-        // Format as H:MM:SS as in the example
+        // Format as H:MM:SS to match the PDF report format
         return $"{(int)time.TotalHours}:{time.Minutes:D2}:{time.Seconds:D2}";
     }
 
@@ -667,6 +695,8 @@ public static class ReportFactory
                 return timeFrame;
         }
     }
+
+
 
 }
 

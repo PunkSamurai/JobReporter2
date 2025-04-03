@@ -16,6 +16,7 @@ using OxyPlot.Series;
 using System.Windows.Threading;
 using Microsoft.Win32;
 using OxyPlot;
+using iTextSharp;
 
 namespace JobReporter2.ViewModel
 {
@@ -43,7 +44,8 @@ namespace JobReporter2.ViewModel
         {
             "Advanced Shift Productivity (Time)",
             "Shift Productivity (Time)",
-            "Shift Productivity (Number of Jobs)"
+            "Shift Productivity (Number of Jobs)",
+            "Text Report"
         };
 
         public ObservableCollection<string> TimeFrames { get; } = new ObservableCollection<string>
@@ -706,10 +708,11 @@ namespace JobReporter2.ViewModel
                 int reportNumber = Tabs.Count;
 
                 // Create the content
-                var reportContent = new ReportContent
-                {
-                    ReportModel = ReportFactory.GenerateReport(FilteredJobs, selectedReportType, selectedTimeFrame)
-                };
+                var reportContent = new ReportContent();
+
+                // Generate the report (could be PlotModel or string now)
+                var reportModel = ReportFactory.GenerateReport(FilteredJobs, selectedReportType, selectedTimeFrame);
+                reportContent.ReportModel = reportModel;
 
                 // Create a tab item with a custom header object
                 var reportTab = new TabItem
@@ -722,7 +725,7 @@ namespace JobReporter2.ViewModel
                 var header = new ReportTabHeader(
                     reportTitle,  // Use the custom title from the dialog
                     h => Tabs.Remove(reportTab), // This is the close action
-                    h => ExportReportToPdf(reportContent)
+                    h => ExportReportToPdf(reportContent, reportTitle)  // Pass title for PDF
                 );
 
                 // Set the header as the Header property
@@ -741,7 +744,7 @@ namespace JobReporter2.ViewModel
             }
         }
 
-        private void ExportReportToPdf(ReportContent reportContent)
+        private void ExportReportToPdf(ReportContent reportContent, string reportTitle)
         {
             string PreviousReportPath = SettingsHelper.LoadReportDirectory();
             try
@@ -751,8 +754,8 @@ namespace JobReporter2.ViewModel
                 {
                     Filter = "PDF Files (*.pdf)|*.pdf",
                     DefaultExt = "pdf",
-                    Title = "Save Report as PDF"
-                    
+                    Title = "Save Report as PDF",
+                    FileName = reportTitle
                 };
 
                 if (PreviousReportPath != "")
@@ -760,16 +763,23 @@ namespace JobReporter2.ViewModel
                     saveFileDialog.InitialDirectory = PreviousReportPath;
                 }
 
-                saveFileDialog.FileName = reportContent.ReportModel.Title;
-
                 // Show the dialog and process the result
                 if (saveFileDialog.ShowDialog() == true)
                 {
                     string fileName = saveFileDialog.FileName;
                     using (var stream = File.Create(fileName))
                     {
-                        var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
-                        pdfExporter.Export(reportContent.ReportModel, stream);
+                        if (reportContent.ReportModel is string textContent)
+                        {
+                            // Export text report
+                            ExportTextReportToPdf(textContent, reportTitle, stream);
+                        }
+                        else if (reportContent.ReportModel is PlotModel plotModel)
+                        {
+                            // Export plot model report
+                            var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
+                            pdfExporter.Export(plotModel, stream);
+                        }
                     }
 
                     SettingsHelper.SaveReportDirectory(Path.GetDirectoryName(fileName));
@@ -782,6 +792,33 @@ namespace JobReporter2.ViewModel
             {
                 MessageBox.Show($"Error exporting report: {ex.Message}", "Export Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void ExportTextReportToPdf(string textContent, string title, Stream stream)
+        {
+            // Add a PDF library like iTextSharp via NuGet if you don't have one already
+            using (var document = new iTextSharp.text.Document())
+            {
+                var writer = iTextSharp.text.pdf.PdfWriter.GetInstance(document, stream);
+                document.Open();
+
+                // Add title
+                var titleFont = iTextSharp.text.FontFactory.GetFont(iTextSharp.text.FontFactory.COURIER_BOLD, 14);
+                var titleParagraph = new iTextSharp.text.Paragraph(title, titleFont);
+                document.Add(titleParagraph);
+
+                // Add current date
+                var dateFont = iTextSharp.text.FontFactory.GetFont(iTextSharp.text.FontFactory.COURIER, 10);
+                var dateParagraph = new iTextSharp.text.Paragraph(DateTime.Now.ToShortDateString(), dateFont);
+                document.Add(dateParagraph);
+
+                // Add content with monospaced font to preserve formatting
+                var contentFont = iTextSharp.text.FontFactory.GetFont(iTextSharp.text.FontFactory.COURIER, 10);
+                var contentParagraph = new iTextSharp.text.Paragraph(textContent, contentFont);
+                document.Add(contentParagraph);
+
+                document.Close();
             }
         }
     }

@@ -83,6 +83,8 @@ namespace JobReporter2.ViewModel
             }
         }
 
+
+
         public RelayCommand NewFilterCommand { get; }
         public RelayCommand SaveFilterCommand { get; }
         public RelayCommand ApplyCommand { get; }
@@ -280,11 +282,22 @@ namespace JobReporter2.ViewModel
             TimeFrame = filter.TimeFrame;
             StartDate = filter.StartDate;
             EndDate = filter.EndDate;
-            SelectedConnections = new ObservableCollection<string>(filter.Connections);
-            SelectedEndTypes = new ObservableCollection<string>(filter.EndTypes);
-            SelectedShifts = new ObservableCollection<string>(filter.Shifts ?? new ObservableCollection<string>());
             FlaggedStatus = filter.FlaggedStatus ?? "All";
+
+            // Create new collections to ensure proper change notification
+            SelectedConnections = new ObservableCollection<string>(
+                filter.Connections?.ToList() ?? new List<string>());
+            OnPropertyChanged(nameof(SelectedConnections));
+
+            SelectedEndTypes = new ObservableCollection<string>(
+                filter.EndTypes?.ToList() ?? new List<string>());
+            OnPropertyChanged(nameof(SelectedEndTypes));
+
+            SelectedShifts = new ObservableCollection<string>(
+                filter.Shifts?.ToList() ?? new List<string>());
+            OnPropertyChanged(nameof(SelectedShifts));
         }
+
 
         private void LoadFiltersFromSettings()
         {

@@ -38,10 +38,13 @@
       "FlaggedStatus": "Flagged",
       "StartDate": "2025-01-01T00:00:00",
       "EndDate": "2025-12-31T23:59:59",
-      "Connections": [],
+      "Connections": [
+        "M3521 (21163)",
+        "ADVA (21163)"
+      ],
       "EndTypes": [],
       "Shifts": [
-        "Shift 1",
+        "Shift 3",
         "Shift 2"
       ]
     },
@@ -59,16 +62,26 @@
         "Job failed."
       ],
       "Shifts": [
-        "Shift 1",
         "Shift 2",
-        "Shift 3"
+        "Shift 5",
+        "Shift 1"
       ]
+    },
+    {
+      "Name": "custom 3",
+      "TimeFrame": "Custom",
+      "FlaggedStatus": "Unflagged",
+      "StartDate": "2022-01-14T00:00:00",
+      "EndDate": "2025-04-05T00:00:00",
+      "Connections": [],
+      "EndTypes": [],
+      "Shifts": []
     }
   ],
   "Thresholds": [
     {
       "Name": "CutTime",
-      "IsEnabled": true,
+      "IsEnabled": false,
       "Value1": 0.5,
       "Value2": 0.75
     },

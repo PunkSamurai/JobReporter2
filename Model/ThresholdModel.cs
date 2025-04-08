@@ -12,5 +12,6 @@ namespace JobReporter2.Model
         public bool IsEnabled { get; set; }
         public double Value1 { get; set; }
         public double Value2 { get; set; }
+        public string Unit { get; set; }
     }
 }

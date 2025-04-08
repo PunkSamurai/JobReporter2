@@ -32,76 +32,103 @@
             </StackPanel>
         </StackPanel>
 
-        <!-- Main content in two columns -->
+        <!-- Main content in three columns with uniform element sizes -->
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            
-            <!-- Column 0: Time Frame, Flagged Status, and Connections -->
-            <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                <!-- Time Frame Border -->
-                <Border BorderBrush="Gray" BorderThickness="1" Margin="0,0,0,10">
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Time Frame:" Margin="0,0,0,5"/>
-                        <ComboBox ItemsSource="{Binding TimeFrameOptions}"
-                                  SelectedItem="{Binding TimeFrame}"
-                                  Margin="0,0,0,10">
-                            <!-- Style to highlight selected item -->
-                            <ComboBox.Resources>
-                                <Style TargetType="ComboBoxItem">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter Property="Background" Value="LightBlue" />
-                                            <Setter Property="FontWeight" Value="Bold" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ComboBox.Resources>
-                        </ComboBox>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" Margin="0,0,5,0">
-                                <TextBlock Text="Start Date:" />
-                                <DatePicker SelectedDate="{Binding StartDate}" />
-                            </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                                <TextBlock Text="End Date:" />
-                                <DatePicker SelectedDate="{Binding EndDate}"/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-                
-                <!-- Flagged Status -->
-                <TextBlock Text="Flagged Status:" />
-                <ComboBox ItemsSource="{Binding FlaggedStatusOptions}"
-                          SelectedItem="{Binding FlaggedStatus}"
-                          Margin="0,0,0,10"
-                          Height="30">
-                    <!-- Style to highlight selected item -->
-                    <ComboBox.Resources>
-                        <Style TargetType="ComboBoxItem">
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="LightBlue" />
-                                    <Setter Property="FontWeight" Value="Bold" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ComboBox.Resources>
-                </ComboBox>
-                
-                <!-- Connections List -->
+            <!-- Column 0: Time Frame, Flagged Status, and Shifts -->
+            <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                <!-- Time Frame Section - Fixed Height -->
+                <StackPanel Height="150">
+                    <TextBlock Text="Time Frame:" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding TimeFrameOptions}"
+                              SelectedItem="{Binding TimeFrame}"
+                              Margin="0,0,0,10"
+                              Height="30">
+                        <!-- Style to highlight selected item -->
+                        <ComboBox.Resources>
+                            <Style TargetType="ComboBoxItem">
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="LightBlue" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Resources>
+                    </ComboBox>
+
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,5,0">
+                            <TextBlock Text="Start Date:" />
+                            <DatePicker SelectedDate="{Binding StartDate}" Height="30" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="5,0,0,0">
+                            <TextBlock Text="End Date:" />
+                            <DatePicker SelectedDate="{Binding EndDate}" Height="30"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Flagged Status - Fixed Height -->
+                <StackPanel Height="50">
+                    <TextBlock Text="Flagged Status:" />
+                    <ComboBox ItemsSource="{Binding FlaggedStatusOptions}"
+                              SelectedItem="{Binding FlaggedStatus}"
+                              Margin="0,5,0,0"
+                              Height="30">
+                        <!-- Style to highlight selected item -->
+                        <ComboBox.Resources>
+                            <Style TargetType="ComboBoxItem">
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="LightBlue" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Resources>
+                    </ComboBox>
+                </StackPanel>
+
+                <!-- Shifts List - Fixed Height -->
+                <StackPanel>
+                    <TextBlock Text="Shifts:" />
+                    <ListBox ItemsSource="{Binding AvailableShifts}"
+                             SelectionMode="Multiple"
+                             Height="180"
+                             Margin="0,5,0,0"
+                             x:Name="ShiftsListBox">
+                        <!-- Style to highlight selected items -->
+                        <ListBox.Resources>
+                            <Style TargetType="ListBoxItem">
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="LightBlue" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.Resources>
+                    </ListBox>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Column 1: Connections - Fixed Height to match total height of Column 0 -->
+            <StackPanel Grid.Column="1" Margin="5,0,5,0">
                 <TextBlock Text="Connections:" />
                 <ListBox ItemsSource="{Binding AvailableConnections}"
                          SelectionMode="Multiple"
-                         Height="100"
+                         Height="380"
+                         Margin="0,5,0,0"
                          x:Name="ConnectionsListBox">
                     <!-- Style to highlight selected items -->
                     <ListBox.Resources>
@@ -116,33 +143,14 @@
                     </ListBox.Resources>
                 </ListBox>
             </StackPanel>
-            
-            <!-- Column 1: Shifts and End Types -->
-            <StackPanel Grid.Column="1" Margin="5,0,0,0">
-                <!-- Shifts List -->
-                <TextBlock Text="Shifts:" />
-                <ListBox ItemsSource="{Binding AvailableShifts}"
-                         SelectionMode="Multiple"
-                         Height="120"
-                         x:Name="ShiftsListBox">
-                    <!-- Style to highlight selected items -->
-                    <ListBox.Resources>
-                        <Style TargetType="ListBoxItem">
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="LightBlue" />
-                                    <Setter Property="FontWeight" Value="Bold" />
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ListBox.Resources>
-                </ListBox>
 
-                <!-- End Types List -->
-                <TextBlock Text="End Types:" Margin="0,10,0,0" />
+            <!-- Column 2: End Types - Fixed Height to match total height of Column 0 -->
+            <StackPanel Grid.Column="2" Margin="5,0,0,0">
+                <TextBlock Text="End Types:" />
                 <ListBox ItemsSource="{Binding AvailableEndTypes}"
                          SelectionMode="Multiple"
-                         Height="120"
+                         Height="380"
+                         Margin="0,5,0,0"
                          x:Name="EndTypesListBox">
                     <!-- Style to highlight selected items -->
                     <ListBox.Resources>
@@ -158,7 +166,7 @@
                 </ListBox>
             </StackPanel>
         </Grid>
-        
+
         <!-- Bottom buttons - centered -->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
             <Button Content="Save" Command="{Binding SaveFilterCommand}" Width="80" Height="30" Margin="5,0" />

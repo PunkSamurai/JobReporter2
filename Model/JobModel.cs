@@ -49,7 +49,7 @@ namespace JobReporter2.Model
         public string PreviewImagePath { get; set; }
         public PlotModel PieChartModel { get; private set; }
 
-        public bool CalculateFlagged()
+        public bool CalculateFlagged(double PrepFlag, double PauseFlag)
         {
             if (TotalTime.TotalSeconds == 0)
                 return true;
@@ -57,23 +57,14 @@ namespace JobReporter2.Model
             if (EndType != "Job completed.")
                 return true;
 
-            double cutRatio = CutTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
+            double pauseRatio = PauseTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
 
-            return (cutRatio <= 0.75 || prepRatio >= 0.25);
+            return (pauseRatio >= PauseFlag / 100 || PrepTime?.TotalMinutes >= PrepFlag);
         }
 
-        public bool CalculateFlagPrepTime()
+        public bool CalculateFlagPrepTime(double PrepFlag)
         {
-            if (TotalTime.TotalSeconds == 0)
-            {
-                Console.WriteLine(Name + " TT is zero " + Flagged);
-                return true;
-            }
-                
-            double prepRatio = PrepTime?.TotalSeconds / TotalTime.TotalSeconds ?? 0;
-            Console.WriteLine(Name + " " + prepRatio + " " + Flagged);
-            return (prepRatio >= 0.25 || Flagged);
+            return (PrepTime?.TotalMinutes >= PrepFlag || Flagged);
         }
 
         public JobModel()

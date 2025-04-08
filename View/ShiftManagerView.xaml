@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Settings" Height="280" Width="350">
+        Title="Settings" Height="280" Width="400">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -62,8 +62,21 @@
                           SelectionMode="Single">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Threshold Name" Binding="{Binding Name}" IsReadOnly="True"/>
-                        <DataGridTextColumn Header="Value 1" Binding="{Binding Value1}" />
-                        <DataGridTextColumn Header="Value 2" Binding="{Binding Value2}" />
+                        <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Warning" Binding="{Binding Value1}" >
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="Yellow"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Critical" Binding="{Binding Value2}" >
+                            <DataGridTextColumn.HeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="Background" Value="LightCoral"/>
+                                </Style>
+                            </DataGridTextColumn.HeaderStyle>
+                        </DataGridTextColumn>
                         <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding IsEnabled}" />
                     </DataGrid.Columns>
                 </DataGrid>

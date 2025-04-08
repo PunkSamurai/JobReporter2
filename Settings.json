@@ -80,28 +80,32 @@
   ],
   "Thresholds": [
     {
-      "Name": "CutTime",
-      "IsEnabled": false,
-      "Value1": 0.5,
-      "Value2": 0.75
+      "Name": "PrepTime",
+      "IsEnabled": true,
+      "Value1": 15.0,
+      "Value2": 30.0,
+      "Unit": "Minutes"
     },
     {
       "Name": "PauseTime",
       "IsEnabled": true,
-      "Value1": 0.25,
-      "Value2": 0.5
+      "Value1": 25.0,
+      "Value2": 50.0,
+      "Unit": "Percent"
     },
     {
-      "Name": "PrepTime",
-      "IsEnabled": true,
-      "Value1": 0.25,
-      "Value2": 0.5
+      "Name": "CutTime",
+      "IsEnabled": false,
+      "Value1": 50.0,
+      "Value2": 75.0,
+      "Unit": "Percent"
     },
     {
       "Name": "TotalTime",
       "IsEnabled": false,
-      "Value1": 0.5,
-      "Value2": 0.75
+      "Value1": 50.0,
+      "Value2": 75.0,
+      "Unit": "Percent"
     }
   ],
   "XjhDirectory": "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2",

@@ -149,7 +149,7 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background">
                                     <Setter.Value>
-                                        <Binding Converter="{StaticResource LesserThanThresholdToBrushConverter}" 
+                                        <Binding Converter="{StaticResource PrepTimeToBrushConverter}" 
                                                  ConverterParameter="PrepTime" />
                                     </Setter.Value>
                                 </Setter>

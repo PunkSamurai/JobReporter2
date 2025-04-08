@@ -11,25 +11,87 @@ namespace JobReporter2.Helpers
 {
     public static class SettingsHelper
     {
-        private static readonly string SettingsFilePath = "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
-        /* private static string SettingsFilePath
+        private static readonly string SettingsFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "JobReporter",
+            "Settings");
+
+        private static readonly string SettingsFilePath = Path.Combine(SettingsFolder, "Settings.json");
+        private static readonly string DefaultSettingsPath = Path.Combine(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            "DefaultSettings.json");
+
+        static SettingsHelper()
         {
-            get
+            // Ensure the settings directory exists
+            EnsureSettingsDirectoryExists();
+
+            // Make sure settings file exists (or create from default)
+            EnsureSettingsFileExists();
+        }
+
+        private static void EnsureSettingsDirectoryExists()
+        {
+            if (!Directory.Exists(SettingsFolder))
             {
-                // Options for settings file location, in order of preference:
-
-                // 1. Check if there's a settings file in the application directory
-                string appDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                string appSettingsPath = Path.Combine(appDirectory, "Settings.json");
-                if (File.Exists(appSettingsPath))
+                try
                 {
-                    return appSettingsPath;
+                    Directory.CreateDirectory(SettingsFolder);
                 }
-                Console.WriteLine($"Settings file not found in application directory: {appSettingsPath}");
-                return "C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\Settings.json";
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating settings directory: {ex.Message}");
+                }
             }
-        } */
+        }
 
+        private static void EnsureSettingsFileExists()
+        {
+            if (!File.Exists(SettingsFilePath))
+            {
+                try
+                {
+                    // If default settings file exists, copy it
+                    if (File.Exists(DefaultSettingsPath))
+                    {
+                        File.Copy(DefaultSettingsPath, SettingsFilePath);
+                    }
+                    else
+                    {
+                        // Otherwise create a new settings file with default content
+                        var defaultSettings = new SettingsModel
+                        {
+                            Shifts = new ObservableCollection<ShiftModel>
+                            {
+                                new ShiftModel { Name = "Shift 1", IsEnabled = true, StartTime = TimeSpan.Parse("09:00:00"), EndTime = TimeSpan.Parse("17:00:00") },
+                                new ShiftModel { Name = "Shift 2", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                                new ShiftModel { Name = "Shift 3", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                                new ShiftModel { Name = "Shift 4", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                                new ShiftModel { Name = "Shift 5", IsEnabled = false, StartTime = TimeSpan.Parse("00:01:00"), EndTime = TimeSpan.Parse("23:59:00") }
+                            },
+                            Filters = new List<FilterModel>(),
+                            Thresholds = new List<ThresholdModel>
+                            {
+                                new ThresholdModel { Name = "PrepTime", IsEnabled = true, Value1 = 15, Value2 = 30, Unit = "Minutes" },
+                                new ThresholdModel { Name = "PauseTime", IsEnabled = true, Value1 = 75, Value2 = 50, Unit = "Percent" },
+                                new ThresholdModel { Name = "CutTime", IsEnabled = false, Value1 = 50, Value2 = 75, Unit = "Percent" },
+                                new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 50, Value2 = 75, Unit = "Percent" }
+                            },
+                            XjhDirectory = "",
+                            ReportDirectory = ""
+                        };
+
+                        string json = JsonConvert.SerializeObject(defaultSettings, Formatting.Indented);
+                        File.WriteAllText(SettingsFilePath, json);
+                        Console.WriteLine("Created new settings file at " + SettingsFilePath);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error creating settings file: {ex.Message}");
+                }
+            }
+        }
 
         // Load shifts from the settings file
         public static ObservableCollection<ShiftModel> LoadShifts()

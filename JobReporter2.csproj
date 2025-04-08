@@ -185,6 +185,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="DefaultSettings.json" />
     <None Include="Settings.json" />
   </ItemGroup>
   <ItemGroup>

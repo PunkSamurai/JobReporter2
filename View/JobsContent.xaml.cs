@@ -128,22 +128,19 @@ namespace JobReporter2.View
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                if (value is JobModel data)
+                if (value is JobModel data && parameter is string timeType)
                 {
-                    if (data.TotalTime.TotalSeconds > 0)
+                    var thresholds = GetThresholds(timeType);
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+
+                    if (data.PrepTime.HasValue)
                     {
-                        double ratio = data.PrepTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
-                        Console.WriteLine(ratio);
-                        if (ratio < 0.25)
-                            return Brushes.LightGreen;
-                        else if (ratio < 0.5)
-                            return Brushes.Yellow;
+                        double minutes = data.PrepTime?.TotalMinutes ?? 0;
+                        if (minutes <= thresholds.Value1) return Brushes.LightGreen;
+                        if (minutes <= thresholds.Value2) return Brushes.Yellow;
                         return Brushes.LightCoral;
                     }
-                    else if (data.TotalTime.TotalSeconds == 0)
-                        return Brushes.LightCoral;
                 }
-
                 return Brushes.Transparent; // Default
             }
 
@@ -334,8 +331,8 @@ namespace JobReporter2.View
 
                     double ratio = GetRatio(data, timeType);
                     if (ratio == -1) return Brushes.Transparent;
-                    if (ratio > thresholds.Value2) return Brushes.LightGreen;
-                    if (ratio > thresholds.Value1) return Brushes.Yellow;
+                    if (ratio > (thresholds.Value2 / 100)) return Brushes.LightGreen;
+                    if (ratio > (thresholds.Value1 / 100)) return Brushes.Yellow;
                     return Brushes.LightCoral;
                 }
                 return Brushes.Transparent; // Default
@@ -357,8 +354,8 @@ namespace JobReporter2.View
                     if (!thresholds.IsEnabled) return Brushes.Transparent;
 
                     double ratio = GetRatio(data, timeType);
-                    if (ratio < thresholds.Value1) return Brushes.LightGreen;
-                    if (ratio < thresholds.Value2) return Brushes.Yellow;
+                    if (ratio < (thresholds.Value1 / 100)) return Brushes.LightGreen;
+                    if (ratio < (thresholds.Value2 / 100)) return Brushes.Yellow;
                     return Brushes.LightCoral;
                 }
                 return Brushes.Transparent; // Default

@@ -158,6 +158,10 @@ namespace JobReporter2.ViewModel
             Shifts = new ObservableCollection<ShiftModel>();
             Shifts = SettingsHelper.LoadShifts();
             Thresholds = SettingsHelper.LoadThresholds();
+            foreach (var threshold in Thresholds)
+            {
+                Console.WriteLine(threshold.Name + " " + threshold.Unit);
+            }
             Console.WriteLine("SHIFTS LOADED");
             UniqueShifts = new HashSet<string>();
             SelectedReportType = ReportTypes.FirstOrDefault();
@@ -277,7 +281,7 @@ namespace JobReporter2.ViewModel
                         currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
                         
                     }
-                    currentJob.Flagged = currentJob.CalculateFlagged();
+                    currentJob.Flagged = currentJob.CalculateFlagged(Thresholds[0].Value1, Thresholds[1].Value1);
                 }
             }
         }
@@ -326,7 +330,7 @@ namespace JobReporter2.ViewModel
                         .Min();
 
                     currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
-                    currentJob.Flagged = currentJob.CalculateFlagged();
+                    currentJob.Flagged = currentJob.CalculateFlagged(Thresholds[0].Value1, Thresholds[1].Value2);
                 }
             }
         }
@@ -354,7 +358,8 @@ namespace JobReporter2.ViewModel
                     Name = t.Name,
                     IsEnabled = t.IsEnabled,
                     Value1 = t.Value1,
-                    Value2 = t.Value2
+                    Value2 = t.Value2,
+                    Unit = t.Unit
                 })
             );
 
@@ -391,7 +396,8 @@ namespace JobReporter2.ViewModel
                         Name = t.Name,
                         IsEnabled = t.IsEnabled,
                         Value1 = t.Value1,
-                        Value2 = t.Value2
+                        Value2 = t.Value2,
+                        Unit = t.Unit
                     })
                 );
 

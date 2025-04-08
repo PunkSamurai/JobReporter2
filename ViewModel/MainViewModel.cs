@@ -332,6 +332,9 @@ namespace JobReporter2.ViewModel
         }
 
 
+
+
+
         private void OpenShiftManager()
         {
             // Create deep copies of the shifts for editing

@@ -462,7 +462,7 @@ public static class ReportFactory
         StringBuilder report = new StringBuilder();
         report.AppendLine($"Job File {GetTimeFrameTitle(timeFrame)} Report");
         report.AppendLine($"{DateTime.Now.ToString("MM/dd/yyyy")}");
-        report.AppendLine("title");
+        //report.AppendLine("title");
         report.AppendLine();
 
         // Get unique shifts

@@ -331,8 +331,8 @@ namespace JobReporter2.View
 
                     double ratio = GetRatio(data, timeType);
                     if (ratio == -1) return Brushes.Transparent;
-                    if (ratio > (thresholds.Value2 / 100)) return Brushes.LightGreen;
-                    if (ratio > (thresholds.Value1 / 100)) return Brushes.Yellow;
+                    if (ratio > (thresholds.Value1 / 100)) return Brushes.LightGreen;
+                    if (ratio > (thresholds.Value2 / 100)) return Brushes.Yellow;
                     return Brushes.LightCoral;
                 }
                 return Brushes.Transparent; // Default

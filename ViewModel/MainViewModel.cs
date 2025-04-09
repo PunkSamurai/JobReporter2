@@ -415,7 +415,7 @@ namespace JobReporter2.ViewModel
                 AssignShiftsToJobs();
             }
         }
-        
+
 
         /* private void OpenSettings()
         {
@@ -473,116 +473,62 @@ namespace JobReporter2.ViewModel
         // Load jobs from XML into ObservableCollection
         private void LoadJobs()
         {
-            string PreviousXjhPath = SettingsHelper.LoadXjhDirectory();
+            // Check for command-line arguments first
+            string[] args = Environment.GetCommandLineArgs();
+            if (args.Length > 1 && File.Exists(args[1]) && args[1].EndsWith(".xjh", StringComparison.OrdinalIgnoreCase))
+            {
+                // Use the file specified in command-line argument
+                FilePath = args[1];
+                SettingsHelper.SaveXjhDirectory(FilePath); // Save the full path
+
+                DataSet dataSet = new DataSet();
+                try
+                {
+                    dataSet.ReadXml(FilePath);
+                    ProcessDataSet(dataSet);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions, falling back to file dialog
+                }
+            }
+
+            // Existing code for loading via dialog
+            string previousFilePath = SettingsHelper.LoadXjhDirectory();
             try
             {
                 OpenFileDialog openFileDialog = new OpenFileDialog
                 {
                     Filter = "XML Job History files (*.xjh)|*.xjh|All files (*.*)|*.*",
-                    // openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    InitialDirectory = PreviousXjhPath != "" ? PreviousXjhPath : AppDomain.CurrentDomain.BaseDirectory,
                     Title = "Select Job History File"
                 };
-                DataSet dataSet = new DataSet();
 
+                // Set initial directory and filename if we have a previous file path
+                if (!string.IsNullOrEmpty(previousFilePath) && File.Exists(previousFilePath))
+                {
+                    openFileDialog.InitialDirectory = Path.GetDirectoryName(previousFilePath);
+                    openFileDialog.FileName = Path.GetFileName(previousFilePath);
+                }
+                else
+                {
+                    // Fallback to base directory if no previous path or file doesn't exist
+                    openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                }
+
+                DataSet dataSet = new DataSet();
                 if (openFileDialog.ShowDialog() == true)
                 {
                     FilePath = openFileDialog.FileName;
-                    SettingsHelper.SaveXjhDirectory(Path.GetDirectoryName(FilePath));
+                    SettingsHelper.SaveXjhDirectory(FilePath); // Save the full path
                     dataSet.ReadXml(FilePath);
                 }
                 else
                 {
                     return;
                 }
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                // dataSet.ReadXml("C:\\Users\\LENOVO\\source\\repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
-                // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory.xjh");
-                // dataSet.ReadXml("C:\\Users\\dveli\\Source\\Repos\\PunkSamurai\\JobReporter2\\JobHistory2.xjh");
 
-                DataTable jobTable = dataSet.Tables["Job"];
-                Dictionary<string, DateTime> machineLastEndTimes = new Dictionary<string, DateTime>();
-
-                // Initialize lists for dropdowns
-                UniqueNames = new HashSet<string>();
-                UniqueConnections = new HashSet<string>();
-                UniqueEndTypes = new HashSet<string>();
-
-                AllJobs = new ObservableCollection<JobModel>(
-                    jobTable.AsEnumerable().Select(row =>
-                    {
-                        string jobFile = row.Table.Columns.Contains("Name") ? row["Name"].ToString() : null;
-                        string name = string.IsNullOrEmpty(jobFile)
-                            ? null
-                            : Path.GetFileName(jobFile);
-
-                        string connection = row.Table.Columns.Contains("Connection") ? row["Connection"].ToString() : null;
-                        string endType = row.Table.Columns.Contains("EndType") ? row["EndType"].ToString() : null;
-
-                        DateTime startTime = DateTime.Parse(row["StartTime"].ToString()); // Guaranteed
-                        DateTime endTime = DateTime.Parse(row["EndTime"].ToString()); // Guaranteed
-                        TimeSpan totalTime = endTime - startTime; // Use TimeSpan for durations
-                        TimeSpan machineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime2) ? machineTime2 : TimeSpan.Zero;
-                        // Calculate PrepTime
-                        /* TimeSpan prepTime = TimeSpan.Zero;
-                        if (!string.IsNullOrEmpty(connection) && machineLastEndTimes.ContainsKey(connection))
-                        {
-                            prepTime = startTime - machineLastEndTimes[connection];
-                            prepTime = prepTime > TimeSpan.Zero ? prepTime : TimeSpan.Zero; // Ensure no negative prep times
-                        }
-                        machineLastEndTimes[connection] = endTime; // Update last end time for the machine
-                        */
-
-                        // Add to unique lists for dropdowns
-                        if (!string.IsNullOrEmpty(name)) UniqueNames.Add(name);
-                        if (!string.IsNullOrEmpty(connection)) UniqueConnections.Add(connection);
-                        if (!string.IsNullOrEmpty(endType)) UniqueEndTypes.Add(endType);
-
-                        var job = new JobModel
-                        {
-                            Connection = connection,
-                            Name = name,
-                            JobFile = jobFile,
-                            OEMString = row.Table.Columns.Contains("OEMName") ? row["OEMName"].ToString() : null,
-                            StartType = row.Table.Columns.Contains("StartType") ? row["StartType"].ToString() : null,
-                            EndType = endType,
-                            // PrepTime = prepTime,
-                            StartTime = startTime,
-                            EndTime = endTime,
-                            TotalTime = totalTime,
-                            MachineTime = machineTime,
-                            FileSize = row.Table.Columns.Contains("FileSize") && int.TryParse(row["FileSize"].ToString(), out int fileSize) ? fileSize : (int?)null,
-                            CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : machineTime,
-                            Length = row.Table.Columns.Contains("Length") && float.TryParse(row["Length"].ToString(), out float length) ? length : (float?) null,
-                            FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : (float?)null,
-                            SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
-                            PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : totalTime - machineTime,
-                            SheetCount = row.Table.Columns.Contains("SheetCount") && float.TryParse(row["SheetCount"].ToString(), out float sheetCount) ? sheetCount : (float?) null,
-                            TimeEstimate = row.Table.Columns.Contains("TimeEstimate") && TimeSpan.TryParse(row["TimeEstimate"].ToString(), out TimeSpan timeEstimate) ? timeEstimate : (TimeSpan?)null,
-                            SheetChangeTime = row.Table.Columns.Contains("SheetChangeTime") && TimeSpan.TryParse(row["SheetChangeTime"].ToString(), out TimeSpan sheetChangeTime) ? sheetChangeTime : (TimeSpan?)null,
-                            Tools = row.Table.Columns.Contains("Tools") ? row["Tools"].ToString() : null,
-                            ToolChangeTime = row.Table.Columns.Contains("ToolChangeTime") && TimeSpan.TryParse(row["ToolChangeTime"].ToString(), out TimeSpan toolChangeTime) ? toolChangeTime : (TimeSpan?)null,
-                            ToolAvgTimes = row.Table.Columns.Contains("ToolAvgTimes") && TimeSpan.TryParse(row["ToolAvgTimes"].ToString(), out TimeSpan toolAvgTimes) ? toolAvgTimes : (TimeSpan?)null,
-                            Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null
-                        };
-                        // job.Flagged = job.CalculateFlagged();
-                        job.WastedTime = job.TotalTime - job.MachineTime;
-                        job.GeneratePieChart();
-                        job.PreviewImagePath = job.GetPreviewImagePath();
-                        job.ShortenedStartType = job.FindShortenedStartType();
-                        Console.WriteLine($"PREVIEW IMAGE PATH: {job.PreviewImagePath}");
-                        return job;
-                    })
-                );
-
-                AssignShiftsToJobs();
-
-                // Initialize FilteredJobs with all records
-                FilteredJobs = new ObservableCollection<JobModel>(AllJobs);
-
-                // Update the record count for the status bar
-                RecordCount = AllJobs.Count;
-                FilteredRecordCount = FilteredJobs.Count;
+                ProcessDataSet(dataSet);
             }
             catch (Exception ex)
             {
@@ -594,6 +540,85 @@ namespace JobReporter2.ViewModel
                 UniqueEndTypes = new HashSet<string>();
                 RecordCount = 0;
             }
+        }
+
+        // Extract the data processing code to avoid duplication
+        private void ProcessDataSet(DataSet dataSet)
+        {
+            DataTable jobTable = dataSet.Tables["Job"];
+            Dictionary<string, DateTime> machineLastEndTimes = new Dictionary<string, DateTime>();
+
+            // Initialize lists for dropdowns
+            UniqueNames = new HashSet<string>();
+            UniqueConnections = new HashSet<string>();
+            UniqueEndTypes = new HashSet<string>();
+
+            AllJobs = new ObservableCollection<JobModel>(
+                jobTable.AsEnumerable().Select(row =>
+                {
+                    string jobFile = row.Table.Columns.Contains("Name") ? row["Name"].ToString() : null;
+                    string name = string.IsNullOrEmpty(jobFile)
+                        ? null
+                        : Path.GetFileName(jobFile);
+
+                    string connection = row.Table.Columns.Contains("Connection") ? row["Connection"].ToString() : null;
+                    string endType = row.Table.Columns.Contains("EndType") ? row["EndType"].ToString() : null;
+
+                    DateTime startTime = DateTime.Parse(row["StartTime"].ToString()); // Guaranteed
+                    DateTime endTime = DateTime.Parse(row["EndTime"].ToString()); // Guaranteed
+                    TimeSpan totalTime = endTime - startTime; // Use TimeSpan for durations
+                    TimeSpan machineTime = row.Table.Columns.Contains("MachineTime") && TimeSpan.TryParse(row["MachineTime"].ToString(), out TimeSpan machineTime2) ? machineTime2 : TimeSpan.Zero;
+
+                    // Add to unique lists for dropdowns
+                    if (!string.IsNullOrEmpty(name)) UniqueNames.Add(name);
+                    if (!string.IsNullOrEmpty(connection)) UniqueConnections.Add(connection);
+                    if (!string.IsNullOrEmpty(endType)) UniqueEndTypes.Add(endType);
+
+                    var job = new JobModel
+                    {
+                        Connection = connection,
+                        Name = name,
+                        JobFile = jobFile,
+                        OEMString = row.Table.Columns.Contains("OEMName") ? row["OEMName"].ToString() : null,
+                        StartType = row.Table.Columns.Contains("StartType") ? row["StartType"].ToString() : null,
+                        EndType = endType,
+                        // PrepTime = prepTime,
+                        StartTime = startTime,
+                        EndTime = endTime,
+                        TotalTime = totalTime,
+                        MachineTime = machineTime,
+                        FileSize = row.Table.Columns.Contains("FileSize") && int.TryParse(row["FileSize"].ToString(), out int fileSize) ? fileSize : (int?)null,
+                        CutTime = row.Table.Columns.Contains("CutTime") && TimeSpan.TryParse(row["CutTime"].ToString(), out TimeSpan cutTime) ? cutTime : machineTime,
+                        Length = row.Table.Columns.Contains("Length") && float.TryParse(row["Length"].ToString(), out float length) ? length : (float?)null,
+                        FeedrateOverride = row.Table.Columns.Contains("FeedrateOveride") && float.TryParse(row["FeedrateOveride"].ToString(), out float feedrate) ? feedrate : (float?)null,
+                        SlewTime = row.Table.Columns.Contains("SlewTime") && TimeSpan.TryParse(row["SlewTime"].ToString(), out TimeSpan slewTime) ? slewTime : (TimeSpan?)null,
+                        PauseTime = row.Table.Columns.Contains("PauseTime") && TimeSpan.TryParse(row["PauseTime"].ToString(), out TimeSpan pauseTime) ? pauseTime : totalTime - machineTime,
+                        SheetCount = row.Table.Columns.Contains("SheetCount") && float.TryParse(row["SheetCount"].ToString(), out float sheetCount) ? sheetCount : (float?)null,
+                        TimeEstimate = row.Table.Columns.Contains("TimeEstimate") && TimeSpan.TryParse(row["TimeEstimate"].ToString(), out TimeSpan timeEstimate) ? timeEstimate : (TimeSpan?)null,
+                        SheetChangeTime = row.Table.Columns.Contains("SheetChangeTime") && TimeSpan.TryParse(row["SheetChangeTime"].ToString(), out TimeSpan sheetChangeTime) ? sheetChangeTime : (TimeSpan?)null,
+                        Tools = row.Table.Columns.Contains("Tools") ? row["Tools"].ToString() : null,
+                        ToolChangeTime = row.Table.Columns.Contains("ToolChangeTime") && TimeSpan.TryParse(row["ToolChangeTime"].ToString(), out TimeSpan toolChangeTime) ? toolChangeTime : (TimeSpan?)null,
+                        ToolAvgTimes = row.Table.Columns.Contains("ToolAvgTimes") && TimeSpan.TryParse(row["ToolAvgTimes"].ToString(), out TimeSpan toolAvgTimes) ? toolAvgTimes : (TimeSpan?)null,
+                        Size = row.Table.Columns.Contains("Size") ? row["Size"].ToString() : null
+                    };
+                    // job.Flagged = job.CalculateFlagged();
+                    job.WastedTime = job.TotalTime - job.MachineTime;
+                    job.GeneratePieChart();
+                    job.PreviewImagePath = job.GetPreviewImagePath();
+                    job.ShortenedStartType = job.FindShortenedStartType();
+                    Console.WriteLine($"PREVIEW IMAGE PATH: {job.PreviewImagePath}");
+                    return job;
+                })
+            );
+
+            AssignShiftsToJobs();
+
+            // Initialize FilteredJobs with all records
+            FilteredJobs = new ObservableCollection<JobModel>(AllJobs);
+
+            // Update the record count for the status bar
+            RecordCount = AllJobs.Count;
+            FilteredRecordCount = FilteredJobs.Count;
         }
 
 
@@ -665,14 +690,26 @@ namespace JobReporter2.ViewModel
             FilteredRecordCount = FilteredJobs.Count;
             JobViewModel.Jobs = FilteredJobs;
 
-            // Update the filter display text
             var filters = new List<string>();
-            if (startDate.HasValue) filters.Add($"Start Date: {startDate.Value.ToShortDateString()}");
-            if (endDate.HasValue) filters.Add($"End Date: {endDate.Value.ToShortDateString()}");
-            if (selectedConnections.Any()) filters.Add($"Connections: {string.Join(", ", selectedConnections)}");
-            if (selectedEndTypes.Any()) filters.Add($"End Types: {string.Join(", ", selectedEndTypes)}");
-            if (selectedShifts.Any()) filters.Add($"Shifts: {string.Join(", ", selectedShifts)}");
-            if (flaggedStatus != "All") filters.Add($"Status: {flaggedStatus}");
+
+            // First line: combine date range and flag status
+            var firstLineItems = new List<string>();
+            if (startDate.HasValue) firstLineItems.Add($"Start: {startDate.Value.ToShortDateString()}");
+            if (endDate.HasValue) firstLineItems.Add($"End: {endDate.Value.ToShortDateString()}");
+            if (flaggedStatus != "All") firstLineItems.Add($"Status: {flaggedStatus}");
+
+            if (firstLineItems.Any())
+                filters.Add(string.Join("   |   ", firstLineItems));
+
+            // Add remaining filters, each on their own line
+            if (selectedShifts.Any())
+                filters.Add($"Shifts: {string.Join(", ", selectedShifts)}");
+
+            if (selectedConnections.Any())
+                filters.Add($"Connections: {string.Join(", ", selectedConnections)}");
+
+            if (selectedEndTypes.Any())
+                filters.Add($"End Types: {string.Join(", ", selectedEndTypes)}");
 
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
@@ -690,7 +727,8 @@ namespace JobReporter2.ViewModel
                 // Create and configure the parameters view model
                 var parametersViewModel = new ReportParametersViewModel(
                     ReportTypes.ToList(),  // Pass the available report types
-                    TimeFrames.ToList()    // Pass the available time frames
+                    TimeFrames.ToList(),    // Pass the available time frames
+                    Tabs.Count
                 );
 
                 // Create and show the parameters window

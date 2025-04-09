@@ -73,9 +73,9 @@ namespace JobReporter2.Helpers
                             Thresholds = new List<ThresholdModel>
                             {
                                 new ThresholdModel { Name = "PrepTime", IsEnabled = true, Value1 = 15, Value2 = 30, Unit = "Minutes" },
-                                new ThresholdModel { Name = "PauseTime", IsEnabled = true, Value1 = 75, Value2 = 50, Unit = "Percent" },
-                                new ThresholdModel { Name = "CutTime", IsEnabled = false, Value1 = 50, Value2 = 75, Unit = "Percent" },
-                                new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 50, Value2 = 75, Unit = "Percent" }
+                                new ThresholdModel { Name = "PauseTime", IsEnabled = true, Value1 = 50, Value2 = 75, Unit = "Percent" },
+                                new ThresholdModel { Name = "CutTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" },
+                                new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" }
                             },
                             XjhDirectory = "",
                             ReportDirectory = ""

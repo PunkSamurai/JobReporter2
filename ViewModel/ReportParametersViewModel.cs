@@ -48,10 +48,10 @@ namespace JobReporter2.ViewModel
         public ICommand GenerateCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public ReportParametersViewModel(List<string> reportTypes, List<string> timeFrames)
+        public ReportParametersViewModel(List<string> reportTypes, List<string> timeFrames, int index)
         {
             // Initialize with defaults
-            ReportTitle = $"Report {DateTime.Now.ToString("yyyy-MM-dd")}";
+            ReportTitle = $"Report {index} ({DateTime.Now.ToString("yyyy-MM-dd")})";
             ReportTypes = reportTypes;
             TimeFrames = timeFrames;
 

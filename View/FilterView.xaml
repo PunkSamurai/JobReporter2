@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:JobReporter2.View"
         SizeToContent="WidthAndHeight"
+        WindowStartupLocation="CenterOwner"
         Title="Edit Filters">
     <StackPanel Margin="10">
         <!-- Top section - Filter selection controls centered -->
@@ -43,7 +44,7 @@
             <!-- Column 0: Time Frame, Flagged Status, and Shifts -->
             <StackPanel Grid.Column="0" Margin="0,0,5,0">
                 <!-- Time Frame Section - Fixed Height -->
-                <StackPanel Height="150">
+                <StackPanel Height="125">
                     <TextBlock Text="Time Frame:" Margin="0,0,0,5"/>
                     <ComboBox ItemsSource="{Binding TimeFrameOptions}"
                               SelectedItem="{Binding TimeFrame}"
@@ -78,34 +79,15 @@
                     </Grid>
                 </StackPanel>
 
-                <!-- Flagged Status - Fixed Height -->
-                <StackPanel Height="50">
-                    <TextBlock Text="Flagged Status:" />
-                    <ComboBox ItemsSource="{Binding FlaggedStatusOptions}"
-                              SelectedItem="{Binding FlaggedStatus}"
-                              Margin="0,5,0,0"
-                              Height="30">
-                        <!-- Style to highlight selected item -->
-                        <ComboBox.Resources>
-                            <Style TargetType="ComboBoxItem">
-                                <Style.Triggers>
-                                    <Trigger Property="IsSelected" Value="True">
-                                        <Setter Property="Background" Value="LightBlue" />
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ComboBox.Resources>
-                    </ComboBox>
-                </StackPanel>
+                
 
                 <!-- Shifts List - Fixed Height -->
                 <StackPanel>
                     <TextBlock Text="Shifts:" />
                     <ListBox ItemsSource="{Binding AvailableShifts}"
                              SelectionMode="Multiple"
-                             Height="180"
-                             Margin="0,5,0,0"
+                             Height="125"
+                             Margin="0,5,0,5"
                              x:Name="ShiftsListBox">
                         <!-- Style to highlight selected items -->
                         <ListBox.Resources>
@@ -120,6 +102,27 @@
                         </ListBox.Resources>
                     </ListBox>
                 </StackPanel>
+
+                <!-- Flagged Status - Fixed Height -->
+                <StackPanel Height="60">
+                    <TextBlock Text="Flagged Status:" />
+                    <ComboBox ItemsSource="{Binding FlaggedStatusOptions}"
+                                SelectedItem="{Binding FlaggedStatus}"
+                                Margin="0,5,0,0"
+                                Height="30">
+                        <!-- Style to highlight selected item -->
+                        <ComboBox.Resources>
+                            <Style TargetType="ComboBoxItem">
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" Value="LightBlue" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ComboBox.Resources>
+                    </ComboBox>
+                </StackPanel>
             </StackPanel>
 
             <!-- Column 1: Connections - Fixed Height to match total height of Column 0 -->
@@ -127,7 +130,8 @@
                 <TextBlock Text="Connections:" />
                 <ListBox ItemsSource="{Binding AvailableConnections}"
                          SelectionMode="Multiple"
-                         Height="380"
+                         Height="310"
+                         Width="247"
                          Margin="0,5,0,0"
                          x:Name="ConnectionsListBox">
                     <!-- Style to highlight selected items -->
@@ -149,7 +153,8 @@
                 <TextBlock Text="End Types:" />
                 <ListBox ItemsSource="{Binding AvailableEndTypes}"
                          SelectionMode="Multiple"
-                         Height="380"
+                         Height="310"
+                         Width="247"
                          Margin="0,5,0,0"
                          x:Name="EndTypesListBox">
                     <!-- Style to highlight selected items -->

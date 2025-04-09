@@ -176,7 +176,7 @@ namespace JobReporter2.ViewModel
             {
                 Title = "New Filter",
                 Width = 300,
-                Height = 150,
+                Height = 160,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 Owner = currentWindow // Set to the current filter window
             };
@@ -206,6 +206,7 @@ namespace JobReporter2.ViewModel
             {
                 Content = "OK",
                 Width = 75,
+                Height = 30,
                 Margin = new Thickness(0, 0, 5, 0),
                 IsDefault = true
             };
@@ -214,6 +215,7 @@ namespace JobReporter2.ViewModel
             {
                 Content = "Cancel",
                 Width = 75,
+                Height = 30,
                 IsCancel = true
             };
 
@@ -264,7 +266,31 @@ namespace JobReporter2.ViewModel
         // Rest of the existing methods remain the same
         private void SaveCurrentFilter()
         {
-            if (SelectedFilter != null)
+
+            if (SelectedFilter == null)
+            {
+                string filterName = ShowFilterNameInputDialog();
+                if (filterName == null)
+                {
+                    return;
+                }
+                var newFilter = new FilterModel
+                {
+                    Name = filterName,
+                    TimeFrame = TimeFrame,
+                    StartDate = StartDate,
+                    EndDate = EndDate,
+                    Connections = new ObservableCollection<string>(SelectedConnections),
+                    EndTypes = new ObservableCollection<string>(SelectedEndTypes),
+                    Shifts = new ObservableCollection<string>(SelectedShifts),
+                    FlaggedStatus = FlaggedStatus
+                };
+                Filters.Add(newFilter);
+                SettingsHelper.SaveFilters(Filters);
+                SelectedFilter = newFilter;
+                return;
+            }
+            else if (SelectedFilter != null)
             {
                 SelectedFilter.TimeFrame = TimeFrame;
                 SelectedFilter.StartDate = StartDate;

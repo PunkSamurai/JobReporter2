@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
         Title="Settings" Height="280" Width="400">
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -13,9 +14,9 @@
         <TabControl Grid.Row="0">
             <TabItem Header="Edit Shifts">
                 <DataGrid ItemsSource="{Binding Shifts}" 
-                             AutoGenerateColumns="False" 
-                             CanUserAddRows="False" 
-                             SelectionMode="Single">
+          AutoGenerateColumns="False" 
+          CanUserAddRows="False" 
+          SelectionMode="Single">
                     <DataGrid.Resources>
                         <Style x:Key="TimeEditingStyle" TargetType="TextBox">
                             <Setter Property="MaxLength" Value="5" />
@@ -24,33 +25,29 @@
                         </Style>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <DataGridTemplateColumn Header="Shift Name" SortMemberPath="Name">
-                            <DataGridTemplateColumn.CellStyle>
-                                <Style TargetType="DataGridCell">
-                                    <Setter Property="Background" 
-                                            Value="{Binding Name, Converter={StaticResource ShiftToBrushConverter}}" />
-                                </Style>
-                            </DataGridTemplateColumn.CellStyle>
+                        <DataGridTemplateColumn Width="40">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Name}"/>
+                                    <Rectangle Fill="{Binding Name, Converter={StaticResource ShiftToBrushConverter}}" />
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Shift Name" 
+                            Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Start Time" 
-                                            Binding="{Binding StartTime, StringFormat=hh\\:mm}">
+                            Binding="{Binding StartTime, StringFormat=hh\\:mm}">
                             <DataGridTextColumn.EditingElementStyle>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
                             </DataGridTextColumn.EditingElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="End Time" 
-                                            Binding="{Binding EndTime, StringFormat=hh\\:mm}">
+                            Binding="{Binding EndTime, StringFormat=hh\\:mm}">
                             <DataGridTextColumn.EditingElementStyle>
                                 <Style TargetType="TextBox" BasedOn="{StaticResource TimeEditingStyle}" />
                             </DataGridTextColumn.EditingElementStyle>
                         </DataGridTextColumn>
                         <DataGridCheckBoxColumn Header="Enabled" 
-                      Binding="{Binding IsEnabled}" />
+                  Binding="{Binding IsEnabled}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </TabItem>

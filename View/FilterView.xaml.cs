@@ -61,7 +61,8 @@ namespace JobReporter2.View
             if (e.PropertyName == nameof(FilterViewModel.SelectedFilter))
             {
                 // Use background priority to let the data binding update first
-                Dispatcher.BeginInvoke(new Action(() => {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
                     UpdateListBoxSelectionsWithRetry();
                 }), DispatcherPriority.Background);
             }
@@ -86,7 +87,8 @@ namespace JobReporter2.View
             RemoveSelectionChangedHandlers();
 
             // Create and add new handlers
-            _connectionsSelectionHandler = (s, ev) => {
+            _connectionsSelectionHandler = (s, ev) =>
+            {
                 if (!_isInitializing && _viewModel != null)
                 {
                     _viewModel.SelectedConnections = new ObservableCollection<string>(
@@ -94,7 +96,8 @@ namespace JobReporter2.View
                 }
             };
 
-            _endTypesSelectionHandler = (s, ev) => {
+            _endTypesSelectionHandler = (s, ev) =>
+            {
                 if (!_isInitializing && _viewModel != null)
                 {
                     _viewModel.SelectedEndTypes = new ObservableCollection<string>(
@@ -102,7 +105,8 @@ namespace JobReporter2.View
                 }
             };
 
-            _shiftsSelectionHandler = (s, ev) => {
+            _shiftsSelectionHandler = (s, ev) =>
+            {
                 if (!_isInitializing && _viewModel != null)
                 {
                     _viewModel.SelectedShifts = new ObservableCollection<string>(
@@ -131,7 +135,8 @@ namespace JobReporter2.View
             {
                 // If failed, retry after a short delay
                 System.Diagnostics.Debug.WriteLine($"Error updating ListBox selections: {ex.Message}. Retrying...");
-                Dispatcher.BeginInvoke(new Action(() => {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
                     UpdateListBoxSelectionsWithRetry(retryCount - 1);
                 }), DispatcherPriority.Background);
             }

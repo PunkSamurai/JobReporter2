@@ -11,17 +11,6 @@
             <!-- Status bar -->
         </Grid.RowDefinitions>
 
-        <!-- Header Section -->
-        <!-- <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,0">
-			<StackPanel Orientation="Vertical">
-				<Button Content="Edit Filter" Command="{Binding OpenFilterCommand}" Margin="0,0,10,0" />
-				<Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Margin="0,10,10,0" />
-			</StackPanel>
-			<TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="400" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
-            <Button Content="Manage Shifts" Command="{Binding OpenShiftManagerCommand}" Width="120" Margin="5"/>
-
-        </StackPanel> -->
-
         <TabControl ItemsSource="{Binding Tabs}" Grid.Row="0"  Margin="0 10 0 0">
             <TabControl.ItemTemplate>
                 <DataTemplate>

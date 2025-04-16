@@ -18,163 +18,173 @@ using OxyPlot.Wpf;
 public static class ReportFactory
 {
     public static object GenerateReport(ObservableCollection<JobModel> filteredJobs, string reportType, string timeFrame)
-{
-    if (reportType == "Shift Productivity (Time)")
     {
-        return GenerateShiftTimeReport(filteredJobs, timeFrame);
+        if (reportType == "Shift Productivity (Time)")
+        {
+            return GenerateShiftTimeReport(filteredJobs, timeFrame);
+        }
+        else if (reportType == "Shift Productivity (Number of Jobs)")
+        {
+            return GenerateShiftJobReport(filteredJobs, timeFrame);
+        }
+        else if (reportType == "Advanced Shift Productivity (Time)")
+        {
+            return GenerateAdvancedShiftTimeReport(filteredJobs, timeFrame);
+        }
+        else if (reportType == "Text Report") // Add new report type
+        {
+            return GenerateTextReport(filteredJobs, timeFrame);
+        }
+        else
+        {
+            return null;
+        }
     }
-    else if (reportType == "Shift Productivity (Number of Jobs)")
-    {
-        return GenerateShiftJobReport(filteredJobs, timeFrame);
-    }
-    else if (reportType == "Advanced Shift Productivity (Time)")
-    {
-        return GenerateAdvancedShiftTimeReport(filteredJobs, timeFrame);
-    }
-    else if (reportType == "Text Report") // Add new report type
-    {
-        return GenerateTextReport(filteredJobs, timeFrame);
-    }
-    else
-    {
-        return null;
-    }
-}
 
 
 
 
     public static PlotModel GenerateShiftTimeReport(ObservableCollection<JobModel> filteredJobs, string timeFrame)
-{
-    // Validate input
-    if (filteredJobs == null || filteredJobs.Count == 0)
-        throw new ArgumentException("No job data provided");
-
-    // Create the plot model
-    var plotModel = new PlotModel
     {
-        Title = $"Shift Productivity (Time) - {timeFrame}"
-    };
+        // Validate input
+        if (filteredJobs == null || filteredJobs.Count == 0)
+            throw new ArgumentException("No job data provided");
 
-    // Get unique shifts
-    var uniqueShifts = filteredJobs
-        .Select(j => j.Shift)
-        .Distinct()
-        .OrderBy(s => s)
-        .ToList();
-
-    // Group data based on timeframe
-    var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
-
-    // Create category axis (y-axis)
-    var categoryAxis = new CategoryAxis
-    {
-        Position = AxisPosition.Bottom,  // Changed to Left
-        Title = timeFrame,
-        Key = "yaxis",
-        ItemsSource = groupedData.Keys
-    };
-
-    // Create value axis (x-axis)
-    var valueAxis = new LinearAxis
-    {
-        Position = AxisPosition.Left,  // Changed to Bottom
-        Title = "Hours Worked",
-        MinimumPadding = 0.1,
-        MaximumPadding = 0.1,
-        Key = "xaxis"
-    };
-
-    // Add series for each shift
-    int shiftIndex = 0;
-    foreach (var shift in uniqueShifts)
-    {
-        var series = new BarSeries
+        // Create the plot model
+        var plotModel = new PlotModel
         {
-            Title = shift,
-            StrokeColor = OxyColors.Black,
-            StrokeThickness = 1,
-            FillColor = GetColorForIndex(shiftIndex),
-            IsStacked = false,  // Ensure bars aren't stacked
-            BaseValue = 0,  // Start bars from 0
-            XAxisKey = "xaxis",
-            YAxisKey = "yaxis"
+            Title = $"Shift Productivity (Time) - {timeFrame}"
         };
 
-        // Populate the series
-        int categoryIndex = 0;
-        foreach (var timeGroup in groupedData)
-        {
-            var hoursForShift = timeGroup.Value
-                .Where(j => j.Shift == shift)
-                .Sum(j => j.TotalTime.TotalHours);
+        // Get unique shifts
+        var uniqueShifts = filteredJobs
+            .Select(j => j.Shift)
+            .Distinct()
+            .OrderBy(s => s)
+            .ToList();
 
-            // For horizontal bars, we need to set the category index explicitly
-            series.Items.Add(new BarItem { Value = hoursForShift, CategoryIndex = categoryIndex });
-            categoryIndex++;
+        // Group data based on timeframe
+        var groupedData = GroupDataByTimeFrame(filteredJobs, timeFrame);
+
+        // Create category axis (y-axis)
+        var categoryAxis = new CategoryAxis
+        {
+            Position = AxisPosition.Bottom,  // Changed to Left
+            Title = timeFrame,
+            Key = "yaxis",
+            ItemsSource = groupedData.Keys
+        };
+
+        // Create value axis (x-axis)
+        var valueAxis = new LinearAxis
+        {
+            Position = AxisPosition.Left,  // Changed to Bottom
+            Title = "Hours Worked",
+            MinimumPadding = 0.1,
+            MaximumPadding = 0.1,
+            Key = "xaxis"
+        };
+
+        // Add series for each shift
+        int shiftIndex = 0;
+        foreach (var shift in uniqueShifts)
+        {
+            var series = new BarSeries
+            {
+                Title = shift,
+                StrokeColor = OxyColors.Black,
+                StrokeThickness = 1,
+                FillColor = GetColorForIndex(shiftIndex),
+                IsStacked = false,  // Ensure bars aren't stacked
+                BaseValue = 0,  // Start bars from 0
+                XAxisKey = "xaxis",
+                YAxisKey = "yaxis"
+            };
+
+            // Populate the series
+            int categoryIndex = 0;
+            foreach (var timeGroup in groupedData)
+            {
+                var hoursForShift = timeGroup.Value
+                    .Where(j => j.Shift == shift)
+                    .Sum(j => j.TotalTime.TotalHours);
+
+                // For horizontal bars, we need to set the category index explicitly
+                series.Items.Add(new BarItem { Value = hoursForShift, CategoryIndex = categoryIndex });
+                categoryIndex++;
+            }
+
+            plotModel.Series.Add(series);
+            shiftIndex++;
         }
 
-        plotModel.Series.Add(series);
-        shiftIndex++;
+        // Add axes to the plot - order matters for OxyPlot
+        plotModel.Axes.Add(categoryAxis);
+        plotModel.Axes.Add(valueAxis);
+
+        return plotModel;
     }
 
-    // Add axes to the plot - order matters for OxyPlot
-    plotModel.Axes.Add(categoryAxis);
-    plotModel.Axes.Add(valueAxis);
+    private static Dictionary<string, List<JobModel>> GroupDataByTimeFrame(ObservableCollection<JobModel> jobs, string timeFrame)
+    {
+        var result = new Dictionary<string, List<JobModel>>();
 
-    return plotModel;
-}
-
-        private static Dictionary<string, List<JobModel>> GroupDataByTimeFrame(ObservableCollection<JobModel> jobs, string timeFrame)
+        if (timeFrame.ToLower() == "daily")
         {
-            var result = new Dictionary<string, List<JobModel>>();
-
-            if (timeFrame.ToLower() == "daily")
-            {
-                result = jobs
-                    .GroupBy(j => j.StartTime.Date)
-                    .OrderBy(g => g.Key)
-                    .ToDictionary(
-                        g => g.Key.ToString("MM/dd/yyyy"),
-                        g => g.ToList()
-                    );
-            }
-            else if (timeFrame.ToLower() == "weekly")
-            {
-                result = jobs
-                    .GroupBy(j => GetWeekNumber(j.StartTime))
-                    .OrderBy(g => g.Key)
-                    .ToDictionary(
-                        g => "Week " + g.Key.ToString(),
-                        g => g.ToList()
-                    );
-            }
-            else if (timeFrame.ToLower() == "monthly")
-            {
-                result = jobs
-                    .GroupBy(j => new { j.StartTime.Year, j.StartTime.Month })
-                    .OrderBy(g => g.Key.Year)
-                    .ThenBy(g => g.Key.Month)
-                    .ToDictionary(
-                        g => string.Format("{0}/{1}", g.Key.Year, g.Key.Month),
-                        g => g.ToList()
-                    );
-            }
-            else
-            {
-                throw new ArgumentException("Unsupported timeframe: " + timeFrame);
-            }
-
-            return result;
+            result = jobs
+                .GroupBy(j => j.StartTime.Date)
+                .OrderBy(g => g.Key)
+                .ToDictionary(
+                    g => g.Key.ToString("MM/dd/yyyy"),
+                    g => g.ToList()
+                );
+        }
+        else if (timeFrame.ToLower() == "weekly")
+        {
+            result = jobs
+                .GroupBy(j => GetWeekNumber(j.StartTime))
+                .OrderBy(g => g.Key)
+                .ToDictionary(
+                    g => "Week " + g.Key.ToString(),
+                    g => g.ToList()
+                );
+        }
+        else if (timeFrame.ToLower() == "monthly")
+        {
+            result = jobs
+                .GroupBy(j => new { j.StartTime.Year, j.StartTime.Month })
+                .OrderBy(g => g.Key.Year)
+                .ThenBy(g => g.Key.Month)
+                .ToDictionary(
+                    g => string.Format("{0}/{1}", g.Key.Year, g.Key.Month),
+                    g => g.ToList()
+                );
+        }
+        else if (timeFrame.ToLower() == "yearly")
+        {
+            result = jobs
+                .GroupBy(j => j.StartTime.Year)
+                .OrderBy(g => g.Key)
+                .ToDictionary(
+                    g => g.Key.ToString(),
+                    g => g.ToList()
+                );
+        }
+        else
+        {
+            throw new ArgumentException("Unsupported timeframe: " + timeFrame);
         }
 
-        private static int GetWeekNumber(DateTime date)
-        {
-            return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
-                date,
-                CalendarWeekRule.FirstFourDayWeek,
-                DayOfWeek.Monday);
-        }
+        return result;
+    }
+
+    private static int GetWeekNumber(DateTime date)
+    {
+        return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(
+            date,
+            CalendarWeekRule.FirstFourDayWeek,
+            DayOfWeek.Monday);
+    }
 
     private static OxyColor GetColorForIndex(int index)
     {
@@ -426,7 +436,7 @@ public static class ReportFactory
                 double offset = shiftIndex * barWidth - (barGroupWidth / 2) + (barWidth / 2);
 
                 // Add data points with calculated offset
-                machineTimeSeries.Items.Add(new BarItem { Value = machineTime, CategoryIndex = categoryIndex + (int) offset });
+                machineTimeSeries.Items.Add(new BarItem { Value = machineTime, CategoryIndex = categoryIndex + (int)offset });
                 prepTimeSeries.Items.Add(new BarItem { Value = prepTime, CategoryIndex = categoryIndex + (int)offset });
                 wastedTimeSeries.Items.Add(new BarItem { Value = wastedTime, CategoryIndex = categoryIndex + (int)offset });
 
@@ -691,6 +701,8 @@ public static class ReportFactory
                 return "Weekly";
             case "monthly":
                 return "Monthly";
+            case "yearly":
+                return "Yearly";
             default:
                 return timeFrame;
         }

@@ -4,7 +4,6 @@
         xmlns:views="clr-namespace:JobReporter2.View"
         Title="Job Reporter" WindowState="Maximized">
     <views:MainView />
-    <!-- Embed MainView here -->
 </Window>
 
 

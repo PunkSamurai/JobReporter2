@@ -98,7 +98,7 @@ namespace JobReporter2.Model
                 OutsideLabelFormat = null, // Disable outside labels
                 InsideLabelFormat = null, // Disable inside labels
                 FontSize = 12,
-                
+
                 // LegendFormat = "{0}: {1}%"
             };
 

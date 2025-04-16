@@ -15,9 +15,7 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Header -->
                 <RowDefinition Height="*"/>
-                <!-- DataGrid -->
             </Grid.RowDefinitions>
 
             <!-- Header panel -->
@@ -27,28 +25,14 @@
                     <Button Content="Clear Filters" Command="{Binding ClearFilterCommand}" Margin="0,10,10,0" Height="45" />
                 </StackPanel>
                 <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="900" Height="100" TextWrapping="Wrap" AcceptsReturn="True" 
-                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" />
-                
-                <!-- <StackPanel Orientation="Vertical">
-                    <ComboBox Width="200" Margin="5"
-                             ItemsSource="{Binding ReportTypes}"
-                             SelectedItem="{Binding SelectedReportType}"
-                             Text="Select Report Type" />
-                    <ComboBox Width="200" Margin="5"
-                             ItemsSource="{Binding TimeFrames}"
-                             SelectedItem="{Binding SelectedTimeFrame}"
-                             Text="Select Time Frame" />
-                </StackPanel> -->
-                
+                         VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
                 <StackPanel>
                     <Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Margin="10,0,0,0" Width="120" Height="45"/>
-                    <Button Content="🔧" FontFamily="Segoe UI Symbol" FontWeight="Bold" FontSize="25"  Command="{Binding OpenShiftManagerCommand}" Width="45" Height="45" Margin="0,10,65,0"/>
+                    <Button Content="Settings"  Command="{Binding OpenShiftManagerCommand}" Width="120" Height="45" Margin="10,10,0,0"/>
                 </StackPanel>
-               
+
 
             </StackPanel>
-
-            <!-- DataGrid -->
             <DataGrid
                 x:Name="JobDataGrid"
                 Grid.Row="1" 

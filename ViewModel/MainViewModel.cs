@@ -152,7 +152,7 @@ namespace JobReporter2.ViewModel
         public JobViewModel JobViewModel { get; }
         public MainViewModel()
         {
-            
+
             AllJobs = new ObservableCollection<JobModel>();
             FilteredJobs = new ObservableCollection<JobModel>();
             Shifts = new ObservableCollection<ShiftModel>();
@@ -171,21 +171,16 @@ namespace JobReporter2.ViewModel
                 UniqueShifts.Add(shift.Name);
                 Console.WriteLine("SHIFT:" + shift);
             }
-            
+
             SelectedFilter = "No filters applied";
 
             OpenFilterCommand = new RelayCommand(OpenFilter);
             ClearFilterCommand = new RelayCommand(ClearFilter);
             GenerateReportCommand = new RelayCommand(GenerateReport);
             OpenShiftManagerCommand = new RelayCommand(OpenShiftManager);
-            
-
-            // Load jobs
             LoadJobs();
             var jobsContent = new JobsContent { Jobs = FilteredJobs };
-            JobViewModel = new JobViewModel { DataGrid = jobsContent.JobDataGrid, Jobs = FilteredJobs};
-            //jobsContent.DataContext = JobViewModel;
-
+            JobViewModel = new JobViewModel { DataGrid = jobsContent.JobDataGrid, Jobs = FilteredJobs };
             var jobsTab = new TabItem
             {
                 Header = "Jobs",
@@ -200,24 +195,20 @@ namespace JobReporter2.ViewModel
         {
             foreach (var job in AllJobs)
             {
-                // Find the first enabled shift that contains the job's start time
-                var shift = Shifts.FirstOrDefault(s => s.IsEnabled && s.IsInShift(job.StartTime)); // ?? Shifts.FirstOrDefault(s => s.IsEnabled);
-
+                var shift = Shifts.FirstOrDefault(s => s.IsEnabled && s.IsInShift(job.StartTime));
                 if (shift != null)
                 {
-                    job.Shift = shift.Name; // Assign the shift name to the existing Shift field
+                    job.Shift = shift.Name;
                     Console.WriteLine($"Job {job.Name} assigned to {shift.Name}");
                 }
                 else
                 {
-                    job.Shift = "Unassigned"; // If no shift matches or all are disabled
+                    job.Shift = "Unassigned";
                     Console.WriteLine($"Job {job.Name} has no valid shift.");
                 }
             }
 
             CalculatePrepTimes();
-
-            // Update the filtered jobs collection and notify UI
             FilteredJobs = new ObservableCollection<JobModel>(FilteredJobs);
             OnPropertyChanged(nameof(FilteredJobs));
         }
@@ -226,7 +217,7 @@ namespace JobReporter2.ViewModel
         {
             // Group jobs by machine and shift
             var groupedJobs = AllJobs
-                .Where(job => !string.IsNullOrEmpty(job.Shift)) // Ensure the job has a shift assigned
+                .Where(job => !string.IsNullOrEmpty(job.Shift))
                 .GroupBy(job => new { job.Connection, job.Shift })
                 .ToList();
 
@@ -240,7 +231,6 @@ namespace JobReporter2.ViewModel
 
                     if (i == 0)
                     {
-                        // First job in the group; calculate prep time relative to shift start
                         var shift = Shifts.FirstOrDefault(s => s.Name == currentJob.Shift);
                         if (shift != null)
                         {
@@ -249,20 +239,16 @@ namespace JobReporter2.ViewModel
                         }
                         else
                         {
-                            currentJob.PrepTime = TimeSpan.Zero; // No valid shift
+                            currentJob.PrepTime = TimeSpan.Zero;
                         }
-                        
+
                     }
                     else
                     {
-                        // Calculate prep time relative to the previous job's end time
                         var previousJob = jobsInGroup[i - 1];
 
                         if (currentJob.StartTime.Date == previousJob.EndTime.Date)
-                        {
-                            // Same day, calculate prep time normally
                             currentJob.PrepTime = currentJob.StartTime - previousJob.EndTime;
-                        }
                         else
                         {
                             // Different day, calculate prep time relative to shift start
@@ -276,10 +262,8 @@ namespace JobReporter2.ViewModel
                                 currentJob.PrepTime = TimeSpan.Zero; // No valid shift
                             }
                         }
-
-                        // Ensure prep time is not negative
                         currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
-                        
+
                     }
                     currentJob.Flagged = currentJob.CalculateFlagged(Thresholds[0].Value1, Thresholds[1].Value1);
                 }
@@ -288,9 +272,8 @@ namespace JobReporter2.ViewModel
 
         private void CalculatePrepTimes()
         {
-            // Group jobs by machine only
             var groupedJobs = AllJobs
-                .Where(job => job != null) // Filter out any null jobs
+                .Where(job => job != null)
                 .GroupBy(job => job.Connection)
                 .ToList();
 
@@ -301,12 +284,8 @@ namespace JobReporter2.ViewModel
                 for (int i = 0; i < jobsInGroup.Count; i++)
                 {
                     var currentJob = jobsInGroup[i];
-
-                    // Initialize prep time to max value
                     TimeSpan prepFromShiftStart = TimeSpan.MaxValue;
                     TimeSpan prepFromPreviousJob = TimeSpan.MaxValue;
-
-                    // Calculate prep time relative to shift start (if shift exists)
                     if (!string.IsNullOrEmpty(currentJob.Shift))
                     {
                         var shift = Shifts.FirstOrDefault(s => s.Name == currentJob.Shift);
@@ -315,15 +294,12 @@ namespace JobReporter2.ViewModel
                             prepFromShiftStart = currentJob.StartTime.TimeOfDay - shift.StartTime;
                         }
                     }
-
-                    // Calculate prep time relative to previous job (if it exists)
                     if (i > 0)
                     {
                         var previousJob = jobsInGroup[i - 1];
                         prepFromPreviousJob = currentJob.StartTime - previousJob.EndTime;
                     }
 
-                    // Use the smaller of the two values, but ensure it's not negative
                     currentJob.PrepTime = new[] { prepFromShiftStart, prepFromPreviousJob }
                         .Where(ts => ts != TimeSpan.MaxValue)
                         .DefaultIfEmpty(TimeSpan.Zero)
@@ -378,7 +354,6 @@ namespace JobReporter2.ViewModel
             if (shiftManagerView.ShowDialog() == true)
             {
                 Console.WriteLine("update");
-                // Only update the main collection if OK was clicked
                 Shifts = new ObservableCollection<ShiftModel>(
                     shiftManagerViewModel.Shifts.Select(s => new ShiftModel
                     {
@@ -416,64 +391,8 @@ namespace JobReporter2.ViewModel
             }
         }
 
-
-        /* private void OpenSettings()
-        {
-            // Create deep copies of the shifts for editing
-            ObservableCollection<ShiftModel> shiftCopies = new ObservableCollection<ShiftModel>(
-                Shifts.Select(s => new ShiftModel
-                {
-                    Name = s.Name,
-                    IsEnabled = s.IsEnabled,
-                    StartTime = s.StartTime,
-                    EndTime = s.EndTime
-                })
-            );
-            ObservableCollection<ThresholdModel> thresholdCopies = new ObservableCollection<ThresholdModel>(
-                Thresholds.Select(t => new ThresholdModel
-                {
-                    Name = t.Name,
-                    IsEnabled = t.IsEnabled,
-                    Value1 = t.Value1,
-                    Value2 = t.Value2
-                })
-            );
-
-            var settingsViewModel = new SettingsViewModel( shiftCopies, thresholdCopies);
-
-            var settingsView = new SettingsView
-            {
-                DataContext = settingsViewModel,
-                Owner = Application.Current.MainWindow
-            };
-
-            if (settingsView.ShowDialog() == true)
-            {
-                Console.WriteLine("update");
-                // Only update the main collection if OK was clicked
-                Shifts = new ObservableCollection<ShiftModel>(
-                    settingsViewModel.Shifts.Select(s => new ShiftModel
-                    {
-                        Name = s.Name,
-                        IsEnabled = s.IsEnabled,
-                        StartTime = s.StartTime,
-                        EndTime = s.EndTime
-                    })
-                );
-                UniqueShifts.Clear();
-                foreach (var shift in Shifts)
-                {
-                    UniqueShifts.Add(shift.Name);
-                    Console.WriteLine(shift.Name);
-                }
-                AssignShiftsToJobs();
-            }
-        } */
-
-        // Load jobs from XML into ObservableCollection
         private void LoadJobs()
         {
-            // Check for command-line arguments first
             string[] args = Environment.GetCommandLineArgs();
             if (args.Length > 1 && File.Exists(args[1]) && args[1].EndsWith(".xjh", StringComparison.OrdinalIgnoreCase))
             {
@@ -490,11 +409,18 @@ namespace JobReporter2.ViewModel
                 }
                 catch (Exception ex)
                 {
-                    // Handle exceptions, falling back to file dialog
+                    // Handle exceptions, such as missing file or invalid XML
+                    AllJobs = new ObservableCollection<JobModel>();
+                    FilteredJobs = new ObservableCollection<JobModel>();
+                    UniqueNames = new HashSet<string>();
+                    UniqueConnections = new HashSet<string>();
+                    UniqueEndTypes = new HashSet<string>();
+                    RecordCount = 0;
+                    MessageBox.Show($"Error loading file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
                 }
             }
 
-            // Existing code for loading via dialog
             string previousFilePath = SettingsHelper.LoadXjhDirectory();
             try
             {
@@ -520,7 +446,7 @@ namespace JobReporter2.ViewModel
                 if (openFileDialog.ShowDialog() == true)
                 {
                     FilePath = openFileDialog.FileName;
-                    SettingsHelper.SaveXjhDirectory(FilePath); // Save the full path
+                    SettingsHelper.SaveXjhDirectory(FilePath);
                     dataSet.ReadXml(FilePath);
                 }
                 else
@@ -542,7 +468,6 @@ namespace JobReporter2.ViewModel
             }
         }
 
-        // Extract the data processing code to avoid duplication
         private void ProcessDataSet(DataSet dataSet)
         {
             DataTable jobTable = dataSet.Tables["Job"];
@@ -714,7 +639,7 @@ namespace JobReporter2.ViewModel
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
 
-        
+
 
         private bool CanGenerateReport()
         {
@@ -724,64 +649,45 @@ namespace JobReporter2.ViewModel
         {
             try
             {
-                // Create and configure the parameters view model
                 var parametersViewModel = new ReportParametersViewModel(
                     ReportTypes.ToList(),  // Pass the available report types
                     TimeFrames.ToList(),    // Pass the available time frames
                     Tabs.Count
                 );
 
-                // Create and show the parameters window
                 var parametersView = new ReportParametersView
                 {
                     DataContext = parametersViewModel,
                     Owner = Application.Current.MainWindow
                 };
 
-                // Show the dialog and check result
                 bool? result = parametersView.ShowDialog();
-
-                // If dialog was cancelled, return early
                 if (result != true)
                     return;
 
-                // Get the title for the report
                 string reportTitle = parametersViewModel.ReportTitle;
-
-                // Get the selected report type and time frame
                 string selectedReportType = parametersViewModel.SelectedReportType;
                 string selectedTimeFrame = parametersViewModel.SelectedTimeFrame;
-
                 int reportNumber = Tabs.Count;
-
-                // Create the content
                 var reportContent = new ReportContent();
 
-                // Generate the report (could be PlotModel or string now)
                 var reportModel = ReportFactory.GenerateReport(FilteredJobs, selectedReportType, selectedTimeFrame);
                 reportContent.ReportModel = reportModel;
 
-                // Create a tab item with a custom header object
                 var reportTab = new TabItem
                 {
                     Content = reportContent,
                     HeaderTemplate = Application.Current.Resources["CloseableTabHeaderTemplate"] as DataTemplate
                 };
 
-                // Create the header with a close action
                 var header = new ReportTabHeader(
                     reportTitle,  // Use the custom title from the dialog
                     h => Tabs.Remove(reportTab), // This is the close action
                     h => ExportReportToPdf(reportContent, reportTitle)  // Pass title for PDF
                 );
 
-                // Set the header as the Header property
                 reportTab.Header = header;
-
-                // Add the tab to the TabControl
                 Tabs.Add(reportTab);
-
-                // Select the newly created tab
                 SelectedTabIndex = Tabs.Count - 1;
             }
             catch (Exception ex)

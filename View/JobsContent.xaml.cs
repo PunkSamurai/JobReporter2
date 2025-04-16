@@ -112,7 +112,7 @@ namespace JobReporter2.View
                             return Brushes.Yellow;
                         return Brushes.LightCoral;
                     }
-                    
+
                 }
 
                 return Brushes.Transparent; // Default
@@ -209,7 +209,7 @@ namespace JobReporter2.View
                     ShiftNames.Add(shift.Name);
                 }
                 Console.Write(ShiftNames);
-                if(value is string shiftName)
+                if (value is string shiftName)
                 {
                     if (shiftName == ShiftNames[0])
                         return Application.Current.Resources["BackgroundShift1"];
@@ -219,7 +219,7 @@ namespace JobReporter2.View
                         return Application.Current.Resources["BackgroundShift3"];
                     else if (shiftName == ShiftNames[3])
                         return Application.Current.Resources["BackgroundShift4"];
-                    else if(shiftName == ShiftNames[4])
+                    else if (shiftName == ShiftNames[4])
                         return Application.Current.Resources["BackgroundShift5"];
                     return Brushes.Transparent;
                 }

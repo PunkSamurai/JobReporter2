@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using JobReporter2.Helpers;
 using JobReporter2.Model;
 using OxyPlot;
 using OxyPlot.Axes;
@@ -472,10 +473,9 @@ public static class ReportFactory
         StringBuilder report = new StringBuilder();
         report.AppendLine($"Job File {GetTimeFrameTitle(timeFrame)} Report");
         report.AppendLine($"{DateTime.Now.ToString("MM/dd/yyyy")}");
-        //report.AppendLine("title");
         report.AppendLine();
 
-        // Get unique shifts
+        // Get unique shifts from the jobs
         var uniqueShifts = filteredJobs
             .Select(j => j.Shift)
             .Distinct()
@@ -577,9 +577,9 @@ public static class ReportFactory
                 periodTotalRunTime += shiftRunTime;
                 totalShiftRunTime[shift] += shiftRunTime;
 
-                // Calculate idle time - use 48 hours as the shift available time (can be adjusted if needed)
-                TimeSpan shiftAvailableTime = TimeSpan.FromHours(48);
-                TimeSpan shiftIdleTime = shiftAvailableTime - shiftRunTime;
+                // Calculate idle time based on the time frame and available shift time
+                TimeSpan shiftAvailableTime = CalculateAvailableTime(shift, timeFrame, timePeriod.Key);
+                TimeSpan shiftIdleTime = shiftAvailableTime > shiftRunTime ? shiftAvailableTime - shiftRunTime : TimeSpan.Zero;
                 periodIdleTimes[shift] = shiftIdleTime;
                 periodTotalIdleTime += shiftIdleTime;
                 totalShiftIdleTime[shift] += shiftIdleTime;
@@ -621,6 +621,67 @@ public static class ReportFactory
         report.AppendLine(FormatMetricLine("Idle Time:", uniqueShifts, totalShiftIdleTime, grandTotalIdleTime));
 
         return report.ToString();
+    }
+
+    private static TimeSpan CalculateAvailableTime(string shiftName, string timeFrame, string periodKey)
+    {
+        // Load shifts directly
+        var shifts = SettingsHelper.LoadShifts();
+
+        // Find the shift definition
+        var shiftModel = shifts.FirstOrDefault(s => s.Name == shiftName);
+        if (shiftModel == null)
+        {
+            return TimeSpan.Zero;
+        }
+
+        // Calculate shift duration per day
+        TimeSpan shiftDuration;
+        if (shiftModel.EndTime > shiftModel.StartTime)
+        {
+            shiftDuration = shiftModel.EndTime - shiftModel.StartTime;
+        }
+        else
+        {
+            // Handle shifts that cross midnight
+            shiftDuration = (TimeSpan.FromHours(24) - shiftModel.StartTime) + shiftModel.EndTime;
+        }
+
+        // Calculate available time based on timeframe
+        switch (timeFrame.ToLower())
+        {
+            case "daily":
+                // One day of shift time
+                return shiftDuration;
+
+            case "weekly":
+                // 7 days of shift time
+                return TimeSpan.FromTicks(shiftDuration.Ticks * 7);
+
+            case "monthly":
+                // Parse the period key (Year/Month format)
+                string[] parts = periodKey.Split('/');
+                if (parts.Length == 2 && int.TryParse(parts[0], out int year) && int.TryParse(parts[1], out int month))
+                {
+                    // Get days in the month
+                    int daysInMonth = DateTime.DaysInMonth(year, month);
+                    return TimeSpan.FromTicks(shiftDuration.Ticks * daysInMonth);
+                }
+                return TimeSpan.FromTicks(shiftDuration.Ticks * 30); // Default to 30 days if parsing fails
+
+            case "yearly":
+                // Parse the period key (Year format)
+                if (int.TryParse(periodKey, out int yearValue))
+                {
+                    // Check if it's a leap year
+                    int daysInYear = DateTime.IsLeapYear(yearValue) ? 366 : 365;
+                    return TimeSpan.FromTicks(shiftDuration.Ticks * daysInYear);
+                }
+                return TimeSpan.FromTicks(shiftDuration.Ticks * 365); // Default to 365 days if parsing fails
+
+            default:
+                return TimeSpan.Zero;
+        }
     }
 
     private static void AppendPeriodTotals(

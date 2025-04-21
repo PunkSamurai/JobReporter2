@@ -393,44 +393,28 @@ namespace JobReporter2.ViewModel
 
         private void LoadJobs()
         {
-            string[] args = Environment.GetCommandLineArgs();
-            if (args.Length > 1 && File.Exists(args[1]) && args[1].EndsWith(".xjh", StringComparison.OrdinalIgnoreCase))
-            {
-                // Use the file specified in command-line argument
-                FilePath = args[1];
-                SettingsHelper.SaveXjhDirectory(FilePath); // Save the full path
-
-                DataSet dataSet = new DataSet();
-                try
-                {
-                    dataSet.ReadXml(FilePath);
-                    ProcessDataSet(dataSet);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    // Handle exceptions, such as missing file or invalid XML
-                    AllJobs = new ObservableCollection<JobModel>();
-                    FilteredJobs = new ObservableCollection<JobModel>();
-                    UniqueNames = new HashSet<string>();
-                    UniqueConnections = new HashSet<string>();
-                    UniqueEndTypes = new HashSet<string>();
-                    RecordCount = 0;
-                    MessageBox.Show($"Error loading file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    return;
-                }
-            }
-
-            string previousFilePath = SettingsHelper.LoadXjhDirectory();
             try
             {
+                // First try loading from command line arguments
+                string[] args = Environment.GetCommandLineArgs();
+                if (args.Length > 1 && File.Exists(args[1]) && args[1].EndsWith(".xjh", StringComparison.OrdinalIgnoreCase))
+                {
+                    FilePath = args[1];
+                    SettingsHelper.SaveXjhDirectory(FilePath); 
+
+                    DataSet dataSet = new DataSet();
+                    dataSet.ReadXml(FilePath);
+                    ProcessDataSet(dataSet);
+                    return; 
+                }
+                string previousFilePath = SettingsHelper.LoadXjhDirectory();
+
                 OpenFileDialog openFileDialog = new OpenFileDialog
                 {
                     Filter = "XML Job History files (*.xjh)|*.xjh|All files (*.*)|*.*",
                     Title = "Select Job History File"
                 };
 
-                // Set initial directory and filename if we have a previous file path
                 if (!string.IsNullOrEmpty(previousFilePath) && File.Exists(previousFilePath))
                 {
                     openFileDialog.InitialDirectory = Path.GetDirectoryName(previousFilePath);
@@ -438,23 +422,21 @@ namespace JobReporter2.ViewModel
                 }
                 else
                 {
-                    // Fallback to base directory if no previous path or file doesn't exist
                     openFileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
                 }
 
-                DataSet dataSet = new DataSet();
-                if (openFileDialog.ShowDialog() == true)
+                bool? result = openFileDialog.ShowDialog();
+
+                if (result == true)
                 {
                     FilePath = openFileDialog.FileName;
                     SettingsHelper.SaveXjhDirectory(FilePath);
-                    dataSet.ReadXml(FilePath);
-                }
-                else
-                {
-                    return;
-                }
 
-                ProcessDataSet(dataSet);
+                    DataSet dataSet = new DataSet();
+                    dataSet.ReadXml(FilePath);
+                    ProcessDataSet(dataSet);
+                }
+                openFileDialog = null;
             }
             catch (Exception ex)
             {
@@ -465,8 +447,13 @@ namespace JobReporter2.ViewModel
                 UniqueConnections = new HashSet<string>();
                 UniqueEndTypes = new HashSet<string>();
                 RecordCount = 0;
+                FilteredRecordCount = 0;
+
+                MessageBox.Show($"Error loading file: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        
 
         private void ProcessDataSet(DataSet dataSet)
         {

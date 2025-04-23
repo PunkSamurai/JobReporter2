@@ -16,6 +16,7 @@ namespace JobReporter2.Model
             Thresholds = new List<ThresholdModel>();
             XjhDirectory = string.Empty;
             ReportDirectory = string.Empty;
+            CsvDirectory = string.Empty;
         }
 
         public ObservableCollection<ShiftModel> Shifts { get; set; }
@@ -23,5 +24,6 @@ namespace JobReporter2.Model
         public List<ThresholdModel> Thresholds { get; set; }
         public string XjhDirectory { get; set; }
         public string ReportDirectory { get; set; }
+        public string CsvDirectory { get; set; }
     }
 }

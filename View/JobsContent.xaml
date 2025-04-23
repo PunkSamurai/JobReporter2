@@ -28,7 +28,10 @@
                          VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
                 <StackPanel>
                     <Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Margin="10,0,0,0" Width="120" Height="45"/>
-                    <Button Content="Settings"  Command="{Binding OpenShiftManagerCommand}" Width="120" Height="45" Margin="10,10,0,0"/>
+                    <Button Content="Export CSV"  Command="{Binding ExportToCsvCommand}" Width="120" Height="45" Margin="10,10,0,0"/>
+                </StackPanel>
+                <StackPanel>
+                    <Button Content="Settings"  Command="{Binding OpenShiftManagerCommand}" Width="120" Height="45" Margin="10,0 ,0,0"/>
                 </StackPanel>
 
 

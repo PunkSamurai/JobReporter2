@@ -143,6 +143,8 @@ namespace JobReporter2.ViewModel
         public RelayCommand GenerateReportCommand { get; }
         public RelayCommand OpenShiftManagerCommand { get; }
 
+        public RelayCommand ExportToCsvCommand { get; }
+
         public HashSet<string> UniqueNames { get; private set; }
         public HashSet<string> UniqueConnections { get; private set; }
         public HashSet<string> UniqueEndTypes { get; private set; }
@@ -178,6 +180,7 @@ namespace JobReporter2.ViewModel
             ClearFilterCommand = new RelayCommand(ClearFilter);
             GenerateReportCommand = new RelayCommand(GenerateReport);
             OpenShiftManagerCommand = new RelayCommand(OpenShiftManager);
+            ExportToCsvCommand = new RelayCommand(ExportToCsv);
             LoadJobs();
             var jobsContent = new JobsContent { Jobs = FilteredJobs };
             JobViewModel = new JobViewModel { DataGrid = jobsContent.JobDataGrid, Jobs = FilteredJobs };
@@ -189,6 +192,112 @@ namespace JobReporter2.ViewModel
             Tabs.Add(jobsTab);
             Application.Current.Dispatcher.BeginInvoke(new Action(() => jobsTab.IsSelected = true), DispatcherPriority.Loaded);
             //jobsTab.IsSelected = true;
+        }
+
+        private void ExportToCsv()
+        {
+            Console.WriteLine("Exporting to CSV...");
+            try
+            {
+                string previousCsvPath = SettingsHelper.LoadCsvDirectory();
+
+                SaveFileDialog saveFileDialog = new SaveFileDialog
+                {
+                    Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*",
+                    Title = "Export Jobs to CSV",
+                    DefaultExt = "csv",
+                    FileName = "JobExport_" + DateTime.Now.ToString("yyyyMMdd")
+                };
+
+                if (!string.IsNullOrEmpty(previousCsvPath))
+                {
+                    saveFileDialog.InitialDirectory = previousCsvPath;
+                }
+
+                bool? result = saveFileDialog.ShowDialog();
+
+                if (result == true)
+                {
+                    string csvPath = saveFileDialog.FileName;
+                    SettingsHelper.SaveCsvDirectory(Path.GetDirectoryName(csvPath));
+
+                    using (StreamWriter writer = new StreamWriter(csvPath))
+                    {
+                        // Write header
+                        // Write header
+                        writer.WriteLine(
+                            "Connection,Name,JobFile,StartTime,EndTime,TotalTime,MachineTime,PauseTime,WastedTime," +
+                            "Shift,StartType,EndType,PrepTime,Flagged,OEMString,FileSize,CutTime,Length,FeedrateOverride," +
+                            "SlewTime,SheetCount,TimeEstimate,SheetChangeTime,Tools,ToolChangeTime,ToolAvgTimes,Size,ShortenedStartType");
+
+                        foreach (var job in FilteredJobs)
+                        {
+                            writer.WriteLine(
+                                $"{EscapeCsvField(job.Connection)}," +
+                                $"{EscapeCsvField(job.Name)}," +
+                                $"{EscapeCsvField(job.JobFile)}," +
+                                $"{job.StartTime:yyyy-MM-dd HH:mm:ss}," +
+                                $"{job.EndTime:yyyy-MM-dd HH:mm:ss}," +
+                                $"{FormatTimeSpan(job.TotalTime)}," +
+                                $"{FormatTimeSpan(job.MachineTime)}," +
+                                $"{FormatTimeSpan(job.PauseTime)}," +
+                                $"{FormatTimeSpan(job.WastedTime)}," +
+                                $"{EscapeCsvField(job.Shift)}," +
+                                $"{EscapeCsvField(job.StartType)}," +
+                                $"{EscapeCsvField(job.EndType)}," +
+                                $"{FormatTimeSpan(job.PrepTime)}," +
+                                $"{job.Flagged}," +
+                                $"{EscapeCsvField(job.OEMString)}," +
+                                $"{job.FileSize}," +
+                                $"{FormatTimeSpan(job.CutTime)}," +
+                                $"{job.Length}," +
+                                $"{job.FeedrateOverride}," +
+                                $"{FormatTimeSpan(job.SlewTime)}," +
+                                $"{job.SheetCount}," +
+                                $"{FormatTimeSpan(job.TimeEstimate)}," +
+                                $"{FormatTimeSpan(job.SheetChangeTime)}," +
+                                $"{EscapeCsvField(job.Tools)}," +
+                                $"{FormatTimeSpan(job.ToolChangeTime)}," +
+                                $"{FormatTimeSpan(job.ToolAvgTimes)}," +
+                                $"{EscapeCsvField(job.Size)}," +
+                                $"{EscapeCsvField(job.ShortenedStartType)}");
+                        }
+                    }
+
+                    MessageBox.Show($"Successfully exported {FilteredJobs.Count} jobs to:\n{csvPath}",
+                                   "Export Successful", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error exporting to CSV: {ex.Message}", "Export Error",
+                               MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Helper methods for CSV export
+        private string EscapeCsvField(string field)
+        {
+            if (string.IsNullOrEmpty(field))
+                return "";
+
+            // If the field contains comma, quotes, or newline, wrap it in quotes
+            if (field.Contains(",") || field.Contains("\"") || field.Contains("\n") || field.Contains("\r"))
+            {
+                // Double up any quotes
+                field = field.Replace("\"", "\"\"");
+                return $"\"{field}\"";
+            }
+            return field;
+        }
+
+        private string FormatTimeSpan(TimeSpan? timeSpan)
+        {
+            if (!timeSpan.HasValue)
+                return "";
+
+            // Format as hours:minutes:seconds
+            return $"{(int)timeSpan.Value.TotalHours}:{timeSpan.Value.Minutes:D2}:{timeSpan.Value.Seconds:D2}";
         }
 
         private void AssignShiftsToJobs()
@@ -213,63 +322,7 @@ namespace JobReporter2.ViewModel
             OnPropertyChanged(nameof(FilteredJobs));
         }
 
-        private void CalculatePrepTimesOriginal()
-        {
-            // Group jobs by machine and shift
-            var groupedJobs = AllJobs
-                .Where(job => !string.IsNullOrEmpty(job.Shift))
-                .GroupBy(job => new { job.Connection, job.Shift })
-                .ToList();
-
-            foreach (var group in groupedJobs)
-            {
-                var jobsInGroup = group.OrderBy(job => job.StartTime).ToList();
-
-                for (int i = 0; i < jobsInGroup.Count; i++)
-                {
-                    var currentJob = jobsInGroup[i];
-
-                    if (i == 0)
-                    {
-                        var shift = Shifts.FirstOrDefault(s => s.Name == currentJob.Shift);
-                        if (shift != null)
-                        {
-                            currentJob.PrepTime = currentJob.StartTime.TimeOfDay - shift.StartTime;
-                            currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
-                        }
-                        else
-                        {
-                            currentJob.PrepTime = TimeSpan.Zero;
-                        }
-
-                    }
-                    else
-                    {
-                        var previousJob = jobsInGroup[i - 1];
-
-                        if (currentJob.StartTime.Date == previousJob.EndTime.Date)
-                            currentJob.PrepTime = currentJob.StartTime - previousJob.EndTime;
-                        else
-                        {
-                            // Different day, calculate prep time relative to shift start
-                            var shift = Shifts.FirstOrDefault(s => s.Name == currentJob.Shift);
-                            if (shift != null)
-                            {
-                                currentJob.PrepTime = currentJob.StartTime.TimeOfDay - shift.StartTime;
-                            }
-                            else
-                            {
-                                currentJob.PrepTime = TimeSpan.Zero; // No valid shift
-                            }
-                        }
-                        currentJob.PrepTime = currentJob.PrepTime > TimeSpan.Zero ? currentJob.PrepTime : TimeSpan.Zero;
-
-                    }
-                    currentJob.Flagged = currentJob.CalculateFlagged(Thresholds[0].Value1, Thresholds[1].Value1);
-                }
-            }
-        }
-
+        
         private void CalculatePrepTimes()
         {
             var groupedJobs = AllJobs
@@ -626,12 +679,6 @@ namespace JobReporter2.ViewModel
             SelectedFilter = filters.Any() ? string.Join("\n", filters) : "No filters applied";
         }
 
-
-
-        private bool CanGenerateReport()
-        {
-            return !string.IsNullOrEmpty(SelectedReportType) && !string.IsNullOrEmpty(SelectedTimeFrame);
-        }
         private void GenerateReport()
         {
             try

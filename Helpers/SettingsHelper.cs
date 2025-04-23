@@ -78,7 +78,8 @@ namespace JobReporter2.Helpers
                                 new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" }
                             },
                             XjhDirectory = "",
-                            ReportDirectory = ""
+                            ReportDirectory = "",
+                            CsvDirectory = ""
                         };
 
                         string json = JsonConvert.SerializeObject(defaultSettings, Formatting.Indented);
@@ -344,6 +345,56 @@ namespace JobReporter2.Helpers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error saving ReportDirectory: {ex.Message}");
+            }
+        }
+
+        // Load CsvDirectory from the settings file
+        public static string LoadCsvDirectory()
+        {
+            if (!File.Exists(SettingsFilePath))
+            {
+                return string.Empty;
+            }
+            try
+            {
+                string json = File.ReadAllText(SettingsFilePath);
+                var settings = JsonConvert.DeserializeObject<SettingsModel>(json);
+                return settings?.CsvDirectory ?? string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading CsvDirectory: {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        // Save CsvDirectory to the settings file
+        public static void SaveCsvDirectory(string csvDirectory)
+        {
+            try
+            {
+                // First, load existing settings
+                SettingsModel settings;
+                if (File.Exists(SettingsFilePath))
+                {
+                    string existingJson = File.ReadAllText(SettingsFilePath);
+                    settings = JsonConvert.DeserializeObject<SettingsModel>(existingJson) ?? new SettingsModel();
+                }
+                else
+                {
+                    settings = new SettingsModel();
+                }
+
+                // Update only the CsvDirectory
+                settings.CsvDirectory = csvDirectory;
+
+                // Save back to file
+                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                File.WriteAllText(SettingsFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving CsvDirectory: {ex.Message}");
             }
         }
     }

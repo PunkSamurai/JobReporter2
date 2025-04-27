@@ -185,8 +185,7 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background">
                                     <Setter.Value>
-                                        <Binding Converter="{StaticResource GreaterThanThresholdToBrushConverter}" 
-                                                 ConverterParameter="TotalTime" />
+                                        <Binding Converter="{StaticResource TotalTimeToBrushConverter}"/>
                                     </Setter.Value>
                                 </Setter>
                                 <Style.Triggers>
@@ -228,8 +227,7 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background">
                                     <Setter.Value>
-                                        <Binding Converter="{StaticResource GreaterThanThresholdToBrushConverter}" 
-                                                 ConverterParameter="CutTime" />
+                                        <Binding Converter="{StaticResource CutTimeToBrushConverter}" />
                                     </Setter.Value>
                                 </Setter>
                                 <Style.Triggers>
@@ -266,8 +264,8 @@
                             <Style TargetType="DataGridCell">
                                 <Setter Property="Background">
                                     <Setter.Value>
-                                        <Binding Converter="{StaticResource LesserThanThresholdToBrushConverter}" 
-                                                 ConverterParameter="PauseTime" />
+                                        <Binding Path="."
+                                            Converter="{StaticResource PauseTimeToBrushConverter}" />
                                     </Setter.Value>
                                 </Setter>
                                 <Style.Triggers>

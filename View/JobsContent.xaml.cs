@@ -21,9 +21,6 @@ using System.Windows.Shapes;
 
 namespace JobReporter2.View
 {
-    /// <summary>
-    /// Interaction logic for JobsContent.xaml
-    /// </summary>
     public partial class JobsContent
     {
         public ObservableCollection<JobModel> Jobs { get; set; }
@@ -31,7 +28,6 @@ namespace JobReporter2.View
         public JobsContent()
         {
             this.Resources["EndTypeToBrushConverter"] = new EndTypeToBrushConverter();
-            this.Resources["FlagToBrushConverter"] = new FlagToBrushConverter();
             this.Resources["CutTimeToBrushConverter"] = new CutTimeToBrushConverter();
             this.Resources["PauseTimeToBrushConverter"] = new PauseTimeToBrushConverter();
             this.Resources["PrepTimeToBrushConverter"] = new PrepTimeToBrushConverter();
@@ -40,8 +36,6 @@ namespace JobReporter2.View
             this.Resources["BoolToColorConverter"] = new BoolToColorConverter();
             this.Resources["NullToVisibilityConverter"] = new NullToVisibilityConverter();
             this.Resources["NullToRowHeightConverter"] = new NullToRowHeightConverter();
-            this.Resources["GreaterThanThresholdToBrushConverter"] = new GreaterThanThresholdToBrushConverter();
-            this.Resources["LesserThanThresholdToBrushConverter"] = new LesserThanThresholdToBrushConverter();
             InitializeComponent();
             Loaded += JobsContent_Loaded;
             // DataContext = new MainViewModel();
@@ -74,19 +68,22 @@ namespace JobReporter2.View
             {
                 if (value is JobModel data)
                 {
+                    var thresholds = GetThresholds("CutTime");
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+
+                    double ratio = -1;
                     if (data.TotalTime.TotalSeconds > 0)
                     {
-                        double ratio = data.CutTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
-
-                        if (ratio > 0.75)
-                            return Brushes.LightGreen;
-                        else if (ratio > 0.5)
-                            return Brushes.Yellow;
-                        return Brushes.LightCoral;
+                        ratio = data.CutTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
                     }
-                }
 
-                return Brushes.LightGray; // Default
+                    if (ratio == -1) return Brushes.Transparent;
+
+                    if (ratio > (thresholds.Value1 / 100)) return Brushes.LightGreen;
+                    if (ratio > (thresholds.Value2 / 100)) return Brushes.Yellow;
+                    return Brushes.LightCoral;
+                }
+                return Brushes.Transparent;
             }
 
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -102,19 +99,19 @@ namespace JobReporter2.View
             {
                 if (value is JobModel data)
                 {
+                    var thresholds = GetThresholds("PauseTime");
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+
+                    double ratio = 0;
                     if (data.TotalTime.TotalSeconds > 0)
                     {
-                        double ratio = data.PauseTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
-
-                        if (ratio < 0.25)
-                            return Brushes.LightGreen;
-                        else if (ratio < 0.5)
-                            return Brushes.Yellow;
-                        return Brushes.LightCoral;
+                        ratio = data.PauseTime?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
                     }
 
+                    if (ratio < (thresholds.Value1 / 100)) return Brushes.LightGreen;
+                    if (ratio < (thresholds.Value2 / 100)) return Brushes.Yellow;
+                    return Brushes.LightCoral;
                 }
-
                 return Brushes.Transparent; // Default
             }
 
@@ -141,7 +138,7 @@ namespace JobReporter2.View
                         return Brushes.LightCoral;
                     }
                 }
-                return Brushes.Transparent; // Default
+                return Brushes.Transparent; 
             }
 
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -156,21 +153,25 @@ namespace JobReporter2.View
             {
                 if (value is JobModel data)
                 {
+                    var thresholds = GetThresholds("TotalTime");
+                    if (!thresholds.IsEnabled) return Brushes.Transparent;
+                    double ratio = -1;
                     if (data.TotalTime.TotalSeconds > 0 && data.TimeEstimate.HasValue)
                     {
-                        double ratio = data.TimeEstimate?.TotalSeconds / data.TotalTime.TotalSeconds ?? 0;
-                        Console.WriteLine(ratio);
-                        if (ratio > 0.75)
-                            return Brushes.LightGreen;
-                        else if (ratio > 0.5)
-                            return Brushes.Yellow;
-                        return Brushes.LightCoral;
+                        ratio = data.TimeEstimate.Value.TotalSeconds / data.TotalTime.TotalSeconds;
                     }
                     else if (data.TotalTime.TotalSeconds == 0)
+                    {
                         return Brushes.LightCoral;
-                }
+                    }
 
-                return null; // Default
+                    if (ratio == -1) return Brushes.Transparent;
+
+                    if (ratio > (thresholds.Value1 / 100)) return Brushes.LightGreen;
+                    if (ratio > (thresholds.Value2 / 100)) return Brushes.Yellow;
+                    return Brushes.LightCoral;
+                }
+                return Brushes.Transparent;
             }
 
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -179,23 +180,6 @@ namespace JobReporter2.View
             }
         }
 
-
-        private class FlagToBrushConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                if (value is bool isFlagged)
-                {
-                    return isFlagged ? Brushes.Red : Brushes.White;
-                }
-                return Brushes.White; // Default
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotSupportedException();
-            }
-        }
 
         private class ShiftToBrushConverter : IValueConverter
         {
@@ -320,87 +304,11 @@ namespace JobReporter2.View
         }
 
 
-        private class GreaterThanThresholdToBrushConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                if (value is JobModel data && parameter is string timeType)
-                {
-                    var thresholds = GetThresholds(timeType);
-                    if (!thresholds.IsEnabled) return Brushes.Transparent;
-
-                    double ratio = GetRatio(data, timeType);
-                    if (ratio == -1) return Brushes.Transparent;
-                    if (ratio > (thresholds.Value1 / 100)) return Brushes.LightGreen;
-                    if (ratio > (thresholds.Value2 / 100)) return Brushes.Yellow;
-                    return Brushes.LightCoral;
-                }
-                return Brushes.Transparent; // Default
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotSupportedException();
-            }
-        }
-
-        private class LesserThanThresholdToBrushConverter : IValueConverter
-        {
-            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                if (value is JobModel data && parameter is string timeType)
-                {
-                    var thresholds = GetThresholds(timeType);
-                    if (!thresholds.IsEnabled) return Brushes.Transparent;
-
-                    double ratio = GetRatio(data, timeType);
-                    if (ratio < (thresholds.Value1 / 100)) return Brushes.LightGreen;
-                    if (ratio < (thresholds.Value2 / 100)) return Brushes.Yellow;
-                    return Brushes.LightCoral;
-                }
-                return Brushes.Transparent; // Default
-            }
-
-            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            {
-                throw new NotSupportedException();
-            }
-        }
-
         private static ThresholdModel GetThresholds(string name)
         {
             // Retrieve threshold data dynamically, assuming it's preloaded
             return SettingsHelper.LoadThresholds().FirstOrDefault(t => t.Name == name) ?? new ThresholdModel();
         }
-
-        private static double GetRatio(JobModel data, string timeType)
-        {
-            double ratio = 0;
-
-            if (timeType == "CutTime")
-            {
-                ratio = (data.CutTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
-            }
-            else if (timeType == "PauseTime")
-            {
-                ratio = (data.PauseTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
-            }
-            else if (timeType == "PrepTime")
-            {
-                ratio = (data.PrepTime?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
-            }
-            else if (timeType == "TotalTime")
-            {
-                if (data.TimeEstimate.HasValue)
-                    ratio = (data.TimeEstimate?.TotalSeconds ?? 0) / data.TotalTime.TotalSeconds;
-                else
-                    ratio = -1;
-            }
-
-            return ratio;
-        }
-
-
 
 
     }

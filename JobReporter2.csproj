@@ -84,6 +84,7 @@
     <Compile Include="Helpers\RelayCommand.cs" />
     <Compile Include="Helpers\ReportFactory.cs" />
     <Compile Include="Helpers\SettingsHelper.cs" />
+    <Compile Include="Helpers\XjhFileParser.cs" />
     <Compile Include="Model\ReportTabHeader.cs" />
     <Compile Include="Model\SettingsModel.cs" />
     <Compile Include="Model\ShiftModel.cs" />
@@ -177,8 +178,8 @@
     <None Include="JobDataset.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="JobHistory.xjh" />
-    <None Include="JobHistory2.xjh" />
+    <None Include="JobHistory4.xjh" />
+    <None Include="JobHistory3.xjh" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

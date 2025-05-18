@@ -1,4 +1,4 @@
-<Jobs ETCXML="" version="2" AutoTrim="16">
+<Jobs ETCXML="" version="2" AutoTrim="16"/>
 
 	<Job Name="C:\\Users\\peter.cook\\Downloads\\23CAT PTF V2018_3.ucj" StartTime="2023-09-27  08:52:32" EndTime="2023-09-27  09:00:11" TotalTime="00:07:39" MachineTime="00:07:20" StartType="HostUI" EndType="Job completed." Connection="ADVA (21163)" OEMName="ADVA (21163)" Material="_na_" PD_Count="10" Length="865.796" Size="41.53 x 142.72"/>
 
@@ -467,5 +467,3 @@
 	<Job Name="C:\\DncFiles\\test_circle_rect_1.ucj" StartTime="2024-06-06  07:11:35" EndTime="2024-06-06  07:11:55" TotalTime="00:00:20" MachineTime="00:00:12" StartType="C:\DncFiles\Industry4\test_circle_rect.i4t|JOB1.1.1.1.1.2" EndType="Job completed." Connection="M3521 (21163)" OEMName="ADVA (21163)" Material="ABS Plastic | 0.063 (1/16)in" PD_Count="3" Length="18.356" Size="4.00 x 4.00"/>
 
 	<Job Name="C:\\DncFiles\\test_circle_rect_1.ucj" StartTime="2024-06-06  07:11:57" EndTime="2024-06-06  07:12:18" TotalTime="00:00:21" MachineTime="00:00:12" StartType="C:\DncFiles\Industry4\test_circle_rect.i4t|JOB1.1.1.1.1.2" EndType="Job completed." Connection="M3521 (21163)" OEMName="ADVA (21163)" Material="ABS Plastic | 0.063 (1/16)in" PD_Count="3" Length="18.356" Size="4.00 x 4.00"/>
-
-</Jobs>

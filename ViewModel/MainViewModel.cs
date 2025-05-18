@@ -455,8 +455,9 @@ namespace JobReporter2.ViewModel
                     FilePath = args[1];
                     SettingsHelper.SaveXjhDirectory(FilePath); 
 
-                    DataSet dataSet = new DataSet();
-                    dataSet.ReadXml(FilePath);
+                    // DataSet dataSet = new DataSet();
+                    // dataSet.ReadXml(FilePath);
+                    DataSet dataSet = XjhParser.ReadXjh(FilePath);
                     ProcessDataSet(dataSet);
                     return; 
                 }
@@ -485,8 +486,9 @@ namespace JobReporter2.ViewModel
                     FilePath = openFileDialog.FileName;
                     SettingsHelper.SaveXjhDirectory(FilePath);
 
-                    DataSet dataSet = new DataSet();
-                    dataSet.ReadXml(FilePath);
+                    // DataSet dataSet = new DataSet();
+                    // dataSet.ReadXml(FilePath);
+                    DataSet dataSet = XjhParser.ReadXjh(FilePath);
                     ProcessDataSet(dataSet);
                 }
                 openFileDialog = null;

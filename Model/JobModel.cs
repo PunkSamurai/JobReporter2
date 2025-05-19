@@ -74,16 +74,6 @@ namespace JobReporter2.Model
 
         private double TimeSpanToValue(TimeSpan? timeSpan) => timeSpan?.TotalSeconds ?? 0;
 
-        private string FormatSliceLabel(string name, TimeSpan? time)
-        {
-            if (time == null || time.Value.TotalSeconds == 0)
-                return $"{name}: 0s";
-
-            var ts = time.Value;
-            return ts.TotalMinutes >= 1
-                ? $"{name}: {ts.Minutes}m {ts.Seconds}s"
-                : $"{name}: {ts.Seconds}s";
-        }
 
         public void GeneratePieChart()
         {

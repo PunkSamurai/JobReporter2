@@ -766,7 +766,7 @@ namespace JobReporter2.ViewModel
                         else if (reportContent.ReportModel is PlotModel plotModel)
                         {
                             // Export plot model report
-                            var pdfExporter = new PdfExporter { Width = 1920, Height = 1080 };
+                            var pdfExporter = new OxyPlot.SkiaSharp.PdfExporter { Width = 1920, Height = 1080 };
                             pdfExporter.Export(plotModel, stream);
                         }
                     }

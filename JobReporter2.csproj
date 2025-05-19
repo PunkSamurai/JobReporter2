@@ -178,6 +178,9 @@
     <PackageReference Include="OxyPlot.Core">
       <Version>2.1.2</Version>
     </PackageReference>
+    <PackageReference Include="OxyPlot.SkiaSharp">
+      <Version>2.1.2</Version>
+    </PackageReference>
     <PackageReference Include="OxyPlot.Wpf">
       <Version>2.1.2</Version>
     </PackageReference>

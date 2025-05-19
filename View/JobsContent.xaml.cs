@@ -42,7 +42,7 @@ namespace JobReporter2.View
 
         }
 
-        private class EndTypeToBrushConverter : IValueConverter
+        public class EndTypeToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
@@ -62,7 +62,7 @@ namespace JobReporter2.View
             }
         }
 
-        private class CutTimeToBrushConverter : IValueConverter
+        public class CutTimeToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
@@ -93,7 +93,7 @@ namespace JobReporter2.View
         }
 
 
-        private class PauseTimeToBrushConverter : IValueConverter
+        public class PauseTimeToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
@@ -121,7 +121,7 @@ namespace JobReporter2.View
             }
         }
 
-        private class PrepTimeToBrushConverter : IValueConverter
+        public class PrepTimeToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
@@ -147,7 +147,7 @@ namespace JobReporter2.View
             }
         }
 
-        private class TotalTimeToBrushConverter : IValueConverter
+        public class TotalTimeToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {
@@ -181,7 +181,7 @@ namespace JobReporter2.View
         }
 
 
-        private class ShiftToBrushConverter : IValueConverter
+        public class ShiftToBrushConverter : IValueConverter
         {
             public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
             {

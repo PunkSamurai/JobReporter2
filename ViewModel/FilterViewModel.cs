@@ -258,12 +258,7 @@ namespace JobReporter2.ViewModel
             }
         }
 
-        private bool CanDeleteFilter()
-        {
-            return SelectedFilter != null;
-        }
 
-        // Rest of the existing methods remain the same
         private void SaveCurrentFilter()
         {
 

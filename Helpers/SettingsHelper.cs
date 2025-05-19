@@ -11,10 +11,27 @@ namespace JobReporter2.Helpers
 {
     public static class SettingsHelper
     {
-        private static readonly string SettingsFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "JobReporter",
-            "Settings");
+        private static readonly string SettingsFolder = GetSettingsFolder();
+
+        private static string GetSettingsFolder()
+        {
+            // Get the current working directory name
+            string currentDirectoryName = Path.GetFileName(Environment.CurrentDirectory);
+
+            // Base path in ProgramData
+            string programDataPath = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+
+            // Try with current directory name
+            string primaryPath = Path.Combine(programDataPath, currentDirectoryName);
+
+            // If primary path doesn't exist, use default "MachineToolSuite510"
+            string basePath = Directory.Exists(primaryPath)
+                ? primaryPath
+                : Path.Combine(programDataPath, "MachineToolSuite510");
+
+            // Append JobReporter/Settings
+            return Path.Combine(basePath, "JobReporter", "Settings");
+        }
 
         private static readonly string SettingsFilePath = Path.Combine(SettingsFolder, "Settings.json");
 

@@ -17,9 +17,6 @@ namespace JobReporter2.Helpers
             "Settings");
 
         private static readonly string SettingsFilePath = Path.Combine(SettingsFolder, "Settings.json");
-        private static readonly string DefaultSettingsPath = Path.Combine(
-            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-            "DefaultSettings.json");
 
         static SettingsHelper()
         {
@@ -51,41 +48,35 @@ namespace JobReporter2.Helpers
             {
                 try
                 {
-                    // If default settings file exists, copy it
-                    if (File.Exists(DefaultSettingsPath))
+                    
+                    // create a new settings file with default content
+                    var defaultSettings = new SettingsModel
                     {
-                        File.Copy(DefaultSettingsPath, SettingsFilePath);
-                    }
-                    else
-                    {
-                        // Otherwise create a new settings file with default content
-                        var defaultSettings = new SettingsModel
+                        Shifts = new ObservableCollection<ShiftModel>
                         {
-                            Shifts = new ObservableCollection<ShiftModel>
-                            {
-                                new ShiftModel { Name = "Shift 1", IsEnabled = true, StartTime = TimeSpan.Parse("09:00:00"), EndTime = TimeSpan.Parse("17:00:00") },
-                                new ShiftModel { Name = "Shift 2", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
-                                new ShiftModel { Name = "Shift 3", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
-                                new ShiftModel { Name = "Shift 4", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
-                                new ShiftModel { Name = "Shift 5", IsEnabled = false, StartTime = TimeSpan.Parse("00:01:00"), EndTime = TimeSpan.Parse("23:59:00") }
-                            },
-                            Filters = new List<FilterModel>(),
-                            Thresholds = new List<ThresholdModel>
-                            {
-                                new ThresholdModel { Name = "PrepTime", IsEnabled = true, Value1 = 15, Value2 = 30, Unit = "Minutes" },
-                                new ThresholdModel { Name = "PauseTime", IsEnabled = true, Value1 = 50, Value2 = 75, Unit = "Percent" },
-                                new ThresholdModel { Name = "CutTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" },
-                                new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" }
-                            },
-                            XjhDirectory = "",
-                            ReportDirectory = "",
-                            CsvDirectory = ""
-                        };
+                            new ShiftModel { Name = "Shift 1", IsEnabled = true, StartTime = TimeSpan.Parse("09:00:00"), EndTime = TimeSpan.Parse("17:00:00") },
+                            new ShiftModel { Name = "Shift 2", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                            new ShiftModel { Name = "Shift 3", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                            new ShiftModel { Name = "Shift 4", IsEnabled = false, StartTime = TimeSpan.Parse("00:00:00"), EndTime = TimeSpan.Parse("23:59:00") },
+                            new ShiftModel { Name = "Shift 5", IsEnabled = false, StartTime = TimeSpan.Parse("00:01:00"), EndTime = TimeSpan.Parse("23:59:00") }
+                        },
+                        Filters = new List<FilterModel>(),
+                        Thresholds = new List<ThresholdModel>
+                        {
+                            new ThresholdModel { Name = "PrepTime", IsEnabled = true, Value1 = 15, Value2 = 30, Unit = "Minutes" },
+                            new ThresholdModel { Name = "PauseTime", IsEnabled = true, Value1 = 50, Value2 = 75, Unit = "Percent" },
+                            new ThresholdModel { Name = "CutTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" },
+                            new ThresholdModel { Name = "TotalTime", IsEnabled = false, Value1 = 75, Value2 = 50, Unit = "Percent" }
+                        },
+                        XjhDirectory = "",
+                        ReportDirectory = "",
+                        CsvDirectory = ""
+                    };
 
-                        string json = JsonConvert.SerializeObject(defaultSettings, Formatting.Indented);
-                        File.WriteAllText(SettingsFilePath, json);
-                        Console.WriteLine("Created new settings file at " + SettingsFilePath);
-                    }
+                    string json = JsonConvert.SerializeObject(defaultSettings, Formatting.Indented);
+                    File.WriteAllText(SettingsFilePath, json);
+                    Console.WriteLine("Created new settings file at " + SettingsFilePath);
+                    
                 }
                 catch (Exception ex)
                 {

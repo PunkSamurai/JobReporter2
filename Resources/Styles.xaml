@@ -43,7 +43,7 @@
                 Command="{Binding ExportCommand}"
                 ToolTip="Export to PDF">
             </Button>
-            <!-- Close Button - Styled Better -->
+            <!-- Close Button -->
             <Button Grid.Column="2" 
                 Content="✕" 
                 FontSize="12"

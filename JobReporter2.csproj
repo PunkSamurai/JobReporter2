@@ -160,17 +160,12 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="app.manifest" />
-    <None Include="JobDataset.xsd">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="JobHistory4.xjh" />
     <None Include="JobHistory3.xjh" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="DefaultSettings.json" />
-    <None Include="Settings.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

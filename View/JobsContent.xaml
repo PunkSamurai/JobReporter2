@@ -21,7 +21,7 @@
             <!-- Header panel -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,0">
                 <StackPanel Orientation="Vertical">
-                    <Button Content="Edit Filters" Command="{Binding OpenFilterCommand}" Margin="0,0,10,0" Height="45" Width="120"/>
+                    <Button Content="Set Filters" Command="{Binding OpenFilterCommand}" Margin="0,0,10,0" Height="45" Width="120"/>
                     <Button Content="Clear Filters" Command="{Binding ClearFilterCommand}" Margin="0,10,10,0" Height="45" />
                 </StackPanel>
                 <TextBox Text="{Binding SelectedFilter}" IsReadOnly="True" Width="900" Height="100" TextWrapping="Wrap" AcceptsReturn="True" 
